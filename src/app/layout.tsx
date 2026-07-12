@@ -22,6 +22,11 @@ export const metadata: Metadata = {
     title: "Ana Varela",
     description,
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ana Varela",
+    description,
+  },
 };
 
 export default function RootLayout({
