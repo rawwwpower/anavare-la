@@ -1,8 +1,10 @@
 import { links } from "@/lib/links";
+import { BouncyBall } from "@/components/bouncy-ball";
 
 export default function Home() {
   return (
     <main className="w-full max-w-2xl mx-auto px-6 pt-16 pb-16 sm:px-8 sm:pt-24">
+      <BouncyBall />
       <div className="flex flex-col gap-6 md:flex-row md:items-baseline md:justify-between md:gap-16">
         <div className="max-w-sm">
           <h1 className="text-xl font-medium tracking-tight text-zinc-900 sm:text-2xl">
