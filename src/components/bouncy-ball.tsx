@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Vending-machine bouncy ball: drops from the top the first time the user
 // tries to scroll after DWELL_MS on the page. Physics tuned to feel like the
@@ -9,6 +9,9 @@ import { useEffect, useRef } from "react";
 
 const DWELL_MS = 4000;
 const SIZE = 64;
+// Drop a square transparent PNG here (ball filling the canvas, ~512x512) and
+// it replaces the CSS-drawn eyeball. Until then the CSS version renders.
+const IMAGE_SRC = "/toys/eyeball.png";
 const GRAVITY = 2600; // px/s²
 const BOUNCE = 0.74;
 const WALL_BOUNCE = 0.6;
@@ -20,6 +23,15 @@ export function BouncyBall() {
   const squashRef = useRef<HTMLDivElement>(null);
   const spinRef = useRef<HTMLDivElement>(null);
   const shadowRef = useRef<HTMLDivElement>(null);
+  const [hasImage, setHasImage] = useState(true);
+
+  // Probe the asset after mount: a broken <img> can error before React
+  // hydrates, in which case its onError never fires.
+  useEffect(() => {
+    const probe = new window.Image();
+    probe.onerror = () => setHasImage(false);
+    probe.src = IMAGE_SRC;
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -187,98 +199,122 @@ export function BouncyBall() {
       >
         <div
           ref={squashRef}
-          className="h-full w-full overflow-hidden rounded-full"
+          className="h-full w-full rounded-full"
           style={{
             transformOrigin: "50% 100%",
-            background:
-              "radial-gradient(circle at 35% 30%, #ffffff 0%, #f7f8f0 38%, #e6ead6 62%, #c6cfa9 84%, #99a37c 100%)",
-            boxShadow:
-              "0 0 26px 5px rgba(190,235,130,0.4), 0 0 60px 14px rgba(160,220,110,0.16), inset -6px -8px 14px rgba(120,140,80,0.25)",
+            ...(hasImage
+              ? {}
+              : {
+                  overflow: "hidden",
+                  background:
+                    "radial-gradient(circle at 35% 30%, #ffffff 0%, #f7f8f0 38%, #e6ead6 62%, #c6cfa9 84%, #99a37c 100%)",
+                  boxShadow:
+                    "0 0 26px 5px rgba(190,235,130,0.4), 0 0 60px 14px rgba(160,220,110,0.16), inset -6px -8px 14px rgba(120,140,80,0.25)",
+                }),
           }}
         >
-          {/* Material layer: iris + veins tumble with the ball's spin */}
+          {/* Material layer: everything here tumbles with the ball's spin */}
           <div ref={spinRef} className="absolute inset-0">
-            <svg
-              viewBox="0 0 64 64"
-              className="absolute inset-0 h-full w-full"
-              fill="none"
-              strokeLinecap="round"
-            >
-              <path
-                d="M2 30 C 10 27, 17 29, 24 33"
-                stroke="#b03a30"
-                strokeWidth="0.9"
-                opacity="0.55"
-              />
-              <path
-                d="M4 42 C 12 39, 19 39, 26 37"
-                stroke="#c04a3a"
-                strokeWidth="0.7"
-                opacity="0.4"
-              />
-              <path
-                d="M9 18 C 15 21, 20 25, 25 29"
-                stroke="#b03a30"
-                strokeWidth="0.7"
-                opacity="0.45"
-              />
-              <path
-                d="M62 40 C 54 37, 48 38, 43 40"
-                stroke="#b03a30"
-                strokeWidth="0.9"
-                opacity="0.5"
-              />
-              <path
-                d="M60 52 C 53 48, 48 46, 44 44"
-                stroke="#c04a3a"
-                strokeWidth="0.7"
-                opacity="0.38"
-              />
-              <path
-                d="M30 62 C 30 56, 31 51, 32 47"
-                stroke="#b03a30"
-                strokeWidth="0.8"
-                opacity="0.42"
-              />
-              <path
-                d="M14 52 C 19 48, 23 45, 27 42"
-                stroke="#c04a3a"
-                strokeWidth="0.6"
-                opacity="0.35"
-              />
-            </svg>
-            {/* Iris: dark limbal ring, amber body, black pupil */}
-            <div
-              className="absolute rounded-full"
-              style={{
-                width: SIZE * 0.47,
-                height: SIZE * 0.47,
-                left: "44%",
-                top: "16%",
-                background:
-                  "radial-gradient(circle at 46% 44%, #000000 0% 32%, #4a2c0a 38%, #8a5a16 50%, #a8701e 60%, #7a4a10 72%, #3d2606 84%, #17110a 93%, rgba(10,8,4,0) 97%)",
-              }}
-            >
-              <div
-                className="absolute rounded-full bg-white"
+            {hasImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={IMAGE_SRC}
+                alt=""
+                draggable={false}
+                className="h-full w-full select-none"
                 style={{
-                  width: SIZE * 0.07,
-                  height: SIZE * 0.07,
-                  left: "34%",
-                  top: "28%",
-                  opacity: 0.95,
+                  filter:
+                    "drop-shadow(0 0 10px rgba(190,235,130,0.5)) drop-shadow(0 0 26px rgba(160,220,110,0.25))",
                 }}
+                onError={() => setHasImage(false)}
               />
-            </div>
+            ) : (
+              <>
+                <svg
+                  viewBox="0 0 64 64"
+                  className="absolute inset-0 h-full w-full"
+                  fill="none"
+                  strokeLinecap="round"
+                >
+                  <path
+                    d="M2 30 C 10 27, 17 29, 24 33"
+                    stroke="#b03a30"
+                    strokeWidth="0.9"
+                    opacity="0.55"
+                  />
+                  <path
+                    d="M4 42 C 12 39, 19 39, 26 37"
+                    stroke="#c04a3a"
+                    strokeWidth="0.7"
+                    opacity="0.4"
+                  />
+                  <path
+                    d="M9 18 C 15 21, 20 25, 25 29"
+                    stroke="#b03a30"
+                    strokeWidth="0.7"
+                    opacity="0.45"
+                  />
+                  <path
+                    d="M62 40 C 54 37, 48 38, 43 40"
+                    stroke="#b03a30"
+                    strokeWidth="0.9"
+                    opacity="0.5"
+                  />
+                  <path
+                    d="M60 52 C 53 48, 48 46, 44 44"
+                    stroke="#c04a3a"
+                    strokeWidth="0.7"
+                    opacity="0.38"
+                  />
+                  <path
+                    d="M30 62 C 30 56, 31 51, 32 47"
+                    stroke="#b03a30"
+                    strokeWidth="0.8"
+                    opacity="0.42"
+                  />
+                  <path
+                    d="M14 52 C 19 48, 23 45, 27 42"
+                    stroke="#c04a3a"
+                    strokeWidth="0.6"
+                    opacity="0.35"
+                  />
+                </svg>
+                {/* Iris: dark limbal ring, amber body, black pupil */}
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    width: SIZE * 0.47,
+                    height: SIZE * 0.47,
+                    left: "44%",
+                    top: "16%",
+                    background:
+                      "radial-gradient(circle at 46% 44%, #000000 0% 32%, #4a2c0a 38%, #8a5a16 50%, #a8701e 60%, #7a4a10 72%, #3d2606 84%, #17110a 93%, rgba(10,8,4,0) 97%)",
+                  }}
+                >
+                  <div
+                    className="absolute rounded-full bg-white"
+                    style={{
+                      width: SIZE * 0.07,
+                      height: SIZE * 0.07,
+                      left: "34%",
+                      top: "28%",
+                      opacity: 0.95,
+                    }}
+                  />
+                </div>
+              </>
+            )}
           </div>
           {/* Gloss layer: highlights track the light, so they don't spin */}
-          <div
-            className="absolute inset-0 rounded-full"
-            style={{
-              background:
-                "radial-gradient(ellipse 30% 20% at 30% 18%, rgba(255,255,255,0.9), rgba(255,255,255,0) 100%), radial-gradient(ellipse 50% 32% at 66% 96%, rgba(205,245,150,0.35), transparent 100%)",
-            }}
-          />
+          {!hasImage && (
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(ellipse 30% 20% at 30% 18%, rgba(255,255,255,0.9), rgba(255,255,255,0) 100%), radial-gradient(ellipse 50% 32% at 66% 96%, rgba(205,245,150,0.35), transparent 100%)",
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
