@@ -7,10 +7,10 @@ export default function Home() {
       <BouncyBall />
       <div className="flex flex-col gap-6 md:flex-row md:items-baseline md:justify-between md:gap-16">
         <div className="max-w-sm">
-          <h1 className="text-xl font-medium tracking-tight text-zinc-900 sm:text-2xl">
+          <h1 className="text-xl font-medium tracking-tight text-zinc-100 sm:text-2xl">
             Ana Varela
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-500 sm:text-base">
+          <p className="mt-3 text-sm leading-relaxed text-zinc-400 sm:text-base">
             designer based in Argentina. Raised by FADU & soulseek and making
             the internet fun (and raw) again.
           </p>
@@ -24,7 +24,7 @@ export default function Home() {
                   href={link.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="-m-3 inline-block p-3 text-zinc-500 underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-900 hover:decoration-zinc-400"
+                  className="-m-3 inline-block p-3 text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-colors hover:text-zinc-100 hover:decoration-zinc-400"
                 >
                   {link.label}
                 </a>
