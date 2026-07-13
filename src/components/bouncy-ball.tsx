@@ -44,6 +44,7 @@ export function BouncyBall() {
 
     let armed = false;
     let launched = false;
+    let running = false;
     let rafId = 0;
 
     const armTimer = setTimeout(() => {
@@ -131,8 +132,30 @@ export function BouncyBall() {
 
       render();
 
-      if (resting && vx === 0 && squash < 0.01) return;
+      if (resting && vx === 0 && squash < 0.01) {
+        running = false;
+        return;
+      }
       rafId = requestAnimationFrame(step);
+    }
+
+    function startLoop() {
+      if (running) return;
+      running = true;
+      last = performance.now();
+      rafId = requestAnimationFrame(step);
+    }
+
+    // Tap the ball for a short basketball-style dribble off the floor:
+    // much smaller impulse than the initial drop, so it pops up briefly
+    // and settles again after a couple of bounces.
+    function dribble() {
+      if (!launched) return;
+      resting = false;
+      squash = Math.max(squash, 0.35);
+      vy = -(700 + Math.random() * 250);
+      vx += (Math.random() - 0.5) * 120;
+      startLoop();
     }
 
     function launch() {
@@ -147,8 +170,9 @@ export function BouncyBall() {
       rotDeg = Math.random() * 360;
 
       ball!.style.opacity = "1";
-      last = performance.now();
-      rafId = requestAnimationFrame(step);
+      ball!.style.pointerEvents = "auto";
+      ball!.style.cursor = "pointer";
+      startLoop();
       removeListeners();
     }
 
@@ -172,11 +196,13 @@ export function BouncyBall() {
     window.addEventListener("touchmove", onIntent, { passive: true });
     window.addEventListener("scroll", onIntent, { passive: true });
     window.addEventListener("keydown", onKey);
+    ball.addEventListener("pointerdown", dribble);
 
     return () => {
       clearTimeout(armTimer);
       cancelAnimationFrame(rafId);
       removeListeners();
+      ball.removeEventListener("pointerdown", dribble);
     };
   }, []);
 
