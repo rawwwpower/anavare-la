@@ -35,8 +35,8 @@ export function HoverPreviewLink({
           <img
             src={previewSrc}
             alt=""
-            width={120}
-            height={120}
+            width={110}
+            height={150}
             className="rounded-sm shadow-lg"
             draggable={false}
           />

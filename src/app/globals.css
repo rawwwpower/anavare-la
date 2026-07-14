@@ -26,10 +26,10 @@ body {
 
 .hover-preview-image {
   position: absolute;
-  bottom: 100%;
+  top: 100%;
   left: 50%;
   z-index: 20;
-  margin-bottom: 12px;
+  margin-top: 12px;
   transform: translateX(-50%);
   opacity: 0;
   pointer-events: none;
