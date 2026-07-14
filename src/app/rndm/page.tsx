@@ -8,7 +8,7 @@ export default function RndmPage() {
       }}
     >
       <p className="font-mono text-xs tracking-[0.2em] sm:text-sm">
-        Nacida y criada en Argentina, un país bicontinental.
+        Created in Argentina, a bicontinental country.
       </p>
     </main>
   );

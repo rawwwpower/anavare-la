@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { links } from "@/lib/links";
 import { BouncyBall } from "@/components/bouncy-ball";
-import { HoverPreviewLink } from "@/components/hover-preview-link";
 import { DisplayProvider, DisplayStage } from "@/components/display-stage";
 
 const linkClassName =
@@ -22,13 +21,14 @@ export default function Home() {
 
         <p className="mt-12 max-w-md text-base leading-relaxed text-zinc-400 sm:mt-14">
           You might know me as{" "}
-          <HoverPreviewLink
+          <a
             href="https://youtu.be/ED3mufU58bk?si=6SR5NY0_-KCdtNQ-&t=75"
-            previewSrc="/toys/raw-power-halftone.png"
+            target="_blank"
+            rel="noreferrer"
             className="underline decoration-zinc-600 underline-offset-4 transition-colors hover:text-zinc-100 hover:decoration-zinc-400"
           >
             raw power
-          </HoverPreviewLink>
+          </a>
           . Raised by FADU & soulseek, keeping an eye on what&apos;s moving on
           the web.
         </p>
