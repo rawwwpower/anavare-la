@@ -17,27 +17,3 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
-
-/* Stooges "Raw Power" halftone preview: desktop-hover only, gated so it
-   never shows on touch devices even if a stray :hover fires. */
-.hover-preview-trigger {
-  position: relative;
-}
-
-.hover-preview-image {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  z-index: 20;
-  margin-top: 12px;
-  transform: translateX(-50%);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 150ms ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .hover-preview-trigger:hover .hover-preview-image {
-    opacity: 1;
-  }
-}

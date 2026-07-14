@@ -17,6 +17,8 @@ const BOUNCE = 0.74;
 const WALL_BOUNCE = 0.6;
 const ROLL_FRICTION = 320; // px/s²
 const SETTLE_SPEED = 90; // px/s
+const STEP_PAD_X = 16; // clearance around the links column, so the ball
+const STEP_PAD_Y = 18; // never overlaps a link even at the closest approach
 
 export function BouncyBall() {
   const ballRef = useRef<HTMLDivElement>(null);
@@ -62,19 +64,51 @@ export function BouncyBall() {
 
     const radius = SIZE / 2;
 
+    // The links column acts as a raised step: its invisible bounding box
+    // (padded) becomes the local floor for any x the ball shares with it,
+    // so the ball can bounce near the links but never lands on top of one.
+    // Refreshed on launch/dribble/resize rather than every frame.
+    let stepZone: { left: number; right: number; top: number } | null = null;
+
+    function refreshStepZone() {
+      const nav = document.querySelector('nav[aria-label="Social links"]');
+      const items = nav ? Array.from(nav.querySelectorAll("a")) : [];
+      if (!items.length) {
+        stepZone = null;
+        return;
+      }
+      const rects = items.map((el) => el.getBoundingClientRect());
+      stepZone = {
+        left: Math.min(...rects.map((r) => r.left)) - STEP_PAD_X,
+        right: Math.max(...rects.map((r) => r.right)) + STEP_PAD_X,
+        top: Math.min(...rects.map((r) => r.top)) - STEP_PAD_Y,
+      };
+    }
+
+    function floorAt(xPos: number) {
+      const trueFloor = window.innerHeight - SIZE;
+      if (
+        stepZone &&
+        xPos + SIZE > stepZone.left &&
+        xPos < stepZone.right
+      ) {
+        return Math.min(trueFloor, stepZone.top - SIZE);
+      }
+      return trueFloor;
+    }
+
     function render() {
-      const floor = window.innerHeight - SIZE;
+      const floor = floorAt(x);
       ball!.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       squashEl!.style.transform = `scale(${1 + 0.22 * squash}, ${1 - 0.3 * squash})`;
       spinEl!.style.transform = `rotate(${rotDeg}deg)`;
 
       const proximity = Math.max(0, Math.min(1, 1 - (floor - y) / 300));
       shadowEl!.style.opacity = `${proximity * 0.5}`;
-      shadowEl!.style.transform = `translate3d(${x + SIZE / 2}px, ${window.innerHeight - 7}px, 0) translateX(-50%) scaleX(${0.6 + 0.4 * proximity})`;
+      shadowEl!.style.transform = `translate3d(${x + SIZE / 2}px, ${floor + SIZE - 7}px, 0) translateX(-50%) scaleX(${0.6 + 0.4 * proximity})`;
     }
 
     function simulate(dt: number) {
-      const floor = window.innerHeight - SIZE;
       const rightWall = window.innerWidth - SIZE;
 
       if (!resting) {
@@ -90,6 +124,7 @@ export function BouncyBall() {
           vx = -vx * WALL_BOUNCE;
         }
 
+        const floor = floorAt(x);
         if (y >= floor && vy > 0) {
           y = floor;
           squash = Math.min(1, Math.abs(vy) / 1500);
@@ -103,14 +138,24 @@ export function BouncyBall() {
       } else {
         const decel = ROLL_FRICTION * dt;
         vx = Math.abs(vx) <= decel ? 0 : vx - Math.sign(vx) * decel;
-        x += vx * dt;
-        y = floor;
-        if (x < 0) {
-          x = 0;
-          vx = 0;
-        } else if (x > rightWall) {
-          x = rightWall;
-          vx = 0;
+        const newX = Math.min(Math.max(x + vx * dt, 0), rightWall);
+        if (newX === 0 || newX === rightWall) vx = 0;
+
+        const oldFloor = floorAt(x);
+        const newFloor = floorAt(newX);
+        x = newX;
+
+        if (newFloor < oldFloor - 1) {
+          // Rolled up against a step (a link's protected zone): hop onto it.
+          resting = false;
+          y = newFloor;
+          vy = -420;
+        } else if (newFloor > oldFloor + 1) {
+          // Rolled off the edge of a step: fall to the lower floor.
+          resting = false;
+          vy = 0;
+        } else {
+          y = newFloor;
         }
       }
 
@@ -151,6 +196,7 @@ export function BouncyBall() {
     // and settles again after a couple of bounces.
     function dribble() {
       if (!launched) return;
+      refreshStepZone();
       resting = false;
       squash = Math.max(squash, 0.35);
       vy = -(700 + Math.random() * 250);
@@ -161,6 +207,7 @@ export function BouncyBall() {
     function launch() {
       if (launched) return;
       launched = true;
+      refreshStepZone();
 
       const margin = window.innerWidth * 0.15;
       x = margin + Math.random() * (window.innerWidth - margin * 2 - SIZE);
@@ -196,12 +243,14 @@ export function BouncyBall() {
     window.addEventListener("touchmove", onIntent, { passive: true });
     window.addEventListener("scroll", onIntent, { passive: true });
     window.addEventListener("keydown", onKey);
+    window.addEventListener("resize", refreshStepZone);
     ball.addEventListener("pointerdown", dribble);
 
     return () => {
       clearTimeout(armTimer);
       cancelAnimationFrame(rafId);
       removeListeners();
+      window.removeEventListener("resize", refreshStepZone);
       ball.removeEventListener("pointerdown", dribble);
     };
   }, []);
