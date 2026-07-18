@@ -10,6 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-switzer);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-eb-garamond), Garamond, Georgia, serif;
 }
 
 body {

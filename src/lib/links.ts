@@ -1,10 +1,16 @@
 export const links = [
-  { label: "X", href: "https://x.com/_rawpower", external: true },
-  { label: "GitHub", href: "https://github.com/rawwwpower", external: true },
+  {
+    label: "GitHub",
+    href: "https://github.com/rawwwpower",
+    external: true,
+    aria: "GitHub",
+  },
+  { label: "X", href: "https://x.com/_rawpower", external: true, aria: "X" },
   {
     label: "in",
     href: "https://www.linkedin.com/in/anabelenv",
     external: true,
+    aria: "LinkedIn",
   },
-  { label: "rndm", href: "/rndm", external: false },
+  { label: "rndm", href: "/rndm", external: false, aria: "rndm" },
 ];

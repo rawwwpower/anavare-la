@@ -64,24 +64,27 @@ export function BouncyBall() {
 
     const radius = SIZE / 2;
 
-    // The links column acts as a raised step: its invisible bounding box
-    // (padded) becomes the local floor for any x the ball shares with it,
-    // so the ball can bounce near the links but never lands on top of one.
+    // The links row acts as one raised step: the whole row's bounding box
+    // (padded) becomes a single continuous shelf — an imaginary line drawn
+    // across the links — so the ball rests on top of the row and never lands
+    // between or on top of a link. Using the row box (not each link) keeps it
+    // one flat line instead of the staircase the old vertical stack produced.
     // Refreshed on launch/dribble/resize rather than every frame.
     let stepZone: { left: number; right: number; top: number } | null = null;
 
     function refreshStepZone() {
-      const nav = document.querySelector('nav[aria-label="Social links"]');
-      const items = nav ? Array.from(nav.querySelectorAll("a")) : [];
-      if (!items.length) {
+      const list = document.querySelector(
+        'nav[aria-label="Social links"] ul',
+      );
+      const rect = list?.getBoundingClientRect();
+      if (!rect || !rect.width) {
         stepZone = null;
         return;
       }
-      const rects = items.map((el) => el.getBoundingClientRect());
       stepZone = {
-        left: Math.min(...rects.map((r) => r.left)) - STEP_PAD_X,
-        right: Math.max(...rects.map((r) => r.right)) + STEP_PAD_X,
-        top: Math.min(...rects.map((r) => r.top)) - STEP_PAD_Y,
+        left: rect.left - STEP_PAD_X,
+        right: rect.right + STEP_PAD_X,
+        top: rect.top - STEP_PAD_Y,
       };
     }
 

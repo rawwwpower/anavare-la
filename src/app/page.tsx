@@ -4,12 +4,12 @@ import { BouncyBall } from "@/components/bouncy-ball";
 import { DisplayProvider, DisplayStage } from "@/components/display-stage";
 
 const linkClassName =
-  "-m-3 inline-block p-3 text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-colors hover:text-zinc-100 hover:decoration-zinc-400";
+  "inline-flex min-h-11 items-center px-3 text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-colors hover:text-zinc-100 hover:decoration-zinc-400 focus-visible:text-zinc-100 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
 
 export default function Home() {
   return (
     <DisplayProvider>
-      <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-6 py-16 sm:px-8 sm:py-20">
+      <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-6 py-16 sm:px-8 sm:py-20">
         <BouncyBall />
 
         <div>
@@ -36,7 +36,7 @@ export default function Home() {
         <DisplayStage className="my-10 flex flex-1 min-h-40 items-center justify-center sm:my-14" />
 
         <nav aria-label="Social links">
-          <ul className="flex flex-col items-start gap-2 text-base">
+          <ul className="-ml-3 flex flex-row flex-wrap items-center text-base">
             {links.map((link) => (
               <li key={link.label}>
                 {link.external ? (
@@ -44,12 +44,17 @@ export default function Home() {
                     href={link.href}
                     target="_blank"
                     rel="noreferrer"
+                    aria-label={link.aria}
                     className={linkClassName}
                   >
                     {link.label}
                   </a>
                 ) : (
-                  <Link href={link.href} className={linkClassName}>
+                  <Link
+                    href={link.href}
+                    aria-label={link.aria}
+                    className={linkClassName}
+                  >
                     {link.label}
                   </Link>
                 )}
