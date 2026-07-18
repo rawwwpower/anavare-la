@@ -23,19 +23,19 @@ export default function RndmPage() {
           style={{ outlineColor: "var(--background)" }}
         >
           <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
+            width="34"
+            height="12"
+            viewBox="0 0 34 12"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1.5"
+            strokeWidth="1"
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
             className="transition-transform duration-200 ease-out group-hover:-translate-x-0.5 motion-reduce:transform-none"
           >
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="11 5 4 12 11 19" />
+            <path d="M33 6 H1" />
+            <path d="M6.5 1 L1 6 L6.5 11" />
           </svg>
         </Link>
       </nav>
