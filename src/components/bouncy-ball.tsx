@@ -17,7 +17,7 @@ const BOUNCE = 0.74;
 const WALL_BOUNCE = 0.6;
 const ROLL_FRICTION = 320; // px/s²
 const SETTLE_SPEED = 90; // px/s
-const STEP_PAD_X = 16; // clearance around the links column, so the ball
+const STEP_PAD_X = 16; // clearance around the links row, so the ball
 const STEP_PAD_Y = 18; // never overlaps a link even at the closest approach
 
 export function BouncyBall() {
@@ -115,6 +115,7 @@ export function BouncyBall() {
       const rightWall = window.innerWidth - SIZE;
 
       if (!resting) {
+        const prevY = y;
         vy += GRAVITY * dt;
         x += vx * dt;
         y += vy * dt;
@@ -125,6 +126,26 @@ export function BouncyBall() {
         } else if (x > rightWall) {
           x = rightWall;
           vx = -vx * WALL_BOUNCE;
+        }
+
+        // The shelf is a solid block: a ball that was already below the
+        // shelf line (approaching from the side, not from above) bounces
+        // off the zone's edges instead of crossing in front of the links.
+        if (
+          stepZone &&
+          prevY + SIZE > stepZone.top + 0.5 &&
+          x + SIZE > stepZone.left &&
+          x < stepZone.right
+        ) {
+          const distLeft = x + SIZE - stepZone.left;
+          const distRight = stepZone.right - x;
+          if (distLeft <= distRight && stepZone.left - SIZE >= 0) {
+            x = stepZone.left - SIZE;
+            vx = -Math.abs(vx) * WALL_BOUNCE;
+          } else if (distRight < distLeft && stepZone.right <= rightWall) {
+            x = stepZone.right;
+            vx = Math.abs(vx) * WALL_BOUNCE;
+          }
         }
 
         const floor = floorAt(x);
@@ -146,18 +167,17 @@ export function BouncyBall() {
 
         const oldFloor = floorAt(x);
         const newFloor = floorAt(newX);
-        x = newX;
 
         if (newFloor < oldFloor - 1) {
-          // Rolled up against a step (a link's protected zone): hop onto it.
-          resting = false;
-          y = newFloor;
-          vy = -420;
+          // Rolled into the shelf's side: it's solid, bounce back off it.
+          vx = -vx * WALL_BOUNCE;
         } else if (newFloor > oldFloor + 1) {
-          // Rolled off the edge of a step: fall to the lower floor.
+          // Rolled off the edge of the shelf: fall to the lower floor.
+          x = newX;
           resting = false;
           vy = 0;
         } else {
+          x = newX;
           y = newFloor;
         }
       }
@@ -229,6 +249,18 @@ export function BouncyBall() {
     function onIntent() {
       if (armed) launch();
     }
+
+    // The step zone lives in viewport coordinates, so any scroll or
+    // visual-viewport change (iOS Safari collapsing its bars) moves the
+    // links out from under it. Recompute and wake the ball so it
+    // re-settles against the shelf's real position.
+    function onViewportChange() {
+      refreshStepZone();
+      if (launched && !running) {
+        resting = false;
+        startLoop();
+      }
+    }
     function onKey(e: KeyboardEvent) {
       if (["ArrowDown", "ArrowUp", "PageDown", "Space", " "].includes(e.key)) {
         onIntent();
@@ -246,14 +278,18 @@ export function BouncyBall() {
     window.addEventListener("touchmove", onIntent, { passive: true });
     window.addEventListener("scroll", onIntent, { passive: true });
     window.addEventListener("keydown", onKey);
-    window.addEventListener("resize", refreshStepZone);
+    window.addEventListener("resize", onViewportChange);
+    window.addEventListener("scroll", onViewportChange, { passive: true });
+    window.visualViewport?.addEventListener("resize", onViewportChange);
     ball.addEventListener("pointerdown", dribble);
 
     return () => {
       clearTimeout(armTimer);
       cancelAnimationFrame(rafId);
       removeListeners();
-      window.removeEventListener("resize", refreshStepZone);
+      window.removeEventListener("resize", onViewportChange);
+      window.removeEventListener("scroll", onViewportChange);
+      window.visualViewport?.removeEventListener("resize", onViewportChange);
       ball.removeEventListener("pointerdown", dribble);
     };
   }, []);

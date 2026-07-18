@@ -9,7 +9,7 @@ const linkClassName =
 export default function Home() {
   return (
     <DisplayProvider>
-      <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-6 py-16 sm:px-8 sm:py-20">
+      <main className="mx-auto flex min-h-svh w-full max-w-3xl flex-col px-6 py-16 sm:px-8 sm:py-20">
         <BouncyBall />
 
         <div>
