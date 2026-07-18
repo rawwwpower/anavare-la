@@ -22,18 +22,60 @@ const geistMono = Geist_Mono({
 const description =
   "designer based in Argentina. Raised by FADU & soulseek and making the internet fun (and raw) again.";
 
+const socialLinks = [
+  "https://x.com/_rawpower",
+  "https://github.com/rawwwpower",
+  "https://www.linkedin.com/in/anabelenv",
+];
+
 export const metadata: Metadata = {
-  title: "Ana Varela",
+  metadataBase: new URL("https://anavare.la"),
+  title: {
+    default: "Ana Varela, designer",
+    template: "%s · Ana Varela",
+  },
   description,
+  keywords: [
+    "Ana Varela",
+    "designer",
+    "product designer",
+    "diseñadora de producto",
+    "designer Argentina",
+    "raw power",
+    "portfolio",
+  ],
+  authors: [{ name: "Ana Varela", url: "https://anavare.la" }],
+  creator: "Ana Varela",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Ana Varela",
+    type: "website",
+    url: "https://anavare.la",
+    siteName: "Ana Varela",
+    locale: "en_US",
+    title: "Ana Varela, designer",
     description,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ana Varela",
+    site: "@_rawpower",
+    creator: "@_rawpower",
+    title: "Ana Varela, designer",
     description,
   },
+};
+
+// JSON-LD: tells search engines that anavare.la and all these profiles are
+// the same person, so searches for "Ana Varela" connect back here.
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Ana Varela",
+  url: "https://anavare.la",
+  jobTitle: "Designer",
+  description,
+  sameAs: socialLinks,
 };
 
 export default function RootLayout({
@@ -47,6 +89,10 @@ export default function RootLayout({
       className={`${switzer.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
         {children}
       </body>
     </html>
