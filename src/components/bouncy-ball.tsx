@@ -11,14 +11,14 @@ const DWELL_MS = 4000;
 const SIZE = 64;
 // Drop a square transparent PNG here (ball filling the canvas, ~512x512) and
 // it replaces the CSS-drawn eyeball. Until then the CSS version renders.
-const IMAGE_SRC = "/toys/eyeball.png";
+const IMAGE_SRC = "/toys/eyeball-v2.png";
 const GRAVITY = 2600; // px/s²
-const BOUNCE = 0.74;
+const BOUNCE = 0.82;
 const WALL_BOUNCE = 0.6;
 const ROLL_FRICTION = 320; // px/s²
-const SETTLE_SPEED = 90; // px/s
-const STEP_PAD_X = 16; // clearance around the links row, so the ball
-const STEP_PAD_Y = 18; // never overlaps a link even at the closest approach
+const SETTLE_SPEED = 55; // px/s
+const STEP_PAD_Y = 18; // clearance above the links row, so the ball
+// never overlaps a link even at the closest approach
 
 export function BouncyBall() {
   const ballRef = useRef<HTMLDivElement>(null);
@@ -64,13 +64,12 @@ export function BouncyBall() {
 
     const radius = SIZE / 2;
 
-    // The links row acts as one raised step: the whole row's bounding box
-    // (padded) becomes a single continuous shelf — an imaginary line drawn
-    // across the links — so the ball rests on top of the row and never lands
-    // between or on top of a link. Using the row box (not each link) keeps it
-    // one flat line instead of the staircase the old vertical stack produced.
+    // The links row raises the floor for the whole viewport width: an
+    // imaginary line drawn above the row, edge to edge, so the ball never
+    // lands between or on top of a link no matter where on screen it drops —
+    // including the wide empty margins beside the content column on desktop.
     // Refreshed on launch/dribble/resize rather than every frame.
-    let stepZone: { left: number; right: number; top: number } | null = null;
+    let stepZone: { top: number } | null = null;
 
     function refreshStepZone() {
       const list = document.querySelector(
@@ -81,27 +80,16 @@ export function BouncyBall() {
         stepZone = null;
         return;
       }
-      stepZone = {
-        left: rect.left - STEP_PAD_X,
-        right: rect.right + STEP_PAD_X,
-        top: rect.top - STEP_PAD_Y,
-      };
+      stepZone = { top: rect.top - STEP_PAD_Y };
     }
 
-    function floorAt(xPos: number) {
+    function floorAt() {
       const trueFloor = window.innerHeight - SIZE;
-      if (
-        stepZone &&
-        xPos + SIZE > stepZone.left &&
-        xPos < stepZone.right
-      ) {
-        return Math.min(trueFloor, stepZone.top - SIZE);
-      }
-      return trueFloor;
+      return stepZone ? Math.min(trueFloor, stepZone.top - SIZE) : trueFloor;
     }
 
     function render() {
-      const floor = floorAt(x);
+      const floor = floorAt();
       ball!.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       squashEl!.style.transform = `scale(${1 + 0.22 * squash}, ${1 - 0.3 * squash})`;
       spinEl!.style.transform = `rotate(${rotDeg}deg)`;
@@ -115,7 +103,6 @@ export function BouncyBall() {
       const rightWall = window.innerWidth - SIZE;
 
       if (!resting) {
-        const prevY = y;
         vy += GRAVITY * dt;
         x += vx * dt;
         y += vy * dt;
@@ -128,27 +115,7 @@ export function BouncyBall() {
           vx = -vx * WALL_BOUNCE;
         }
 
-        // The shelf is a solid block: a ball that was already below the
-        // shelf line (approaching from the side, not from above) bounces
-        // off the zone's edges instead of crossing in front of the links.
-        if (
-          stepZone &&
-          prevY + SIZE > stepZone.top + 0.5 &&
-          x + SIZE > stepZone.left &&
-          x < stepZone.right
-        ) {
-          const distLeft = x + SIZE - stepZone.left;
-          const distRight = stepZone.right - x;
-          if (distLeft <= distRight && stepZone.left - SIZE >= 0) {
-            x = stepZone.left - SIZE;
-            vx = -Math.abs(vx) * WALL_BOUNCE;
-          } else if (distRight < distLeft && stepZone.right <= rightWall) {
-            x = stepZone.right;
-            vx = Math.abs(vx) * WALL_BOUNCE;
-          }
-        }
-
-        const floor = floorAt(x);
+        const floor = floorAt();
         if (y >= floor && vy > 0) {
           y = floor;
           squash = Math.min(1, Math.abs(vy) / 1500);
@@ -162,24 +129,9 @@ export function BouncyBall() {
       } else {
         const decel = ROLL_FRICTION * dt;
         vx = Math.abs(vx) <= decel ? 0 : vx - Math.sign(vx) * decel;
-        const newX = Math.min(Math.max(x + vx * dt, 0), rightWall);
-        if (newX === 0 || newX === rightWall) vx = 0;
-
-        const oldFloor = floorAt(x);
-        const newFloor = floorAt(newX);
-
-        if (newFloor < oldFloor - 1) {
-          // Rolled into the shelf's side: it's solid, bounce back off it.
-          vx = -vx * WALL_BOUNCE;
-        } else if (newFloor > oldFloor + 1) {
-          // Rolled off the edge of the shelf: fall to the lower floor.
-          x = newX;
-          resting = false;
-          vy = 0;
-        } else {
-          x = newX;
-          y = newFloor;
-        }
+        x = Math.min(Math.max(x + vx * dt, 0), rightWall);
+        if (x === 0 || x === rightWall) vx = 0;
+        y = floorAt();
       }
 
       const omega = vx / radius;
@@ -222,7 +174,7 @@ export function BouncyBall() {
       refreshStepZone();
       resting = false;
       squash = Math.max(squash, 0.35);
-      vy = -(700 + Math.random() * 250);
+      vy = -(850 + Math.random() * 300);
       vx += (Math.random() - 0.5) * 120;
       startLoop();
     }
@@ -302,8 +254,8 @@ export function BouncyBall() {
         style={{
           width: SIZE * 1.1,
           background:
-            "radial-gradient(ellipse, rgba(190,235,140,0.4), transparent 70%)",
-          filter: "blur(4px)",
+            "radial-gradient(ellipse, rgba(205,235,165,0.2), transparent 60%)",
+          filter: "blur(7px)",
         }}
       />
       <div
@@ -338,7 +290,7 @@ export function BouncyBall() {
                 className="h-full w-full select-none"
                 style={{
                   filter:
-                    "drop-shadow(0 0 10px rgba(190,235,130,0.5)) drop-shadow(0 0 26px rgba(160,220,110,0.25))",
+                    "drop-shadow(0 -9px 16px rgba(210,240,180,0.3)) drop-shadow(0 -6px 32px rgba(195,230,155,0.1))",
                 }}
                 onError={() => setHasImage(false)}
               />

@@ -6,13 +6,13 @@ const backClassName =
 export default function RndmPage() {
   return (
     <main
-      className="flex min-h-svh flex-col px-6 py-16 sm:px-8 sm:py-20"
+      className="flex min-h-svh flex-col px-[clamp(1.5rem,6vw,5rem)] py-16 sm:py-20"
       style={{
         background: "var(--foreground)",
         color: "var(--background)",
       }}
     >
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
+      <div className="mx-auto flex w-full flex-1 flex-col">
         <div className="flex flex-1 items-center justify-center">
           <p className="font-mono text-xs tracking-[0.2em] sm:text-sm">
             Created in Argentina, a bicontinental country.
