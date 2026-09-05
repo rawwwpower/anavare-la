@@ -1,22 +1,17 @@
 import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
+// Only Regular and Semibold are ever used (font-semibold on the h1, Regular
+// everywhere else) — Medium and Bold aren't referenced anywhere in the site,
+// so declaring them here would just make every page preload two dead fonts.
 const switzer = localFont({
   src: [
     { path: "./fonts/Switzer-Regular.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/Switzer-Medium.woff2", weight: "500", style: "normal" },
     { path: "./fonts/Switzer-Semibold.woff2", weight: "600", style: "normal" },
-    { path: "./fonts/Switzer-Bold.woff2", weight: "700", style: "normal" },
   ],
   variable: "--font-switzer",
   display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 const description =
@@ -84,10 +79,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${switzer.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${switzer.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <script
           type="application/ld+json"
