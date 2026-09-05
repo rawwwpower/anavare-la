@@ -7,6 +7,11 @@
      overlay (poster, ball) that needs to align with the body copy's edge. */
   --page-pad-x: clamp(1.5rem, 6vw, 5rem);
   --page-pad-y: 4rem;
+  /* The invisible line the ball, the poster and any future corner object
+     share as their bottom — never just page-pad-y, which is where the links
+     row itself sits. 44px is the link row's own height (min-h-11), 18px is
+     clearance so the ball can rest above it without ever touching a link. */
+  --shelf-bottom: calc(var(--page-pad-y) + 44px + 18px);
 }
 
 @media (min-width: 640px) {

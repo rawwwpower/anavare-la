@@ -9,10 +9,16 @@ const RIGHT_ZONE_RATIO = 0.6; // rightmost 40% of the viewport triggers it
 
 export function PosterProjection() {
   const [visible, setVisible] = useState(false);
+  // Most visitors never touch this corner, so the image is only requested
+  // the first time it's actually revealed — not on every page load.
+  const [revealedOnce, setRevealedOnce] = useState(false);
 
   useEffect(() => {
     function onDown(e: PointerEvent) {
-      if (e.clientX > window.innerWidth * RIGHT_ZONE_RATIO) setVisible(true);
+      if (e.clientX > window.innerWidth * RIGHT_ZONE_RATIO) {
+        setVisible(true);
+        setRevealedOnce(true);
+      }
     }
     function onUp() {
       setVisible(false);
@@ -34,21 +40,23 @@ export function PosterProjection() {
       className="pointer-events-none fixed z-40 transition-opacity duration-300 ease-out"
       style={{
         right: "var(--page-pad-x)",
-        // Same invisible baseline the ball rests on (published by
-        // BouncyBall), so the two form a shared bottom grid line.
-        bottom: "var(--shelf-bottom, var(--page-pad-y))",
+        // Same invisible baseline the ball rests on — a shared design
+        // token (globals.css), not measured, so the two can never drift.
+        bottom: "var(--shelf-bottom)",
         width: "clamp(88px, 14vw, 160px)",
         opacity: visible ? 1 : 0,
         filter: "drop-shadow(0 8px 28px rgba(0,0,0,0.55))",
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={IMAGE_SRC}
-        alt=""
-        draggable={false}
-        className="w-full select-none"
-      />
+      {revealedOnce && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={IMAGE_SRC}
+          alt=""
+          draggable={false}
+          className="w-full select-none"
+        />
+      )}
     </div>
   );
 }

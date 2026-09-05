@@ -17,8 +17,6 @@ const BOUNCE = 0.82;
 const WALL_BOUNCE = 0.6;
 const ROLL_FRICTION = 320; // px/s²
 const SETTLE_SPEED = 55; // px/s
-const STEP_PAD_Y = 18; // clearance above the links row, so the ball
-// never overlaps a link even at the closest approach
 
 export function BouncyBall() {
   const ballRef = useRef<HTMLDivElement>(null);
@@ -64,35 +62,30 @@ export function BouncyBall() {
 
     const radius = SIZE / 2;
 
-    // The links row raises the floor for the whole viewport width: an
-    // imaginary line drawn above the row, edge to edge, so the ball never
-    // lands between or on top of a link no matter where on screen it drops —
-    // including the wide empty margins beside the content column on desktop.
-    // Refreshed on launch/dribble/resize rather than every frame.
-    let stepZone: { top: number } | null = null;
+    // The shelf is the same --shelf-bottom token every fixed-position corner
+    // object (poster, note artwork) aligns to — read from CSS instead of
+    // measured from the links row, so the ball can never drift from that
+    // shared line. Refreshed on resize since it depends on --page-pad-y,
+    // which steps at the sm breakpoint.
+    let shelfBottomPx = 0;
 
-    function refreshStepZone() {
-      const list = document.querySelector(
-        'nav[aria-label="Social links"] ul',
-      );
-      const rect = list?.getBoundingClientRect();
-      if (!rect || !rect.width) {
-        stepZone = null;
-        return;
-      }
-      stepZone = { top: rect.top - STEP_PAD_Y };
-      // Publish the shelf's height as a CSS var so other fixed-position
-      // objects (the poster) can share the exact same invisible baseline
-      // the ball rests on, instead of guessing a matching offset.
-      document.documentElement.style.setProperty(
-        "--shelf-bottom",
-        `${window.innerHeight - stepZone.top}px`,
-      );
+    // getComputedStyle on a custom property returns its raw, unresolved
+    // text ("calc(5rem + 44px + 18px)") — parseFloat on that is NaN. A
+    // probe element with the var applied to a real property resolves it
+    // to actual pixels, the same way the poster and note artwork see it.
+    const shelfProbe = document.createElement("div");
+    shelfProbe.style.cssText =
+      "position: fixed; bottom: var(--shelf-bottom); visibility: hidden;";
+    document.body.appendChild(shelfProbe);
+
+    function refreshShelf() {
+      shelfBottomPx = parseFloat(getComputedStyle(shelfProbe).bottom) || 0;
     }
 
     function floorAt() {
       const trueFloor = window.innerHeight - SIZE;
-      return stepZone ? Math.min(trueFloor, stepZone.top - SIZE) : trueFloor;
+      const shelfFloor = window.innerHeight - shelfBottomPx - SIZE;
+      return Math.min(trueFloor, shelfFloor);
     }
 
     function render() {
@@ -178,7 +171,7 @@ export function BouncyBall() {
     // and settles again after a couple of bounces.
     function dribble() {
       if (!launched) return;
-      refreshStepZone();
+      refreshShelf();
       resting = false;
       squash = Math.max(squash, 0.35);
       vy = -(850 + Math.random() * 300);
@@ -189,7 +182,7 @@ export function BouncyBall() {
     function launch() {
       if (launched) return;
       launched = true;
-      refreshStepZone();
+      refreshShelf();
 
       const margin = window.innerWidth * 0.15;
       x = margin + Math.random() * (window.innerWidth - margin * 2 - SIZE);
@@ -209,12 +202,11 @@ export function BouncyBall() {
       if (armed) launch();
     }
 
-    // The step zone lives in viewport coordinates, so any scroll or
-    // visual-viewport change (iOS Safari collapsing its bars) moves the
-    // links out from under it. Recompute and wake the ball so it
-    // re-settles against the shelf's real position.
+    // --page-pad-y (and so --shelf-bottom) steps at the sm breakpoint, and
+    // window.innerHeight shifts as iOS Safari collapses its bars on scroll.
+    // Recompute and wake the ball so it re-settles at the shelf's real height.
     function onViewportChange() {
-      refreshStepZone();
+      refreshShelf();
       if (launched && !running) {
         resting = false;
         startLoop();
@@ -233,7 +225,7 @@ export function BouncyBall() {
       window.removeEventListener("keydown", onKey);
     }
 
-    refreshStepZone();
+    refreshShelf();
     window.addEventListener("wheel", onIntent, { passive: true });
     window.addEventListener("touchmove", onIntent, { passive: true });
     window.addEventListener("scroll", onIntent, { passive: true });
@@ -251,6 +243,7 @@ export function BouncyBall() {
       window.removeEventListener("scroll", onViewportChange);
       window.visualViewport?.removeEventListener("resize", onViewportChange);
       ball.removeEventListener("pointerdown", dribble);
+      shelfProbe.remove();
     };
   }, []);
 
