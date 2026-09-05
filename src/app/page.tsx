@@ -10,7 +10,7 @@ const linkClassName =
 export default function Home() {
   return (
     <DisplayProvider>
-      <main className="mx-auto flex min-h-svh w-full select-none flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)] [-webkit-touch-callout:none]">
+      <main className="mx-auto flex min-h-svh w-full flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]">
         <BouncyBall />
         <PosterProjection />
 

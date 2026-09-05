@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-// A poster that only exists while you touch/press the right side of the
-// screen — like a projector that's only on while a hand holds the switch.
+// A poster that only exists while you touch/press its own bottom-right
+// corner — like a projector that's only on while a hand holds the switch.
+// Scoped to that corner (not the whole right half): the bio text can wrap
+// into the right side of the screen on mobile, and a press-and-hold there
+// needs to stay a normal text-selection gesture, not fight this one.
 const IMAGE_SRC = "/toys/sopa-de-cerebro-de-mono.jpg";
-const RIGHT_ZONE_RATIO = 0.6; // rightmost 40% of the viewport triggers it
+const ZONE_X_RATIO = 0.6; // rightmost 40% of the viewport
+const ZONE_Y_RATIO = 0.55; // bottom 45% of the viewport
 
 export function PosterProjection() {
   const [visible, setVisible] = useState(false);
@@ -15,7 +19,10 @@ export function PosterProjection() {
 
   useEffect(() => {
     function onDown(e: PointerEvent) {
-      if (e.clientX > window.innerWidth * RIGHT_ZONE_RATIO) {
+      const inZone =
+        e.clientX > window.innerWidth * ZONE_X_RATIO &&
+        e.clientY > window.innerHeight * ZONE_Y_RATIO;
+      if (inZone) {
         setVisible(true);
         setRevealedOnce(true);
       }
