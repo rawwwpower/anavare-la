@@ -81,6 +81,13 @@ export function BouncyBall() {
         return;
       }
       stepZone = { top: rect.top - STEP_PAD_Y };
+      // Publish the shelf's height as a CSS var so other fixed-position
+      // objects (the poster) can share the exact same invisible baseline
+      // the ball rests on, instead of guessing a matching offset.
+      document.documentElement.style.setProperty(
+        "--shelf-bottom",
+        `${window.innerHeight - stepZone.top}px`,
+      );
     }
 
     function floorAt() {
@@ -226,6 +233,7 @@ export function BouncyBall() {
       window.removeEventListener("keydown", onKey);
     }
 
+    refreshStepZone();
     window.addEventListener("wheel", onIntent, { passive: true });
     window.addEventListener("touchmove", onIntent, { passive: true });
     window.addEventListener("scroll", onIntent, { passive: true });

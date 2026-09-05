@@ -3,6 +3,16 @@
 :root {
   --background: #1c1c1a;
   --foreground: #fafaf9;
+  /* Shared page gutter: read by both the page shell and any fixed-position
+     overlay (poster, ball) that needs to align with the body copy's edge. */
+  --page-pad-x: clamp(1.5rem, 6vw, 5rem);
+  --page-pad-y: 4rem;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --page-pad-y: 5rem;
+  }
 }
 
 @theme inline {
