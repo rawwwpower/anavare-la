@@ -5,7 +5,7 @@ import { PosterProjection } from "@/components/poster-projection";
 import { DisplayProvider, DisplayStage } from "@/components/display-stage";
 
 const linkClassName =
-  "inline-flex min-h-11 items-center px-3 text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-colors hover:text-zinc-100 hover:decoration-zinc-400 focus-visible:text-zinc-100 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
+  "inline-flex min-h-11 items-center px-3 text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-zinc-100 hover:decoration-zinc-400 active:scale-[0.97] focus-visible:text-zinc-100 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
 
 export default function Home() {
   return (
@@ -22,13 +22,13 @@ export default function Home() {
         </div>
 
         <p className="mt-12 max-w-md text-base leading-relaxed text-zinc-400 sm:mt-14">
-          In real life I&apos;m Ana Belén Varela. On the internet, you might
-          know me as{" "}
+          Ana Belén Varela in real life. On the internet, you might know me
+          as{" "}
           <a
             href="https://youtu.be/ED3mufU58bk?si=6SR5NY0_-KCdtNQ-&t=75"
             target="_blank"
             rel="noreferrer"
-            className="underline decoration-zinc-600 underline-offset-4 transition-colors hover:text-zinc-100 hover:decoration-zinc-400"
+            className="inline-block underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-zinc-100 hover:decoration-zinc-400 active:scale-[0.97]"
           >
             raw power
           </a>

@@ -44,7 +44,7 @@ export function PosterProjection() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed z-40 transition-opacity duration-300 ease-out"
+      className="pointer-events-none fixed z-40 transition-opacity duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
       style={{
         right: "var(--page-pad-x)",
         // Same invisible baseline the ball rests on — a shared design

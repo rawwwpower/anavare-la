@@ -12,6 +12,12 @@ type HoverArtworkProps = {
   alt?: string;
 };
 
+// A crossfade between two different images reads as two objects swapping,
+// not one thing transforming. A shared blur peak mid-transition bridges
+// them into what looks like a single continuous change.
+const PRESSED_CLEAN_STYLE = { opacity: 0, filter: "blur(3px)" };
+const PRESSED_HOVER_STYLE = { opacity: 1, filter: "blur(0px)" };
+
 export function HoverArtwork({
   defaultSrc,
   hoverSrc,
@@ -45,7 +51,7 @@ export function HoverArtwork({
 
   return (
     <div
-      className="group fixed z-40 transition-opacity duration-700 ease-out"
+      className="group fixed z-40 transition-opacity duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
       style={{
         right: "var(--page-pad-x)",
         // Same shared shelf line the ball and the poster sit on
@@ -67,8 +73,8 @@ export function HoverArtwork({
         alt={alt}
         draggable={false}
         onLoad={() => setLoaded(true)}
-        className="w-full select-none transition-opacity duration-1000 ease-in-out group-hover:opacity-0"
-        style={pressed ? { opacity: 0 } : undefined}
+        className="w-full select-none transition-[opacity,filter] duration-1000 ease-in-out group-hover:opacity-0 group-hover:blur-[3px]"
+        style={pressed ? PRESSED_CLEAN_STYLE : undefined}
       />
       {everHovered && (
         // eslint-disable-next-line @next/next/no-img-element
@@ -76,8 +82,8 @@ export function HoverArtwork({
           src={hoverSrc}
           alt={alt}
           draggable={false}
-          className="absolute inset-0 w-full select-none opacity-0 transition-opacity duration-1000 ease-in-out group-hover:opacity-100"
-          style={pressed ? { opacity: 1 } : undefined}
+          className="absolute inset-0 w-full select-none opacity-0 blur-[2px] transition-[opacity,filter] duration-1000 ease-in-out group-hover:opacity-100 group-hover:blur-none"
+          style={pressed ? PRESSED_HOVER_STYLE : undefined}
         />
       )}
     </div>
