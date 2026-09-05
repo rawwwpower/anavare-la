@@ -19,6 +19,7 @@ export default function RndmPage() {
       }}
     >
       <div className="mx-auto flex w-full flex-1 flex-col">
+        <h1 className="sr-only">Notas — Ana Varela</h1>
         <ul className="flex flex-col">
           {ordered.map((note) => (
             <li key={note.slug}>
@@ -26,7 +27,7 @@ export default function RndmPage() {
                 <span className="text-sm text-zinc-700 underline decoration-zinc-400 underline-offset-4 transition-colors group-hover:text-zinc-900 group-hover:decoration-zinc-600">
                   nota
                 </span>
-                <span className="text-[10px] tracking-[0.08em] text-zinc-400 transition-colors group-hover:text-zinc-500">
+                <span className="text-[10px] tracking-[0.08em] text-zinc-500 transition-colors group-hover:text-zinc-700">
                   {formatNoteShort(note)}
                 </span>
               </Link>

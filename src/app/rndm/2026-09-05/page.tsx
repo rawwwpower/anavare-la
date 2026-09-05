@@ -20,6 +20,7 @@ export default function Note20260905Page() {
       />
 
       <div className="mx-auto flex w-full flex-1 flex-col">
+        <h1 className="sr-only">Nota — 05 de septiembre de 2026</h1>
         <p className="max-w-md font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-600">
           Agotá el rango de lo posible y de lo imposible.
         </p>

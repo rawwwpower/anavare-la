@@ -15,10 +15,13 @@ export default function Home() {
         <PosterProjection />
 
         <div>
-          <h1 className="text-base font-semibold tracking-tight text-zinc-100">
+          <h1
+            aria-label="Ana Varela"
+            className="text-base font-semibold tracking-tight text-zinc-100"
+          >
             A
           </h1>
-          <p className="text-base text-zinc-500">designer</p>
+          <p className="text-base text-zinc-400">designer</p>
         </div>
 
         <p className="mt-12 max-w-md text-base leading-relaxed text-zinc-400 sm:mt-14">

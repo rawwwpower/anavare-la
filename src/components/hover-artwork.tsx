@@ -80,7 +80,8 @@ export function HoverArtwork({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={hoverSrc}
-          alt={alt}
+          alt=""
+          aria-hidden
           draggable={false}
           className="absolute inset-0 w-full select-none opacity-0 blur-[2px] transition-[opacity,filter] duration-1000 ease-in-out group-hover:opacity-100 group-hover:blur-none"
           style={pressed ? PRESSED_HOVER_STYLE : undefined}
