@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // A piece anchored bottom-right (same corner and gutter as the home page's
 // poster, at 2x its size) that swaps for a second image on hover — e.g. a
@@ -17,10 +17,21 @@ export function HoverArtwork({
   hoverSrc,
   alt = "",
 }: HoverArtworkProps) {
+  // Fades the whole piece in once the default image is actually decoded,
+  // instead of letting it pop in mid-download.
+  const [loaded, setLoaded] = useState(false);
+  const defaultImgRef = useRef<HTMLImageElement>(null);
+
   // The hover image is only fetched once something actually reveals it —
   // most visits never trigger it.
   const [everHovered, setEverHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
+
+  // A cached image can already be .complete by the time this effect runs,
+  // in which case the load event fired before React attached the handler.
+  useEffect(() => {
+    if (defaultImgRef.current?.complete) setLoaded(true);
+  }, []);
 
   function onTouchDown(e: React.PointerEvent) {
     if (e.pointerType === "mouse") return;
@@ -34,13 +45,14 @@ export function HoverArtwork({
 
   return (
     <div
-      className="group fixed z-40"
+      className="group fixed z-40 transition-opacity duration-700 ease-out"
       style={{
         right: "var(--page-pad-x)",
         // Same shared shelf line the ball and the poster sit on
         // (globals.css), so every corner object aligns to one grid.
         bottom: "var(--shelf-bottom)",
         width: "clamp(176px, 28vw, 320px)",
+        opacity: loaded ? 1 : 0,
       }}
       onPointerEnter={() => setEverHovered(true)}
       onPointerDown={onTouchDown}
@@ -50,9 +62,11 @@ export function HoverArtwork({
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        ref={defaultImgRef}
         src={defaultSrc}
         alt={alt}
         draggable={false}
+        onLoad={() => setLoaded(true)}
         className="w-full select-none transition-opacity duration-1000 ease-in-out group-hover:opacity-0"
         style={pressed ? { opacity: 0 } : undefined}
       />
