@@ -14,6 +14,11 @@ export const notes: Note[] = [
     date: "2026-09-05T00:23",
     place: "Buenos Aires",
   },
+  {
+    slug: "2026-09-05-1821",
+    date: "2026-09-05T18:21",
+    place: "Buenos Aires",
+  },
 ];
 
 const longDate = new Intl.DateTimeFormat("es-AR", {

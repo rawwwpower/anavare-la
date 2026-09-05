@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { links } from "@/lib/links";
 import { BouncyBall } from "@/components/bouncy-ball";
-import { PosterProjection } from "@/components/poster-projection";
 import { DisplayProvider, DisplayStage } from "@/components/display-stage";
 
 const linkClassName =
@@ -12,7 +11,6 @@ export default function Home() {
     <DisplayProvider>
       <main className="mx-auto flex min-h-svh w-full flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]">
         <BouncyBall />
-        <PosterProjection />
 
         <div>
           <h1

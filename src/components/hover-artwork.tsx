@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 
 // A piece anchored bottom-right (same corner and gutter as the home page's
-// poster, at 2x its size) that swaps for a second image on hover — e.g. a
-// clean painting that reveals its title/credit, blurred, once you look closer.
-// Touch has no real hover, so a press does the same job there.
+// poster, at 2x its size). With hoverSrc, it swaps for a second image on
+// hover — e.g. a clean painting that reveals its title/credit, blurred, once
+// you look closer (touch has no real hover, so a press does the same job
+// there). Without hoverSrc, it's just the still image: same spot, same fade
+// in on load, no interactivity.
 type HoverArtworkProps = {
   defaultSrc: string;
-  hoverSrc: string;
+  hoverSrc?: string;
   alt?: string;
 };
 
@@ -60,11 +62,11 @@ export function HoverArtwork({
         width: "clamp(176px, 28vw, 320px)",
         opacity: loaded ? 1 : 0,
       }}
-      onPointerEnter={() => setEverHovered(true)}
-      onPointerDown={onTouchDown}
-      onPointerUp={onTouchUp}
-      onPointerCancel={onTouchUp}
-      onPointerLeave={onTouchUp}
+      onPointerEnter={hoverSrc ? () => setEverHovered(true) : undefined}
+      onPointerDown={hoverSrc ? onTouchDown : undefined}
+      onPointerUp={hoverSrc ? onTouchUp : undefined}
+      onPointerCancel={hoverSrc ? onTouchUp : undefined}
+      onPointerLeave={hoverSrc ? onTouchUp : undefined}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -73,10 +75,14 @@ export function HoverArtwork({
         alt={alt}
         draggable={false}
         onLoad={() => setLoaded(true)}
-        className="w-full select-none transition-[opacity,filter] duration-1000 ease-in-out group-hover:opacity-0 group-hover:blur-[3px]"
+        className={
+          hoverSrc
+            ? "w-full select-none transition-[opacity,filter] duration-1000 ease-in-out group-hover:opacity-0 group-hover:blur-[3px]"
+            : "w-full select-none"
+        }
         style={pressed ? PRESSED_CLEAN_STYLE : undefined}
       />
-      {everHovered && (
+      {hoverSrc && everHovered && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={hoverSrc}

@@ -6,6 +6,12 @@ import { useEffect, useRef, useState } from "react";
 // tries to scroll after DWELL_MS on the page. Physics tuned to feel like the
 // real late-90s rubber balls: high first bounce, energy loss per hit, squash
 // on impact, then a short roll before resting on the bottom edge.
+//
+// The cursor (or a dragging finger) is an invisible Arkanoid-style paddle:
+// gravity keeps pulling the ball down, and catching it under the pointer
+// bounces it back up at an angle based on where it hit and how fast the
+// pointer was moving — so it can be kept in the air on purpose, not just
+// watched fall.
 
 const DWELL_MS = 4000;
 const SIZE = 64;
@@ -17,6 +23,10 @@ const BOUNCE = 0.82;
 const WALL_BOUNCE = 0.6;
 const ROLL_FRICTION = 320; // px/s²
 const SETTLE_SPEED = 55; // px/s
+const PADDLE_HALF_WIDTH = 50; // paddle hit zone around the pointer
+const PADDLE_HALF_HEIGHT = 14;
+const PADDLE_MIN_BOUNCE = 700; // px/s upward, even on a soft/still catch
+const PADDLE_COOLDOWN_MS = 90; // guards against re-triggering next substep
 
 export function BouncyBall() {
   const ballRef = useRef<HTMLDivElement>(null);
@@ -60,14 +70,30 @@ export function BouncyBall() {
     let resting = false;
     let last = 0;
 
+    // The paddle: wherever the mouse currently sits, or wherever a finger is
+    // actively dragging. Touch has no hover, so it only exists mid-drag.
+    let pointerX = 0;
+    let pointerY = 0;
+    let pointerActive = false;
+    let pointerVX = 0;
+    let pointerVY = 0;
+    let lastPointerX = 0;
+    let lastPointerY = 0;
+    let lastPointerT = 0;
+    let paddleCooldownUntil = 0;
+
     const radius = SIZE / 2;
 
     // The shelf is the same --shelf-bottom token every fixed-position corner
     // object (poster, note artwork) aligns to — read from CSS instead of
     // measured from the links row, so the ball can never drift from that
-    // shared line. Refreshed on resize since it depends on --page-pad-y,
-    // which steps at the sm breakpoint.
+    // shared line. Side walls match --page-pad-x too, the same inset where
+    // the "A" and the paragraphs start — so the ball stays within the
+    // content column instead of roaming into a wide desktop's empty
+    // margins. Both refreshed on resize since they depend on tokens that
+    // step at the sm breakpoint or scale with viewport width.
     let shelfBottomPx = 0;
+    let pagePadXPx = 0;
 
     // getComputedStyle on a custom property returns its raw, unresolved
     // text ("calc(5rem + 44px + 18px)") — parseFloat on that is NaN. A
@@ -78,14 +104,58 @@ export function BouncyBall() {
       "position: fixed; bottom: var(--shelf-bottom); visibility: hidden;";
     document.body.appendChild(shelfProbe);
 
-    function refreshShelf() {
+    const padXProbe = document.createElement("div");
+    padXProbe.style.cssText =
+      "position: fixed; left: var(--page-pad-x); visibility: hidden;";
+    document.body.appendChild(padXProbe);
+
+    function refreshLayout() {
       shelfBottomPx = parseFloat(getComputedStyle(shelfProbe).bottom) || 0;
+      pagePadXPx = parseFloat(getComputedStyle(padXProbe).left) || 0;
     }
 
     function floorAt() {
       const trueFloor = window.innerHeight - SIZE;
       const shelfFloor = window.innerHeight - shelfBottomPx - SIZE;
       return Math.min(trueFloor, shelfFloor);
+    }
+
+    function leftWall() {
+      return pagePadXPx;
+    }
+
+    function rightWall() {
+      return window.innerWidth - pagePadXPx - SIZE;
+    }
+
+    // Arkanoid-style paddle collision: an invisible rectangle around the
+    // pointer. Only fires while the ball is actually falling onto it or the
+    // pointer is swatting at speed — a still cursor resting near a settled
+    // ball shouldn't launch it by accident. A short cooldown stops the same
+    // contact from re-triggering across consecutive sub-steps.
+    function checkPaddleHit() {
+      if (!launched || !pointerActive) return;
+      if (performance.now() < paddleCooldownUntil) return;
+
+      const dx = x + radius - pointerX;
+      const dy = y + radius - pointerY;
+      if (Math.abs(dx) > PADDLE_HALF_WIDTH + radius) return;
+      if (Math.abs(dy) > PADDLE_HALF_HEIGHT + radius) return;
+
+      const pointerSpeed = Math.hypot(pointerVX, pointerVY);
+      if (vy <= 40 && pointerSpeed <= 250) return;
+
+      const offset = Math.max(-1, Math.min(1, dx / PADDLE_HALF_WIDTH));
+      vx = offset * 480 + pointerVX * 0.25;
+      vy = -Math.max(
+        PADDLE_MIN_BOUNCE,
+        Math.abs(vy) * 0.95 + Math.max(0, -pointerVY) * 0.4,
+      );
+      y = pointerY - PADDLE_HALF_HEIGHT - radius - 2;
+      resting = false;
+      squash = Math.min(1, Math.abs(vy) / 1500);
+      paddleCooldownUntil = performance.now() + PADDLE_COOLDOWN_MS;
+      startLoop();
     }
 
     function render() {
@@ -100,18 +170,21 @@ export function BouncyBall() {
     }
 
     function simulate(dt: number) {
-      const rightWall = window.innerWidth - SIZE;
+      const left = leftWall();
+      const right = rightWall();
+
+      checkPaddleHit();
 
       if (!resting) {
         vy += GRAVITY * dt;
         x += vx * dt;
         y += vy * dt;
 
-        if (x < 0) {
-          x = 0;
+        if (x < left) {
+          x = left;
           vx = -vx * WALL_BOUNCE;
-        } else if (x > rightWall) {
-          x = rightWall;
+        } else if (x > right) {
+          x = right;
           vx = -vx * WALL_BOUNCE;
         }
 
@@ -129,8 +202,8 @@ export function BouncyBall() {
       } else {
         const decel = ROLL_FRICTION * dt;
         vx = Math.abs(vx) <= decel ? 0 : vx - Math.sign(vx) * decel;
-        x = Math.min(Math.max(x + vx * dt, 0), rightWall);
-        if (x === 0 || x === rightWall) vx = 0;
+        x = Math.min(Math.max(x + vx * dt, left), right);
+        if (x === left || x === right) vx = 0;
         y = floorAt();
       }
 
@@ -171,7 +244,7 @@ export function BouncyBall() {
     // and settles again after a couple of bounces.
     function dribble() {
       if (!launched) return;
-      refreshShelf();
+      refreshLayout();
       resting = false;
       squash = Math.max(squash, 0.35);
       vy = -(850 + Math.random() * 300);
@@ -182,10 +255,12 @@ export function BouncyBall() {
     function launch() {
       if (launched) return;
       launched = true;
-      refreshShelf();
+      refreshLayout();
 
-      const margin = window.innerWidth * 0.15;
-      x = margin + Math.random() * (window.innerWidth - margin * 2 - SIZE);
+      const left = leftWall();
+      const right = rightWall();
+      const margin = (right - left) * 0.15;
+      x = left + margin + Math.random() * (right - left - margin * 2);
       y = -SIZE * 2;
       vx = (Math.random() < 0.5 ? -1 : 1) * (60 + Math.random() * 120);
       vy = 0;
@@ -202,11 +277,38 @@ export function BouncyBall() {
       if (armed) launch();
     }
 
+    // Tracks the paddle for checkPaddleHit(). Kept alive for the component's
+    // whole lifetime (unlike the pre-launch intent listeners below), since
+    // the paddle only matters once the ball actually exists to hit.
+    function onPointerMove(e: PointerEvent) {
+      const t = performance.now();
+      const dt = (t - lastPointerT) / 1000;
+      if (dt > 0 && dt < 0.1) {
+        pointerVX = (e.clientX - lastPointerX) / dt;
+        pointerVY = (e.clientY - lastPointerY) / dt;
+      }
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+      lastPointerT = t;
+      pointerX = e.clientX;
+      pointerY = e.clientY;
+      pointerActive = true;
+      checkPaddleHit();
+    }
+
+    // Touch has no hover: the paddle should vanish the instant the finger
+    // lifts, not linger at its last position. Mouse never fires this for
+    // merely leaving the window, so it stays a persistent paddle, as hover
+    // implies.
+    function onPointerGone(e: PointerEvent) {
+      if (e.pointerType !== "mouse") pointerActive = false;
+    }
+
     // --page-pad-y (and so --shelf-bottom) steps at the sm breakpoint, and
     // window.innerHeight shifts as iOS Safari collapses its bars on scroll.
     // Recompute and wake the ball so it re-settles at the shelf's real height.
     function onViewportChange() {
-      refreshShelf();
+      refreshLayout();
       if (launched && !running) {
         resting = false;
         startLoop();
@@ -225,7 +327,7 @@ export function BouncyBall() {
       window.removeEventListener("keydown", onKey);
     }
 
-    refreshShelf();
+    refreshLayout();
     window.addEventListener("wheel", onIntent, { passive: true });
     window.addEventListener("touchmove", onIntent, { passive: true });
     window.addEventListener("scroll", onIntent, { passive: true });
@@ -233,6 +335,9 @@ export function BouncyBall() {
     window.addEventListener("resize", onViewportChange);
     window.addEventListener("scroll", onViewportChange, { passive: true });
     window.visualViewport?.addEventListener("resize", onViewportChange);
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerup", onPointerGone);
+    window.addEventListener("pointercancel", onPointerGone);
     ball.addEventListener("pointerdown", dribble);
 
     return () => {
@@ -242,8 +347,12 @@ export function BouncyBall() {
       window.removeEventListener("resize", onViewportChange);
       window.removeEventListener("scroll", onViewportChange);
       window.visualViewport?.removeEventListener("resize", onViewportChange);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerGone);
+      window.removeEventListener("pointercancel", onPointerGone);
       ball.removeEventListener("pointerdown", dribble);
       shelfProbe.remove();
+      padXProbe.remove();
     };
   }, []);
 
