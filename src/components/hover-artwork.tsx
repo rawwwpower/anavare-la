@@ -71,7 +71,7 @@ export function HoverArtwork({
       // containing block) honors offsets too, so leaving them as an
       // always-on inline style shifted the whole box on mobile instead of
       // leaving it in normal flow.
-      className="group relative mt-10 sm:fixed sm:right-[var(--page-pad-x)] sm:bottom-[var(--shelf-bottom)] sm:mt-0 z-40 transition-[opacity,filter,transform] duration-[600ms] ease-out motion-reduce:transition-opacity motion-reduce:duration-200"
+      className="group relative mt-10 sm:fixed sm:right-[var(--page-pad-x)] sm:bottom-[var(--shelf-bottom)] sm:mt-0 z-40 transition-[opacity,filter,transform] duration-[450ms] ease-out motion-reduce:transition-opacity motion-reduce:duration-200"
       style={{
         width: "clamp(176px, 28vw, 320px)",
         aspectRatio: `${width} / ${height}`,

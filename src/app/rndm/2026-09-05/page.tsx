@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import { HoverArtwork } from "@/components/hover-artwork";
 import { NoteShell } from "@/components/note-shell";
 
@@ -11,6 +12,8 @@ export default function Note20260905Page() {
   return (
     <main className="flex flex-1 flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]">
       <NoteShell
+        title="nota"
+        titleAria="Nota — 05 de septiembre de 2026"
         artwork={
           <HoverArtwork
             defaultSrc="/toys/sisifo-clean.jpg"
@@ -21,8 +24,10 @@ export default function Note20260905Page() {
           />
         }
       >
-        <h1 className="sr-only">Nota — 05 de septiembre de 2026</h1>
-        <p className="max-w-md font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-600">
+        <p
+          className="reveal max-w-md font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-600"
+          style={{ "--reveal-delay": "60ms" } as CSSProperties}
+        >
           Agotá el rango de lo posible y de lo imposible.
         </p>
       </NoteShell>

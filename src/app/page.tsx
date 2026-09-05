@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 const linkClassName =
   "inline-flex min-h-11 items-center px-3 text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-zinc-100 hover:decoration-zinc-400 active:scale-[0.97] focus-visible:text-zinc-100 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
 
-// Staggered arrival, top to bottom. 70ms steps: enough to read as a
-// sequence, short enough that the whole page is settled in under half a
+// Staggered arrival, top to bottom. 60ms steps: enough to read as a
+// sequence, short enough that the whole page is settled in well under half a
 // second — the entrance must never be the reason the site feels slow.
 const step = (ms: number) => ({ "--reveal-delay": `${ms}ms` }) as CSSProperties;
 
@@ -21,7 +21,7 @@ export default function Home() {
     <main className="mx-auto flex min-h-svh w-full flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]">
       <BouncyBall />
 
-      <div className="reveal">
+      <div className="reveal min-h-[var(--heading-block)]">
         <h1
           aria-label="Ana Varela"
           className="text-base font-semibold tracking-tight text-zinc-100"
@@ -33,7 +33,7 @@ export default function Home() {
 
       <p
         className="reveal mt-12 max-w-md text-base leading-relaxed text-zinc-400 sm:mt-14"
-        style={step(70)}
+        style={step(60)}
       >
         Ana Belén Varela in real life. On the internet, you might know me as{" "}
         <a
@@ -52,7 +52,7 @@ export default function Home() {
           the top while the links stay pinned to the bottom edge. */}
       <div className="my-10 min-h-40 flex-1 sm:my-14" />
 
-      <nav aria-label="Social links" className="reveal" style={step(140)}>
+      <nav aria-label="Social links" className="reveal" style={step(120)}>
         <ul className="-ml-3 flex flex-row flex-wrap items-center text-base">
           {links.map((link) => (
             <li key={link.label}>
@@ -70,6 +70,9 @@ export default function Home() {
                 <Link
                   href={link.href}
                   aria-label={link.aria}
+                  // The home page's only prefetch was pulling all of /rndm
+                  // into it, including the mono font it never renders.
+                  prefetch={false}
                   className={linkClassName}
                 >
                   {link.label}

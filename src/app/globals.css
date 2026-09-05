@@ -12,6 +12,11 @@
      row itself sits. 44px is the link row's own height (min-h-11), 18px is
      clearance so the ball can rest above it without ever touching a link. */
   --shelf-bottom: calc(var(--page-pad-y) + 44px + 18px);
+  /* Every page's heading reserves the same box: two text-base lines, which
+     is exactly what "A" + "designer" occupies on the home page. A one-word
+     title like "rndm" or "vhs" is a single line but keeps the same height,
+     so the body copy under it starts at the same y on every screen. */
+  --heading-block: 3rem;
 }
 
 @media (min-width: 640px) {
@@ -48,6 +53,15 @@
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
+
+  /* /rndm and its notes are static text that never loads anything new, so
+     the pull-down that would refresh them has nothing to fetch and only
+     competes with the swipe that closes a note. Scoped to that section by
+     the marker the /rndm layout puts on its wrapper, so the home page keeps
+     its normal overscroll. */
+  html:has([data-rndm]) {
+    overscroll-behavior-y: none;
+  }
 }
 
 @layer utilities {
@@ -70,7 +84,7 @@
   }
 
   .reveal {
-    animation: reveal 420ms var(--ease-out) backwards;
+    animation: reveal 320ms var(--ease-out) backwards;
     animation-delay: var(--reveal-delay, 0ms);
   }
 

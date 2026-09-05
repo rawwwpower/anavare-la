@@ -23,6 +23,7 @@ export default function RndmLayout({
 }>) {
   return (
     <div
+      data-rndm
       className={`${geistMono.variable} flex min-h-svh flex-col`}
       style={{ background: "var(--foreground)", color: "var(--background)" }}
     >
