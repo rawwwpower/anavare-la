@@ -1,7 +1,7 @@
 import { HoverArtwork } from "@/components/hover-artwork";
 import { NoteShell } from "@/components/note-shell";
 
-export default function Note20260905Page() {
+export default function NoteVhsPage() {
   return (
     <main
       className="flex min-h-svh flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]"
@@ -11,16 +11,17 @@ export default function Note20260905Page() {
       }}
     >
       <NoteShell>
-        <h1 className="sr-only">Nota — 05 de septiembre de 2026</h1>
+        <h1 className="sr-only">
+          Nota — Indiana Jones y los Cazadores del Arca Perdida
+        </h1>
         <p className="max-w-md font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-600">
-          Agotá el rango de lo posible y de lo imposible.
+          Indiana Jones y los Cazadores del Arca Perdida.
         </p>
       </NoteShell>
 
       <HoverArtwork
-        defaultSrc="/toys/sisifo-clean.jpg"
-        hoverSrc="/toys/sisifo-hover.jpg"
-        alt="Sísifo, Franz von Stuck, 1920"
+        defaultSrc="/toys/sopa-de-cerebro-de-mono.jpg"
+        alt="Indiana Jones y los Cazadores del Arca Perdida, póster"
       />
     </main>
   );

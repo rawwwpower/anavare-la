@@ -15,7 +15,7 @@ export const notes: Note[] = [
     place: "Buenos Aires",
   },
   {
-    slug: "2026-09-05-1821",
+    slug: "vhs",
     date: "2026-09-05T18:21",
     place: "Buenos Aires",
   },

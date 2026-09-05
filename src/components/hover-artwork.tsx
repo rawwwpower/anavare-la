@@ -53,7 +53,7 @@ export function HoverArtwork({
 
   return (
     <div
-      className="group fixed z-40 transition-opacity duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
+      className="group static ml-auto mt-10 sm:fixed sm:ml-0 sm:mt-0 z-40 transition-opacity duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
       style={{
         right: "var(--page-pad-x)",
         // Same shared shelf line the ball and the poster sit on

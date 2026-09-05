@@ -18,7 +18,7 @@ const SIZE = 64;
 // Drop a square transparent PNG here (ball filling the canvas, ~512x512) and
 // it replaces the CSS-drawn eyeball. Until then the CSS version renders.
 const IMAGE_SRC = "/toys/eyeball-v2.png";
-const GRAVITY = 2600; // px/s²
+const GRAVITY = 3400; // px/s²
 const BOUNCE = 0.82;
 const WALL_BOUNCE = 0.6;
 const ROLL_FRICTION = 320; // px/s²
@@ -87,13 +87,15 @@ export function BouncyBall() {
     // The shelf is the same --shelf-bottom token every fixed-position corner
     // object (poster, note artwork) aligns to — read from CSS instead of
     // measured from the links row, so the ball can never drift from that
-    // shared line. Side walls match --page-pad-x too, the same inset where
-    // the "A" and the paragraphs start — so the ball stays within the
-    // content column instead of roaming into a wide desktop's empty
-    // margins. Both refreshed on resize since they depend on tokens that
-    // step at the sm breakpoint or scale with viewport width.
+    // shared line. Side walls match --page-pad-x (where the "A" and the
+    // paragraphs start), and the ceiling matches --page-pad-y (the "A"'s own
+    // top) — the ball stays inside that content box instead of roaming into
+    // a wide desktop's empty margins or flying off the top of the screen.
+    // All refreshed on resize since the tokens step at the sm breakpoint or
+    // scale with viewport width.
     let shelfBottomPx = 0;
     let pagePadXPx = 0;
+    let pagePadYPx = 0;
 
     // getComputedStyle on a custom property returns its raw, unresolved
     // text ("calc(5rem + 44px + 18px)") — parseFloat on that is NaN. A
@@ -109,9 +111,15 @@ export function BouncyBall() {
       "position: fixed; left: var(--page-pad-x); visibility: hidden;";
     document.body.appendChild(padXProbe);
 
+    const padYProbe = document.createElement("div");
+    padYProbe.style.cssText =
+      "position: fixed; top: var(--page-pad-y); visibility: hidden;";
+    document.body.appendChild(padYProbe);
+
     function refreshLayout() {
       shelfBottomPx = parseFloat(getComputedStyle(shelfProbe).bottom) || 0;
       pagePadXPx = parseFloat(getComputedStyle(padXProbe).left) || 0;
+      pagePadYPx = parseFloat(getComputedStyle(padYProbe).top) || 0;
     }
 
     function floorAt() {
@@ -126,6 +134,10 @@ export function BouncyBall() {
 
     function rightWall() {
       return window.innerWidth - pagePadXPx - SIZE;
+    }
+
+    function ceiling() {
+      return pagePadYPx;
     }
 
     // Arkanoid-style paddle collision: an invisible rectangle around the
@@ -186,6 +198,12 @@ export function BouncyBall() {
         } else if (x > right) {
           x = right;
           vx = -vx * WALL_BOUNCE;
+        }
+
+        const top = ceiling();
+        if (y < top && vy < 0) {
+          y = top;
+          vy = -vy * WALL_BOUNCE;
         }
 
         const floor = floorAt();
@@ -353,6 +371,7 @@ export function BouncyBall() {
       ball.removeEventListener("pointerdown", dribble);
       shelfProbe.remove();
       padXProbe.remove();
+      padYProbe.remove();
     };
   }, []);
 
