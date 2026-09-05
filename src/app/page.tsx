@@ -16,13 +16,14 @@ export default function Home() {
 
         <div>
           <h1 className="text-base font-semibold tracking-tight text-zinc-100">
-            Ana Varela
+            A
           </h1>
           <p className="text-base text-zinc-500">designer</p>
         </div>
 
         <p className="mt-12 max-w-md text-base leading-relaxed text-zinc-400 sm:mt-14">
-          You might know me as{" "}
+          In real life I&apos;m Ana Belén Varela. On the internet, you might
+          know me as{" "}
           <a
             href="https://youtu.be/ED3mufU58bk?si=6SR5NY0_-KCdtNQ-&t=75"
             target="_blank"
@@ -31,8 +32,8 @@ export default function Home() {
           >
             raw power
           </a>
-          . Raised by FADU & soulseek, keeping an eye on what&apos;s moving on
-          the web.
+          . Graphic design degree from FADU, raised by soulseek, keeping an
+          eye on what&apos;s moving on the web.
         </p>
 
         <DisplayStage className="my-10 flex flex-1 min-h-40 items-center justify-center sm:my-14" />
