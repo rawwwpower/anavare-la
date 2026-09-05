@@ -7,11 +7,13 @@ import { useEffect, useRef, useState } from "react";
 // real late-90s rubber balls: high first bounce, energy loss per hit, squash
 // on impact, then a short roll before resting on the bottom edge.
 //
-// The cursor (or a dragging finger) is an invisible Arkanoid-style paddle:
-// gravity keeps pulling the ball down, and catching it under the pointer
-// bounces it back up at an angle based on where it hit and how fast the
-// pointer was moving — so it can be kept in the air on purpose, not just
-// watched fall.
+// The cursor (or a dragging finger) is an invisible Arkanoid-style paddle,
+// but only while a mouse button is actually held down (or a finger is
+// actively touching) — a passive hover has no effect at all, so the ball
+// just falls unless someone deliberately reaches for it. Catching it under
+// the held pointer bounces it back up at an angle based on where it hit and
+// how fast the pointer was moving — so it can be kept in the air on
+// purpose, not just watched fall.
 
 const DWELL_MS = 4000;
 const SIZE = 64;
@@ -71,10 +73,15 @@ export function BouncyBall() {
     let last = 0;
 
     // The paddle: wherever the mouse currently sits, or wherever a finger is
-    // actively dragging. Touch has no hover, so it only exists mid-drag.
+    // actively dragging. pointerActive tracks whether we know a position at
+    // all (touch has no hover, so it only exists mid-drag); pointerHeld
+    // gates whether that position actually acts as a paddle — true only
+    // while a mouse button is down or a finger is touching, never from a
+    // bare hover.
     let pointerX = 0;
     let pointerY = 0;
     let pointerActive = false;
+    let pointerHeld = false;
     let pointerVX = 0;
     let pointerVY = 0;
     let lastPointerX = 0;
@@ -141,12 +148,14 @@ export function BouncyBall() {
     }
 
     // Arkanoid-style paddle collision: an invisible rectangle around the
-    // pointer. Only fires while the ball is actually falling onto it or the
-    // pointer is swatting at speed — a still cursor resting near a settled
-    // ball shouldn't launch it by accident. A short cooldown stops the same
-    // contact from re-triggering across consecutive sub-steps.
+    // pointer, live only while pointerHeld — a passive hover must never
+    // touch the ball. Beyond that, only fires while the ball is actually
+    // falling onto it or the pointer is swatting at speed — holding still
+    // near a settled ball shouldn't launch it by accident. A short cooldown
+    // stops the same contact from re-triggering across consecutive
+    // sub-steps.
     function checkPaddleHit() {
-      if (!launched || !pointerActive) return;
+      if (!launched || !pointerActive || !pointerHeld) return;
       if (performance.now() < paddleCooldownUntil) return;
 
       const dx = x + radius - pointerX;
@@ -257,19 +266,6 @@ export function BouncyBall() {
       rafId = requestAnimationFrame(step);
     }
 
-    // Tap the ball for a short basketball-style dribble off the floor:
-    // much smaller impulse than the initial drop, so it pops up briefly
-    // and settles again after a couple of bounces.
-    function dribble() {
-      if (!launched) return;
-      refreshLayout();
-      resting = false;
-      squash = Math.max(squash, 0.35);
-      vy = -(850 + Math.random() * 300);
-      vx += (Math.random() - 0.5) * 120;
-      startLoop();
-    }
-
     function launch() {
       if (launched) return;
       launched = true;
@@ -289,6 +285,14 @@ export function BouncyBall() {
       ball!.style.cursor = "pointer";
       startLoop();
       removeListeners();
+
+      // Scroll was only ever a way to say "wake up" pre-launch. Once the
+      // eye exists, a touch-drag aimed at the paddle would otherwise also
+      // scroll the page underneath it, fighting the very gesture meant to
+      // catch the ball.
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
     }
 
     function onIntent() {
@@ -311,14 +315,29 @@ export function BouncyBall() {
       pointerX = e.clientX;
       pointerY = e.clientY;
       pointerActive = true;
+      // Defensive resync for mouse: e.buttons reflects the actual button
+      // state on every move, in case a mouseup was missed (e.g. released
+      // outside the window).
+      if (e.pointerType === "mouse") pointerHeld = e.buttons > 0;
+      checkPaddleHit();
+    }
+
+    // The paddle only acts while deliberately held: a mouse button down, or
+    // a finger actually touching. A bare hover must never engage it.
+    function onPointerDown(e: PointerEvent) {
+      pointerX = e.clientX;
+      pointerY = e.clientY;
+      pointerActive = true;
+      pointerHeld = true;
       checkPaddleHit();
     }
 
     // Touch has no hover: the paddle should vanish the instant the finger
     // lifts, not linger at its last position. Mouse never fires this for
-    // merely leaving the window, so it stays a persistent paddle, as hover
-    // implies.
+    // merely leaving the window, so its last hovered position stays known —
+    // it just stops being "held".
     function onPointerGone(e: PointerEvent) {
+      pointerHeld = false;
       if (e.pointerType !== "mouse") pointerActive = false;
     }
 
@@ -354,9 +373,9 @@ export function BouncyBall() {
     window.addEventListener("scroll", onViewportChange, { passive: true });
     window.visualViewport?.addEventListener("resize", onViewportChange);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerdown", onPointerDown, { passive: true });
     window.addEventListener("pointerup", onPointerGone);
     window.addEventListener("pointercancel", onPointerGone);
-    ball.addEventListener("pointerdown", dribble);
 
     return () => {
       clearTimeout(armTimer);
@@ -366,12 +385,15 @@ export function BouncyBall() {
       window.removeEventListener("scroll", onViewportChange);
       window.visualViewport?.removeEventListener("resize", onViewportChange);
       window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointerup", onPointerGone);
       window.removeEventListener("pointercancel", onPointerGone);
-      ball.removeEventListener("pointerdown", dribble);
       shelfProbe.remove();
       padXProbe.remove();
       padYProbe.remove();
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
     };
   }, []);
 

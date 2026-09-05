@@ -10,18 +10,20 @@ export default function Note20260905Page() {
         color: "var(--background)",
       }}
     >
-      <NoteShell>
+      <NoteShell
+        artwork={
+          <HoverArtwork
+            defaultSrc="/toys/sisifo-clean.jpg"
+            hoverSrc="/toys/sisifo-hover.jpg"
+            alt="Sísifo, Franz von Stuck, 1920"
+          />
+        }
+      >
         <h1 className="sr-only">Nota — 05 de septiembre de 2026</h1>
         <p className="max-w-md font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-600">
           Agotá el rango de lo posible y de lo imposible.
         </p>
       </NoteShell>
-
-      <HoverArtwork
-        defaultSrc="/toys/sisifo-clean.jpg"
-        hoverSrc="/toys/sisifo-hover.jpg"
-        alt="Sísifo, Franz von Stuck, 1920"
-      />
     </main>
   );
 }

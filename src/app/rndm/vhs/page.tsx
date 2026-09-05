@@ -10,19 +10,21 @@ export default function NoteVhsPage() {
         color: "var(--background)",
       }}
     >
-      <NoteShell>
+      <NoteShell
+        artwork={
+          <HoverArtwork
+            defaultSrc="/toys/sopa-de-cerebro-de-mono.jpg"
+            alt="Indiana Jones y los Cazadores del Arca Perdida, póster"
+          />
+        }
+      >
         <h1 className="sr-only">
-          Nota — Indiana Jones y los Cazadores del Arca Perdida
+          Vhs — Indiana Jones y los Cazadores del Arca Perdida
         </h1>
         <p className="max-w-md font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-600">
           Indiana Jones y los Cazadores del Arca Perdida.
         </p>
       </NoteShell>
-
-      <HoverArtwork
-        defaultSrc="/toys/sopa-de-cerebro-de-mono.jpg"
-        alt="Indiana Jones y los Cazadores del Arca Perdida, póster"
-      />
     </main>
   );
 }

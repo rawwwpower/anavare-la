@@ -25,7 +25,7 @@ export default function RndmPage() {
             <li key={note.slug}>
               <Link href={`/rndm/${note.slug}`} className={noteClassName}>
                 <span className="text-sm text-zinc-700 underline decoration-zinc-400 underline-offset-4 transition-colors group-hover:text-zinc-900 group-hover:decoration-zinc-600">
-                  nota
+                  {note.label}
                 </span>
                 <span className="text-[10px] tracking-[0.08em] text-zinc-500 transition-colors group-hover:text-zinc-700">
                   {formatNoteShort(note)}
