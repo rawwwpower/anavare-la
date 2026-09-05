@@ -53,12 +53,13 @@ export function HoverArtwork({
 
   return (
     <div
-      className="group static mt-10 sm:fixed sm:mt-0 z-40 transition-opacity duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
+      // right/bottom only apply at sm+, paired with sm:fixed — position:
+      // relative (needed on mobile so the absolute hover image has a
+      // containing block) honors offsets too, so leaving them as an
+      // always-on inline style shifted the whole box on mobile instead of
+      // leaving it in normal flow.
+      className="group relative mt-10 sm:fixed sm:right-[var(--page-pad-x)] sm:bottom-[var(--shelf-bottom)] sm:mt-0 z-40 transition-opacity duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
       style={{
-        right: "var(--page-pad-x)",
-        // Same shared shelf line the ball and the poster sit on
-        // (globals.css), so every corner object aligns to one grid.
-        bottom: "var(--shelf-bottom)",
         width: "clamp(176px, 28vw, 320px)",
         opacity: loaded ? 1 : 0,
       }}

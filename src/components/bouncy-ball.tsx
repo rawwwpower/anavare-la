@@ -14,6 +14,11 @@ import { useEffect, useRef, useState } from "react";
 // the held pointer bounces it back up at an angle based on where it hit and
 // how fast the pointer was moving — so it can be kept in the air on
 // purpose, not just watched fall.
+//
+// Pressing down directly ON the ball (not just near it) grabs it instead:
+// it rides the pointer exactly, physics paused, until release throws it
+// with the pointer's recent velocity — a real toss against the same walls,
+// not just a swat.
 
 const DWELL_MS = 4000;
 const SIZE = 64;
@@ -29,6 +34,9 @@ const PADDLE_HALF_WIDTH = 50; // paddle hit zone around the pointer
 const PADDLE_HALF_HEIGHT = 14;
 const PADDLE_MIN_BOUNCE = 700; // px/s upward, even on a soft/still catch
 const PADDLE_COOLDOWN_MS = 90; // guards against re-triggering next substep
+const GRAB_RADIUS = 46; // must press the ball itself, not just nearby
+const THROW_SCALE = 0.85; // softens a raw cursor flick — still a ball, not a projectile
+const THROW_MAX_SPEED = 2000; // px/s cap against a noisy/spiky velocity sample
 
 export function BouncyBall() {
   const ballRef = useRef<HTMLDivElement>(null);
@@ -88,6 +96,13 @@ export function BouncyBall() {
     let lastPointerY = 0;
     let lastPointerT = 0;
     let paddleCooldownUntil = 0;
+
+    // Grabbing: physics pauses and the ball rides the pointer exactly,
+    // preserving wherever on it you first pressed (grabDX/DY) rather than
+    // snapping its center to the cursor.
+    let grabbed = false;
+    let grabDX = 0;
+    let grabDY = 0;
 
     const radius = SIZE / 2;
 
@@ -191,6 +206,14 @@ export function BouncyBall() {
     }
 
     function simulate(dt: number) {
+      // While grabbed, position comes straight from the pointer (see
+      // onPointerMove) — no gravity, no walls, no paddle. Rotation and
+      // squash just settle back to neutral so it doesn't look frozen mid-air.
+      if (grabbed) {
+        squash = Math.max(0, squash - squash * 14 * dt);
+        return;
+      }
+
       const left = leftWall();
       const right = rightWall();
 
@@ -319,16 +342,40 @@ export function BouncyBall() {
       // state on every move, in case a mouseup was missed (e.g. released
       // outside the window).
       if (e.pointerType === "mouse") pointerHeld = e.buttons > 0;
+
+      if (grabbed) {
+        x = e.clientX - grabDX;
+        y = e.clientY - grabDY;
+        startLoop();
+        return;
+      }
       checkPaddleHit();
     }
 
-    // The paddle only acts while deliberately held: a mouse button down, or
-    // a finger actually touching. A bare hover must never engage it.
+    // Pressing squarely on the ball grabs it instead of paddling it — an
+    // explicit, deliberate contact, not just landing inside the wider swat
+    // zone. Anywhere else, it's the existing paddle-hold behavior.
     function onPointerDown(e: PointerEvent) {
       pointerX = e.clientX;
       pointerY = e.clientY;
       pointerActive = true;
       pointerHeld = true;
+
+      const dist = Math.hypot(
+        e.clientX - (x + radius),
+        e.clientY - (y + radius),
+      );
+      if (launched && dist <= GRAB_RADIUS) {
+        grabbed = true;
+        grabDX = e.clientX - x;
+        grabDY = e.clientY - y;
+        vx = 0;
+        vy = 0;
+        resting = false;
+        ball!.style.cursor = "grabbing";
+        startLoop();
+        return;
+      }
       checkPaddleHit();
     }
 
@@ -339,6 +386,18 @@ export function BouncyBall() {
     function onPointerGone(e: PointerEvent) {
       pointerHeld = false;
       if (e.pointerType !== "mouse") pointerActive = false;
+
+      if (grabbed) {
+        grabbed = false;
+        const speed = Math.hypot(pointerVX, pointerVY);
+        const scale =
+          speed > 0 ? Math.min(speed, THROW_MAX_SPEED) / speed : 0;
+        vx = pointerVX * scale * THROW_SCALE;
+        vy = pointerVY * scale * THROW_SCALE;
+        squash = Math.min(1, speed / 2000);
+        ball!.style.cursor = "pointer";
+        startLoop();
+      }
     }
 
     // --page-pad-y (and so --shelf-bottom) steps at the sm breakpoint, and
