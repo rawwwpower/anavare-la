@@ -27,8 +27,68 @@
   --font-mono: var(--font-geist-mono);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+/* Motion tokens. These override Tailwind's own easing scale, so every
+   existing `ease-out` / `ease-in-out` utility on the site picks up the
+   stronger curve without touching a single className — the built-in CSS
+   easings are too weak to read as deliberate. `ease-sheet` is the iOS
+   drawer curve, used by anything that slides in or out like a panel. */
+@theme {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@layer base {
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+    /* Stops iOS from inflating body copy on rotation, which otherwise
+       reflows the page under a ball that has already measured its walls. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
+@layer utilities {
+  /* The site's one entrance: content lifts a few pixels into place instead
+     of hard-cutting in. Applied per element with --reveal-delay to stagger a
+     group (keep steps at 60-80ms — longer reads as the page being slow).
+     `backwards` (not `both`) holds the from-state through the delay without
+     pinning the end state: a filled-forwards animation outranks inline
+     styles in the cascade, which would silently freeze any later transition
+     on the same element — e.g. the sheet's own close. */
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .reveal {
+    animation: reveal 420ms var(--ease-out) backwards;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+
+  @keyframes reveal-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Reduced motion means gentler, not none: the fade still explains that
+     something arrived, only the movement goes away. */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      animation-name: reveal-fade;
+      animation-duration: 200ms;
+    }
+  }
 }

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -12,6 +12,11 @@ const switzer = localFont({
   ],
   variable: "--font-switzer",
   display: "swap",
+  // `swap` means the first paint is Arial. Without matched metrics that
+  // handover reflows every line the instant Switzer lands; adjustFontFallback
+  // generates a size-adjusted Arial so the swap is close to invisible.
+  fallback: ["Arial", "Helvetica", "sans-serif"],
+  adjustFontFallback: "Arial",
 });
 
 const description =
@@ -30,20 +35,12 @@ export const metadata: Metadata = {
     template: "%s · Ana Varela",
   },
   description,
-  keywords: [
-    "Ana Varela",
-    "designer",
-    "product designer",
-    "diseñadora de producto",
-    "designer Argentina",
-    "raw power",
-    "portfolio",
-  ],
   authors: [{ name: "Ana Varela", url: "https://anavare.la" }],
   creator: "Ana Varela",
-  alternates: {
-    canonical: "/",
-  },
+  // No canonical here on purpose: metadata in the root layout applies to
+  // every route, so a canonical of "/" told search engines that /rndm and
+  // every note were duplicates of the home page — while sitemap.ts was
+  // asking for them to be indexed. Each page declares its own.
   openGraph: {
     type: "website",
     url: "https://anavare.la",
@@ -59,6 +56,12 @@ export const metadata: Metadata = {
     title: "Ana Varela, designer",
     description,
   },
+};
+
+// Keeps mobile browser chrome the same colour as the page instead of a
+// system bar sitting over it. /rndm overrides this with its light value.
+export const viewport: Viewport = {
+  themeColor: "#1c1c1a",
 };
 
 // JSON-LD: tells search engines that anavare.la and all these profiles are
@@ -79,8 +82,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${switzer.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+    <html lang="en" className={`${switzer.variable} antialiased`}>
+      {/* No height or flex plumbing here: every page's own root is
+          min-h-svh, and body's background paints the whole canvas anyway. */}
+      <body className="bg-background text-foreground">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

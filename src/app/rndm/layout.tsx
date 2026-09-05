@@ -1,3 +1,4 @@
+import type { Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 
 // Scoped to /rndm instead of the root layout: it's the only part of the
@@ -8,10 +9,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// /rndm inverts the site: light page, dark text. Declaring it here means
+// mobile browser chrome flips with it instead of staying dark above a white
+// page, and the colours live in one place rather than on every note's main.
+export const viewport: Viewport = {
+  themeColor: "#fafaf9",
+};
+
 export default function RndmLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <div className={geistMono.variable}>{children}</div>;
+  return (
+    <div
+      className={`${geistMono.variable} flex min-h-svh flex-col`}
+      style={{ background: "var(--foreground)", color: "var(--background)" }}
+    >
+      {children}
+    </div>
+  );
 }

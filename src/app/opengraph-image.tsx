@@ -10,6 +10,9 @@ const description =
   "designer based in Argentina. Raised by FADU & soulseek and making the internet fun (and raw) again.";
 
 export default async function Image() {
+  // Build-time only, and the one thing keeping GeistMono-Regular.woff in the
+  // repo: Satori needs the raw font bytes, it can't use the next/font copy
+  // that /rndm loads in the browser. Never ships to a visitor.
   const fontData = await readFile(
     join(process.cwd(), "src/app/fonts/GeistMono-Regular.woff"),
   );

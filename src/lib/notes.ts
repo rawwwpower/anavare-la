@@ -26,11 +26,6 @@ export const notes: Note[] = [
   },
 ];
 
-const longDate = new Intl.DateTimeFormat("es-AR", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-});
 const shortDate = new Intl.DateTimeFormat("es-AR", {
   day: "2-digit",
   month: "2-digit",
@@ -41,11 +36,6 @@ const time = new Intl.DateTimeFormat("es-AR", {
   minute: "2-digit",
   hour12: false,
 });
-
-export function formatNoteLong(note: Note) {
-  const d = new Date(note.date);
-  return `${longDate.format(d)} · ${time.format(d)} · ${note.place}`;
-}
 
 export function formatNoteShort(note: Note) {
   const d = new Date(note.date);

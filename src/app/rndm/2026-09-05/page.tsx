@@ -1,20 +1,22 @@
+import type { Metadata } from "next";
 import { HoverArtwork } from "@/components/hover-artwork";
 import { NoteShell } from "@/components/note-shell";
 
+export const metadata: Metadata = {
+  title: "nota",
+  alternates: { canonical: "/rndm/2026-09-05" },
+};
+
 export default function Note20260905Page() {
   return (
-    <main
-      className="flex min-h-svh flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]"
-      style={{
-        background: "var(--foreground)",
-        color: "var(--background)",
-      }}
-    >
+    <main className="flex flex-1 flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]">
       <NoteShell
         artwork={
           <HoverArtwork
             defaultSrc="/toys/sisifo-clean.jpg"
             hoverSrc="/toys/sisifo-hover.jpg"
+            width={640}
+            height={753}
             alt="Sísifo, Franz von Stuck, 1920"
           />
         }

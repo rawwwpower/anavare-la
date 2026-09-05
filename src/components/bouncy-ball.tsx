@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 // Vending-machine bouncy ball: drops from the top the first time the user
 // tries to scroll after DWELL_MS on the page. Physics tuned to feel like the
@@ -22,9 +22,7 @@ import { useEffect, useRef, useState } from "react";
 
 const DWELL_MS = 4000;
 const SIZE = 64;
-// Drop a square transparent PNG here (ball filling the canvas, ~512x512) and
-// it replaces the CSS-drawn eyeball. Until then the CSS version renders.
-const IMAGE_SRC = "/toys/eyeball-v2.png";
+const IMAGE_SRC = "/toys/eyeball-v2.webp";
 const GRAVITY = 3400; // px/s²
 const BOUNCE = 0.82;
 const WALL_BOUNCE = 0.6;
@@ -37,21 +35,17 @@ const PADDLE_COOLDOWN_MS = 90; // guards against re-triggering next substep
 const GRAB_RADIUS = 46; // must press the ball itself, not just nearby
 const THROW_SCALE = 0.85; // softens a raw cursor flick — still a ball, not a projectile
 const THROW_MAX_SPEED = 2000; // px/s cap against a noisy/spiky velocity sample
+// A pointer that has been parked for longer than this is standing still, no
+// matter what the last sample said. Without it, holding the ball for a
+// second and then just letting go throws it with whatever velocity the
+// gesture happened to end on — the ball leaps out of a hand that never moved.
+const VELOCITY_STALE_MS = 90;
 
 export function BouncyBall() {
   const ballRef = useRef<HTMLDivElement>(null);
   const squashRef = useRef<HTMLDivElement>(null);
   const spinRef = useRef<HTMLDivElement>(null);
   const shadowRef = useRef<HTMLDivElement>(null);
-  const [hasImage, setHasImage] = useState(true);
-
-  // Probe the asset after mount: a broken <img> can error before React
-  // hydrates, in which case its onError never fires.
-  useEffect(() => {
-    const probe = new window.Image();
-    probe.onerror = () => setHasImage(false);
-    probe.src = IMAGE_SRC;
-  }, []);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -162,6 +156,13 @@ export function BouncyBall() {
       return pagePadYPx;
     }
 
+    // Any sample older than VELOCITY_STALE_MS describes a gesture that has
+    // already stopped, so it must not be read as speed.
+    function pointerSpeedNow() {
+      if (performance.now() - lastPointerT > VELOCITY_STALE_MS) return 0;
+      return Math.hypot(pointerVX, pointerVY);
+    }
+
     // Arkanoid-style paddle collision: an invisible rectangle around the
     // pointer, live only while pointerHeld — a passive hover must never
     // touch the ball. Beyond that, only fires while the ball is actually
@@ -178,14 +179,16 @@ export function BouncyBall() {
       if (Math.abs(dx) > PADDLE_HALF_WIDTH + radius) return;
       if (Math.abs(dy) > PADDLE_HALF_HEIGHT + radius) return;
 
-      const pointerSpeed = Math.hypot(pointerVX, pointerVY);
-      if (vy <= 40 && pointerSpeed <= 250) return;
+      const speed = pointerSpeedNow();
+      if (vy <= 40 && speed <= 250) return;
 
+      const swatVX = speed > 0 ? pointerVX : 0;
+      const swatVY = speed > 0 ? pointerVY : 0;
       const offset = Math.max(-1, Math.min(1, dx / PADDLE_HALF_WIDTH));
-      vx = offset * 480 + pointerVX * 0.25;
+      vx = offset * 480 + swatVX * 0.25;
       vy = -Math.max(
         PADDLE_MIN_BOUNCE,
-        Math.abs(vy) * 0.95 + Math.max(0, -pointerVY) * 0.4,
+        Math.abs(vy) * 0.95 + Math.max(0, -swatVY) * 0.4,
       );
       y = pointerY - PADDLE_HALF_HEIGHT - radius - 2;
       resting = false;
@@ -207,8 +210,8 @@ export function BouncyBall() {
 
     function simulate(dt: number) {
       // While grabbed, position comes straight from the pointer (see
-      // onPointerMove) — no gravity, no walls, no paddle. Rotation and
-      // squash just settle back to neutral so it doesn't look frozen mid-air.
+      // onPointerMove) — no gravity, no paddle. Rotation and squash just
+      // settle back to neutral so it doesn't look frozen mid-air.
       if (grabbed) {
         squash = Math.max(0, squash - squash * 14 * dt);
         return;
@@ -275,7 +278,7 @@ export function BouncyBall() {
 
       render();
 
-      if (resting && vx === 0 && squash < 0.01) {
+      if (!grabbed && resting && vx === 0 && squash < 0.01) {
         running = false;
         return;
       }
@@ -305,7 +308,7 @@ export function BouncyBall() {
 
       ball!.style.opacity = "1";
       ball!.style.pointerEvents = "auto";
-      ball!.style.cursor = "pointer";
+      ball!.style.cursor = "grab";
       startLoop();
       removeListeners();
 
@@ -338,18 +341,31 @@ export function BouncyBall() {
       pointerX = e.clientX;
       pointerY = e.clientY;
       pointerActive = true;
+
       // Defensive resync for mouse: e.buttons reflects the actual button
-      // state on every move, in case a mouseup was missed (e.g. released
-      // outside the window).
-      if (e.pointerType === "mouse") pointerHeld = e.buttons > 0;
+      // state on every move, so a mouseup the window never saw (released
+      // outside the viewport, or swallowed by a devtools/alert focus change)
+      // still ends the hold — otherwise a grabbed ball stays welded to the
+      // cursor forever, which is exactly how it used to break.
+      if (e.pointerType === "mouse" && e.buttons === 0 && pointerHeld) {
+        release();
+        return;
+      }
 
       if (grabbed) {
-        x = e.clientX - grabDX;
-        y = e.clientY - grabDY;
+        moveGrabbed(e.clientX, e.clientY);
         startLoop();
         return;
       }
       checkPaddleHit();
+    }
+
+    // Even while held, the ball belongs inside the same content column it
+    // bounces in — dragging it into the margin and letting go shouldn't
+    // teleport it back across the page.
+    function moveGrabbed(clientX: number, clientY: number) {
+      x = Math.min(Math.max(clientX - grabDX, leftWall()), rightWall());
+      y = Math.min(Math.max(clientY - grabDY, ceiling()), floorAt());
     }
 
     // Pressing squarely on the ball grabs it instead of paddling it — an
@@ -360,6 +376,16 @@ export function BouncyBall() {
       pointerY = e.clientY;
       pointerActive = true;
       pointerHeld = true;
+
+      // A new gesture starts from a standstill. Without this reset the first
+      // sample of the next press is measured against wherever the *previous*
+      // gesture ended, so a grab-and-release with no movement inherits the
+      // speed of the throw before it.
+      pointerVX = 0;
+      pointerVY = 0;
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+      lastPointerT = performance.now();
 
       const dist = Math.hypot(
         e.clientX - (x + radius),
@@ -373,6 +399,10 @@ export function BouncyBall() {
         vy = 0;
         resting = false;
         ball!.style.cursor = "grabbing";
+        // A press-and-drag across body copy otherwise paints a text
+        // selection under the ball for the whole throw.
+        document.body.style.userSelect = "none";
+        window.getSelection()?.removeAllRanges();
         startLoop();
         return;
       }
@@ -380,36 +410,49 @@ export function BouncyBall() {
     }
 
     // Touch has no hover: the paddle should vanish the instant the finger
-    // lifts, not linger at its last position. Mouse never fires this for
-    // merely leaving the window, so its last hovered position stays known —
-    // it just stops being "held".
+    // lifts, not linger at its last position. Mouse never fires pointerup
+    // for merely leaving the window, so its last hovered position stays
+    // known — it just stops being "held".
     function onPointerGone(e: PointerEvent) {
-      pointerHeld = false;
-      if (e.pointerType !== "mouse") pointerActive = false;
+      release(e.pointerType !== "mouse");
+    }
 
-      if (grabbed) {
-        grabbed = false;
-        const speed = Math.hypot(pointerVX, pointerVY);
-        const scale =
-          speed > 0 ? Math.min(speed, THROW_MAX_SPEED) / speed : 0;
-        vx = pointerVX * scale * THROW_SCALE;
-        vy = pointerVY * scale * THROW_SCALE;
-        squash = Math.min(1, speed / 2000);
-        ball!.style.cursor = "pointer";
-        startLoop();
-      }
+    function release(clearPosition = false) {
+      pointerHeld = false;
+      if (clearPosition) pointerActive = false;
+      document.body.style.userSelect = "";
+
+      if (!grabbed) return;
+      grabbed = false;
+
+      const speed = pointerSpeedNow();
+      const scale = speed > 0 ? Math.min(speed, THROW_MAX_SPEED) / speed : 0;
+      vx = pointerVX * scale * THROW_SCALE;
+      vy = pointerVY * scale * THROW_SCALE;
+      squash = Math.min(1, speed / 2000);
+      ball!.style.cursor = "grab";
+      startLoop();
     }
 
     // --page-pad-y (and so --shelf-bottom) steps at the sm breakpoint, and
     // window.innerHeight shifts as iOS Safari collapses its bars on scroll.
-    // Recompute and wake the ball so it re-settles at the shelf's real height.
+    // Recompute and wake the ball so it re-settles at the shelf's real
+    // height — but coalesced into one rAF, because each refresh forces three
+    // style resolutions and iOS fires these in bursts.
+    let layoutQueued = false;
     function onViewportChange() {
-      refreshLayout();
-      if (launched && !running) {
-        resting = false;
-        startLoop();
-      }
+      if (layoutQueued) return;
+      layoutQueued = true;
+      requestAnimationFrame(() => {
+        layoutQueued = false;
+        refreshLayout();
+        if (launched && !running) {
+          resting = false;
+          startLoop();
+        }
+      });
     }
+
     function onKey(e: KeyboardEvent) {
       if (["ArrowDown", "ArrowUp", "PageDown", "Space", " "].includes(e.key)) {
         onIntent();
@@ -421,6 +464,10 @@ export function BouncyBall() {
       window.removeEventListener("touchmove", onIntent);
       window.removeEventListener("scroll", onIntent);
       window.removeEventListener("keydown", onKey);
+    }
+
+    function onWindowBlur() {
+      release(true);
     }
 
     refreshLayout();
@@ -435,6 +482,7 @@ export function BouncyBall() {
     window.addEventListener("pointerdown", onPointerDown, { passive: true });
     window.addEventListener("pointerup", onPointerGone);
     window.addEventListener("pointercancel", onPointerGone);
+    window.addEventListener("blur", onWindowBlur);
 
     return () => {
       clearTimeout(armTimer);
@@ -447,12 +495,14 @@ export function BouncyBall() {
       window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointerup", onPointerGone);
       window.removeEventListener("pointercancel", onPointerGone);
+      window.removeEventListener("blur", onWindowBlur);
       shelfProbe.remove();
       padXProbe.remove();
       padYProbe.remove();
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
       document.body.style.touchAction = "";
+      document.body.style.userSelect = "";
     };
   }, []);
 
@@ -466,131 +516,53 @@ export function BouncyBall() {
           background:
             "radial-gradient(ellipse, rgba(205,235,165,0.2), transparent 60%)",
           filter: "blur(7px)",
+          willChange: "transform, opacity",
         }}
       />
       <div
         ref={ballRef}
         className="absolute left-0 top-0 opacity-0"
-        style={{ width: SIZE, height: SIZE, willChange: "transform" }}
+        style={{
+          width: SIZE,
+          height: SIZE,
+          willChange: "transform",
+          touchAction: "none",
+        }}
       >
         <div
           ref={squashRef}
           className="h-full w-full rounded-full"
-          style={{
-            transformOrigin: "50% 100%",
-            ...(hasImage
-              ? {}
-              : {
-                  overflow: "hidden",
-                  background:
-                    "radial-gradient(circle at 35% 30%, #ffffff 0%, #f7f8f0 38%, #e6ead6 62%, #c6cfa9 84%, #99a37c 100%)",
-                  boxShadow:
-                    "0 0 26px 5px rgba(190,235,130,0.4), 0 0 60px 14px rgba(160,220,110,0.16), inset -6px -8px 14px rgba(120,140,80,0.25)",
-                }),
-          }}
+          style={{ transformOrigin: "50% 100%" }}
         >
           {/* Material layer: everything here tumbles with the ball's spin */}
           <div ref={spinRef} className="absolute inset-0">
-            {hasImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={IMAGE_SRC}
-                alt=""
-                draggable={false}
-                className="h-full w-full select-none"
-                style={{
-                  filter:
-                    "drop-shadow(0 -9px 16px rgba(210,240,180,0.3)) drop-shadow(0 -6px 32px rgba(195,230,155,0.1))",
-                }}
-                onError={() => setHasImage(false)}
-              />
-            ) : (
-              <>
-                <svg
-                  viewBox="0 0 64 64"
-                  className="absolute inset-0 h-full w-full"
-                  fill="none"
-                  strokeLinecap="round"
-                >
-                  <path
-                    d="M2 30 C 10 27, 17 29, 24 33"
-                    stroke="#b03a30"
-                    strokeWidth="0.9"
-                    opacity="0.55"
-                  />
-                  <path
-                    d="M4 42 C 12 39, 19 39, 26 37"
-                    stroke="#c04a3a"
-                    strokeWidth="0.7"
-                    opacity="0.4"
-                  />
-                  <path
-                    d="M9 18 C 15 21, 20 25, 25 29"
-                    stroke="#b03a30"
-                    strokeWidth="0.7"
-                    opacity="0.45"
-                  />
-                  <path
-                    d="M62 40 C 54 37, 48 38, 43 40"
-                    stroke="#b03a30"
-                    strokeWidth="0.9"
-                    opacity="0.5"
-                  />
-                  <path
-                    d="M60 52 C 53 48, 48 46, 44 44"
-                    stroke="#c04a3a"
-                    strokeWidth="0.7"
-                    opacity="0.38"
-                  />
-                  <path
-                    d="M30 62 C 30 56, 31 51, 32 47"
-                    stroke="#b03a30"
-                    strokeWidth="0.8"
-                    opacity="0.42"
-                  />
-                  <path
-                    d="M14 52 C 19 48, 23 45, 27 42"
-                    stroke="#c04a3a"
-                    strokeWidth="0.6"
-                    opacity="0.35"
-                  />
-                </svg>
-                {/* Iris: dark limbal ring, amber body, black pupil */}
-                <div
-                  className="absolute rounded-full"
-                  style={{
-                    width: SIZE * 0.47,
-                    height: SIZE * 0.47,
-                    left: "44%",
-                    top: "16%",
-                    background:
-                      "radial-gradient(circle at 46% 44%, #000000 0% 32%, #4a2c0a 38%, #8a5a16 50%, #a8701e 60%, #7a4a10 72%, #3d2606 84%, #17110a 93%, rgba(10,8,4,0) 97%)",
-                  }}
-                >
-                  <div
-                    className="absolute rounded-full bg-white"
-                    style={{
-                      width: SIZE * 0.07,
-                      height: SIZE * 0.07,
-                      left: "34%",
-                      top: "28%",
-                      opacity: 0.95,
-                    }}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-          {/* Gloss layer: highlights track the light, so they don't spin */}
-          {!hasImage && (
-            <div
-              className="absolute inset-0 rounded-full"
+            {/* The halo stays a drop-shadow on the image itself. Two other
+                versions were tried and both looked worse: a radial-gradient
+                behind the ball bands and rings the whole eye instead of
+                fading out under it, and a second motionless copy carrying
+                the shadow shows through, because the artwork has
+                semi-transparent areas. Only the filter follows the eye's own
+                alpha with a real gaussian falloff. It is redrawn as the ball
+                rotates — at 64px that is a cheap layer, and cheaper than the
+                glow being wrong. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={IMAGE_SRC}
+              alt=""
+              width={SIZE}
+              height={SIZE}
+              draggable={false}
+              decoding="async"
+              // It cannot appear for at least four seconds, so it must never
+              // compete with the fonts and copy that make up the first paint.
+              fetchPriority="low"
+              className="h-full w-full select-none"
               style={{
-                background:
-                  "radial-gradient(ellipse 30% 20% at 30% 18%, rgba(255,255,255,0.9), rgba(255,255,255,0) 100%), radial-gradient(ellipse 50% 32% at 66% 96%, rgba(205,245,150,0.35), transparent 100%)",
+                filter:
+                  "drop-shadow(0 -9px 16px rgba(210,240,180,0.3)) drop-shadow(0 -6px 32px rgba(195,230,155,0.1))",
               }}
             />
-          )}
+          </div>
         </div>
       </div>
     </div>
