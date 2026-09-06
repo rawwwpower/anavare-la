@@ -24,8 +24,25 @@ type HoverArtworkProps = {
 // A crossfade between two different images reads as two objects swapping,
 // not one thing transforming. A shared blur peak mid-transition bridges
 // them into what looks like a single continuous change.
-const PRESSED_CLEAN_STYLE = { opacity: 0, filter: "blur(3px)" };
-const PRESSED_HOVER_STYLE = { opacity: 1, filter: "blur(0px)" };
+//
+// Asymmetric on purpose: looking closer is a deliberate act and gets the
+// slower 280ms, letting go is the system responding and snaps back in
+// 180ms. Both stay under the 300ms ceiling — this used to run for a full
+// second, which read as the page being slow to answer rather than as
+// something unhurried. The return duration lives in the classNames below
+// (Tailwind can't read a constant); only the reveal is needed here, for the
+// touch path, which sets its state inline.
+const REVEAL_MS = 280;
+const PRESSED_CLEAN_STYLE = {
+  opacity: 0,
+  filter: "blur(3px)",
+  transitionDuration: `${REVEAL_MS}ms`,
+};
+const PRESSED_HOVER_STYLE = {
+  opacity: 1,
+  filter: "blur(0px)",
+  transitionDuration: `${REVEAL_MS}ms`,
+};
 
 export function HoverArtwork({
   defaultSrc,
@@ -102,7 +119,10 @@ export function HoverArtwork({
         onLoad={() => setLoaded(true)}
         className={
           hoverSrc
-            ? "w-full select-none transition-[opacity,filter] duration-1000 ease-in-out group-hover:opacity-0 group-hover:blur-[3px]"
+            ? // The base duration is the one the browser uses on the way
+              // back out, so putting the slower value behind group-hover is
+              // what makes the pair asymmetric.
+              "w-full select-none transition-[opacity,filter] duration-[180ms] ease-out group-hover:opacity-0 group-hover:blur-[3px] group-hover:duration-[280ms]"
             : "w-full select-none"
         }
         style={pressed ? PRESSED_CLEAN_STYLE : undefined}
@@ -117,7 +137,7 @@ export function HoverArtwork({
           height={height}
           draggable={false}
           decoding="async"
-          className="absolute inset-0 w-full select-none opacity-0 blur-[2px] transition-[opacity,filter] duration-1000 ease-in-out group-hover:opacity-100 group-hover:blur-none"
+          className="absolute inset-0 w-full select-none opacity-0 blur-[2px] transition-[opacity,filter] duration-[180ms] ease-out group-hover:opacity-100 group-hover:blur-none group-hover:duration-[280ms]"
           style={pressed ? PRESSED_HOVER_STYLE : undefined}
         />
       )}
