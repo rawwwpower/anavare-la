@@ -1,4 +1,3 @@
-import type { Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 
 // Scoped to /rndm instead of the root layout: it's the only part of the
@@ -9,24 +8,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// /rndm inverts the site: light page, dark text. Declaring it here means
-// mobile browser chrome flips with it instead of staying dark above a white
-// page, and the colours live in one place rather than on every note's main.
-export const viewport: Viewport = {
-  themeColor: "#fafaf9",
-};
-
+// No colours and no theme-colour here on purpose. The index is the site's
+// dark ground, the same as the home page it belongs to; a note is a light
+// sheet lying on top of it. Each page owns its own surface (NoteShell's
+// `tone`), which is exactly what lets a note slide away and reveal the index
+// underneath. data-rndm marks the section for the overscroll rule in
+// globals.css.
 export default function RndmLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <div
-      data-rndm
-      className={`${geistMono.variable} flex min-h-svh flex-col`}
-      style={{ background: "var(--foreground)", color: "var(--background)" }}
-    >
+    <div data-rndm className={`${geistMono.variable} flex min-h-svh flex-col`}>
       {children}
     </div>
   );
