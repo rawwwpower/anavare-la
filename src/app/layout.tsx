@@ -5,6 +5,23 @@ import "./globals.css";
 // Only Regular and Semibold are ever used (font-semibold on the h1, Regular
 // everywhere else) — Medium and Bold aren't referenced anywhere in the site,
 // so declaring them here would just make every page preload two dead fonts.
+//
+// Both files are subset to Latin-1 plus typographic punctuation. Switzer
+// ships 385 codepoints per weight, 123 of them Latin Extended-A (Polish,
+// Czech, Turkish) plus Greek; this site renders six non-ASCII characters
+// (· á é í ó —). The cut is 36KB → 21KB off the critical path of every page,
+// with every Western European accent, ¿¡, curly quotes, dashes and € kept.
+// A character outside that range falls back to the metric-matched Arial
+// below, so it would look different but never break the layout.
+//
+// To regenerate after replacing a font file (needs `pip3 install --user
+// fonttools brotli`), run from the repo root:
+//
+//   python3 -m fontTools.subset src/app/fonts/<file>.woff2 \
+//     --unicodes='U+0020-007E,U+00A0-00FF,U+2010-2027,U+2030-205E,U+20AC,U+2122' \
+//     --layout-features='*' --flavor=woff2 --output-file=src/app/fonts/<file>.woff2
+//
+// The unsubset originals are in git history, in the commit before this note.
 const switzer = localFont({
   src: [
     { path: "./fonts/Switzer-Regular.woff2", weight: "400", style: "normal" },
