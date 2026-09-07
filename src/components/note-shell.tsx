@@ -5,9 +5,14 @@ import {
   useCallback,
   useEffect,
   useState,
-  useSyncExternalStore,
   type CSSProperties,
 } from "react";
+import {
+  NARROW,
+  useCovered,
+  useMediaQuery,
+  useSheet,
+} from "@/components/sheet-context";
 import { useSwipeDismiss } from "@/components/use-swipe-dismiss";
 
 // The shell every /rndm page shares — a note and the index itself.
@@ -18,12 +23,25 @@ import { useSwipeDismiss } from "@/components/use-swipe-dismiss";
 // read as a sheet being pushed away rather than a page scrolling, because
 // the dark index is right there underneath the whole time.
 //
+// A note opened from the index is carried by NoteSheet, which owns the
+// surface, the gesture and the leaving for real — the index it uncovers is
+// still mounted behind it. This shell then only holds the content. Reached
+// by its own URL there is nothing underneath, so it goes back to owning all
+// three itself: same note, same exit, one layer instead of two.
+//
 // Content reveals on arrival (staggered, CSS-driven so it survives a busy
 // main thread) and leaves two ways: the exit link, which slides the text
 // down and dissolves the sheet's surface under it, or a swipe, which hands
 // the same exit to the finger and moves the surface with it. The index sits
 // beside the home page, so it leaves sideways; a note sits on top of the
 // index, so it leaves downward.
+//
+// In the phone's bottom sheet there is no link. The grabber, the 32px of
+// index showing above it and the sheet's own corners already say the thing
+// is loose and can be pushed off, so a word saying "close" underneath is the
+// interface explaining itself twice. Everywhere the drag does NOT exist the
+// link stays and is the only way out: the index, a note reached by its own
+// URL, a wide screen, and anyone who asked for reduced motion.
 //
 // Only <main> and the text box get transforms. The artwork stays out of both
 // on desktop (a transform on an ancestor makes it the containing block for a
@@ -54,18 +72,6 @@ const TONES = {
   },
 };
 
-// Below sm: the breakpoint where a note's artwork stops being fixed to the
-// corner and rides along in normal flow. Subscribed to rather than read
-// once, so rotating a phone doesn't leave the gesture in the wrong mode.
-const NARROW = "(max-width: 639.98px)";
-let mql: MediaQueryList | null = null;
-const getMql = () => (mql ??= window.matchMedia(NARROW));
-const subscribeNarrow = (onChange: () => void) => {
-  const m = getMql();
-  m.addEventListener("change", onChange);
-  return () => m.removeEventListener("change", onChange);
-};
-
 export function NoteShell({
   children,
   title,
@@ -92,24 +98,26 @@ export function NoteShell({
   const [closing, setClosing] = useState(false);
   const palette = TONES[tone];
 
+  // Inside a sheet, that sheet is the layer that moves and it already has
+  // the finger; underneath one, this page is scenery. Either way the shell
+  // keeps its own hands off — two gestures listening on the same document
+  // would both answer the same drag.
+  const sheet = useSheet();
+  const covered = useCovered();
+
   // A note's artwork is fixed to the corner from sm: up, and the swipe moves
   // the whole sheet — so the gesture is only offered where the artwork rides
   // along in normal flow. That is also the only place it is wanted: the
   // phone, where reaching the exit link with a thumb is the actual cost.
-  const isNarrow = useSyncExternalStore(
-    subscribeNarrow,
-    () => getMql().matches,
-    // Server-side there is no viewport: assume wide, so the gesture stays
-    // off until hydration can actually tell.
-    () => false,
-  );
-  const canSwipe = artwork ? isNarrow : true;
+  const isNarrow = useMediaQuery(NARROW);
+  const canSwipe = !sheet && !covered && (artwork ? isNarrow : true);
 
   // Warm the destination while the reader is still reading, so the exit
-  // animation is the only wait — not the animation plus a fetch.
+  // animation is the only wait — not the animation plus a fetch. Inside a
+  // sheet the way out is the history entry the index already occupies.
   useEffect(() => {
-    router.prefetch(exitTo);
-  }, [router, exitTo]);
+    if (!sheet) router.prefetch(exitTo);
+  }, [router, exitTo, sheet]);
 
   const go = useCallback(() => router.push(exitTo), [router, exitTo]);
 
@@ -121,6 +129,10 @@ export function NoteShell({
 
   function handleClose(e: React.MouseEvent) {
     e.preventDefault();
+    if (sheet) {
+      sheet.close();
+      return;
+    }
     if (closing) return;
     setClosing(true);
     setTimeout(go, CLOSE_MS);
@@ -132,11 +144,12 @@ export function NoteShell({
       className="relative flex flex-1 flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]"
       style={tone === "light" ? { color: "var(--background)" } : undefined}
     >
-      {tone === "light" && (
+      {tone === "light" && !sheet && (
         // The sheet's own surface, as a layer rather than a background on
         // <main>: a swipe carries it along with the content, and the exit
         // link can dissolve it on its own without fading the text twice.
-        // Either way the dark index is what shows through.
+        // Either way the dark index is what shows through. Carried by a real
+        // sheet, that surface belongs to the sheet instead.
         <div
           aria-hidden
           className="absolute inset-0 transition-opacity ease-out"
@@ -185,27 +198,31 @@ export function NoteShell({
           </div>
         )}
 
+        {/* Kept even with no link below it, so the content above lands on
+            the same pixel whether or not the exit is drawn. */}
         <div className="flex-1" />
 
-        <nav
-          aria-label={exitLabel}
-          className="reveal transition-opacity ease-out"
-          style={
-            {
-              "--reveal-delay": "120ms",
-              transitionDuration: `${FADE_MS}ms`,
-              opacity: closing ? 0 : 1,
-            } as CSSProperties
-          }
-        >
-          <a
-            href={exitTo}
-            onClick={handleClose}
-            className={`${exitShape} ${palette.exit}`}
+        {!sheet?.bottom && (
+          <nav
+            aria-label={exitLabel}
+            className="reveal transition-opacity ease-out"
+            style={
+              {
+                "--reveal-delay": "120ms",
+                transitionDuration: `${FADE_MS}ms`,
+                opacity: closing ? 0 : 1,
+              } as CSSProperties
+            }
           >
-            {exitLabel}
-          </a>
-        </nav>
+            <a
+              href={exitTo}
+              onClick={handleClose}
+              className={`${exitShape} ${palette.exit}`}
+            >
+              {exitLabel}
+            </a>
+          </nav>
+        )}
       </div>
     </main>
   );

@@ -1,4 +1,5 @@
 import { Geist_Mono } from "next/font/google";
+import { RndmStage } from "@/components/rndm-stage";
 
 // Scoped to /rndm instead of the root layout: it's the only part of the
 // site that ever uses font-mono, so this keeps its ~80KB of font files off
@@ -14,14 +15,20 @@ const geistMono = Geist_Mono({
 // `tone`), which is exactly what lets a note slide away and reveal the index
 // underneath. data-rndm marks the section for the overscroll rule in
 // globals.css.
+//
+// `sheet` is a parallel slot: a note opened from the index is intercepted
+// into it and rendered over the index instead of replacing it. RndmStage
+// arranges the two.
 export default function RndmLayout({
   children,
+  sheet,
 }: Readonly<{
   children: React.ReactNode;
+  sheet: React.ReactNode;
 }>) {
   return (
     <div data-rndm className={`${geistMono.variable} flex min-h-svh flex-col`}>
-      {children}
+      <RndmStage sheet={sheet}>{children}</RndmStage>
     </div>
   );
 }

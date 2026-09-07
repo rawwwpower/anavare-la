@@ -106,3 +106,43 @@
     }
   }
 }
+
+@layer utilities {
+  /* The /rndm index while a note is lying on top of it. It pulls back and
+     dims so the note reads as an object on it rather than as the next page,
+     and comes forward again as the note is dragged off — the same move in
+     reverse, because it is the same number running it.
+
+     That number is --sheet-progress (0 = note at rest, 1 = note gone),
+     written on :root by note-sheet.tsx. `scale` and `filter` are ordinary
+     animatable properties, so changing the custom property they read is
+     enough to transition them: --sheet-duration is 0ms while a finger is on
+     the sheet, so the ground tracks it exactly, and becomes the sheet's own
+     duration the moment it is let go, so the two layers finish together
+     without a frame loop tying them.
+
+     Only applied while there is a sheet: a permanent transform here would
+     make the index the containing block for any fixed child it ever grows,
+     which is exactly the trap a note's artwork already has to avoid. */
+  .rndm-ground {
+    transform-origin: 50% 0;
+    scale: calc(0.94 + 0.06 * var(--sheet-progress, 1));
+    filter: brightness(calc(0.6 + 0.4 * var(--sheet-progress, 1)));
+    transition:
+      scale var(--sheet-duration, 0ms) var(--ease-sheet),
+      filter var(--sheet-duration, 0ms) var(--ease-sheet);
+  }
+
+  /* When the whole surface rises into place, that IS the arrival — running
+     the per-element stagger underneath it plays the same move twice. */
+  [data-arrival="slide"] .reveal {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* Depth was the flourish; the dimming still says something is on top. */
+    .rndm-ground {
+      scale: 1;
+    }
+  }
+}
