@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { links } from "@/lib/links";
 import { BouncyBall } from "@/components/bouncy-ball";
+import { fraktur } from "@/lib/fraktur";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -24,7 +25,7 @@ export default function Home() {
       <div className="reveal min-h-[var(--heading-block)]">
         <h1
           aria-label="Ana Varela"
-          className="text-base font-semibold tracking-tight text-zinc-100"
+          className={`${fraktur.className} text-base text-zinc-100`}
         >
           A
         </h1>

@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { UnifrakturMaguntia } from "next/font/google";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { NoteShell } from "@/components/note-shell";
 import { WideArtwork } from "@/components/notes/wide-artwork";
+import { FRAKTUR_DISPLAY, fraktur } from "@/lib/fraktur";
 import { vault } from "@/lib/vault";
 
 // The vault's first room, named for the track that opens Blue Lines.
@@ -11,13 +11,7 @@ import { vault } from "@/lib/vault";
 // the record's head (name, with the photo on hover), then the ficha, whose
 // citation numbers link straight to their sources.
 //
-// The record's name is the one thing set in blackletter. Declared here
-// rather than in the root layout, so only this note ever fetches the face.
-const fraktur = UnifrakturMaguntia({
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
+// The record's name is set in the site's blackletter (src/lib/fraktur.ts).
 
 // Bone instead of the other notes' #fafaf9: as white as they are, just a
 // touch warmer — old paper next to them, never a colour of its own.
@@ -69,7 +63,7 @@ export function BeThankfulNote() {
             className="group relative w-fit outline-none select-none [-webkit-touch-callout:none]"
           >
             <h2
-              className={`${fraktur.className} text-[clamp(5rem,24vw,7.5rem)] leading-[0.85] text-zinc-900 transition-opacity duration-150 ease-[ease] max-sm:group-hover:opacity-0 max-sm:group-focus-visible:opacity-0 max-sm:group-active:opacity-0`}
+              className={`${fraktur.className} ${FRAKTUR_DISPLAY} leading-[0.85] text-zinc-900 transition-opacity duration-150 ease-[ease] max-sm:group-hover:opacity-0 max-sm:group-focus-visible:opacity-0 max-sm:group-active:opacity-0`}
             >
               {record.title}
             </h2>
