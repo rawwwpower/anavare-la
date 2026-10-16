@@ -7,7 +7,8 @@ import { vault } from "@/lib/vault";
 
 // The vault's first room, named for the track that opens Blue Lines.
 // Everything sits in the text column under the note's title, phone first:
-// the record's head (cover and name), then the ficha, then the works cited.
+// the record's head (name, with the photo on hover), then the ficha, whose
+// citation numbers link straight to their sources.
 //
 // The record's name is the one thing set in blackletter. Declared here
 // rather than in the root layout, so only this note ever fetches the face.
@@ -27,14 +28,6 @@ export const beThankfulMetadata: Metadata = {
   title: "be thankful for what you’ve got",
   alternates: { canonical: "/rndm/be-thankful" },
 };
-
-// How a cited address is printed: no scheme, and a MusicBrainz id cut to
-// its first block the way a book shortens a long reference. The link itself
-// still goes to the full address.
-const shortUrl = (url: string) =>
-  url
-    .replace(/^https:\/\/(www\.)?/, "")
-    .replace(/\b([0-9a-f]{8})-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/, "$1…");
 
 const stagger = (i: number) =>
   ({ "--reveal-delay": `${60 + i * 45}ms` }) as CSSProperties;
@@ -77,7 +70,7 @@ export function BeThankfulNote() {
               className="pointer-events-none absolute top-0 left-0 z-10 aspect-square h-full w-auto max-w-none opacity-0 transition-opacity duration-150 ease-[ease] group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
             />
           </div>
-          <p className="mt-4 font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-500">
+          <p className="mt-3 font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-500">
             {record.artist} · {record.year}
           </p>
         </div>
@@ -85,13 +78,13 @@ export function BeThankfulNote() {
         {/* The ficha as a card: a hairline frame and a hairline between rows,
             like a library catalogue card. */}
         <dl
-          className="reveal mt-8 border-[0.5px] border-zinc-300 px-3 font-mono text-xs font-light leading-relaxed tracking-wide"
+          className="reveal mt-6 border-[0.5px] border-zinc-300 px-3 font-mono text-xs font-light leading-relaxed tracking-wide"
           style={stagger(1)}
         >
           {record.details.map(([label, value, source]) => (
             <div
               key={label}
-              className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-x-4 border-b-[0.5px] border-zinc-300 py-2 last:border-b-0"
+              className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-x-4 border-b-[0.5px] border-zinc-300 py-1.5 last:border-b-0"
             >
               <dt className="text-[10px] tracking-[0.08em] text-zinc-400">
                 {label}
@@ -99,8 +92,17 @@ export function BeThankfulNote() {
               <dd className="text-zinc-600">
                 {value}
                 {source && (
+                  // The citation is the link itself: the number goes straight
+                  // to the work it cites, so the note needs no list of works
+                  // at its foot and fits the sheet like every other note.
                   <sup className="ml-0.5 text-[8px] text-zinc-400">
-                    <a href={`#fuente-${source}`} aria-label={`fuente ${source}`}>
+                    <a
+                      href={record.sources[source - 1].url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`fuente: ${record.sources[source - 1].author}`}
+                      className="hover:text-zinc-700"
+                    >
                       {source}
                     </a>
                   </sup>
@@ -110,37 +112,6 @@ export function BeThankfulNote() {
           ))}
         </dl>
 
-        {/* Works cited, the way a book closes: author, title in italics,
-            the edition, and where to find it. Set apart from the ficha in
-            the light sans, two sizes down, so it reads as the small print
-            it is. */}
-        <footer className="reveal mt-12" style={stagger(2)}>
-          <h3 className="font-sans text-[9px] tracking-[0.04em] text-zinc-400">
-            fuentes
-          </h3>
-          <ol className="mt-1.5 flex flex-col gap-0.5 font-sans text-[9px] leading-relaxed text-zinc-400">
-            {record.sources.map((s, i) => (
-              <li key={s.author} id={`fuente-${i + 1}`} className="flex gap-2">
-                <span>{i + 1}.</span>
-                <span className="min-w-0 [overflow-wrap:anywhere]">
-                  {s.author}. <i>{s.title}</i>
-                  {s.detail && `. ${s.detail}`}.
-                  {s.url && (
-                    <>
-                      {" "}
-                      <a
-                        href={s.url}
-                        className="underline decoration-zinc-200 underline-offset-2 hover:text-zinc-700"
-                      >
-                        {shortUrl(s.url)}
-                      </a>
-                    </>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </footer>
       </article>
     </NoteShell>
   );
