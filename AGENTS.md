@@ -28,10 +28,31 @@ can't happen again. Talk to Ana in Rioplatense Spanish.
   recent merges on the same files, tell her instead of building a parallel
   version.
 
+## Design first, and the smallest change that serves it
+
+- **The design leads; technique serves it.** Don't trim a design to dodge a
+  technical limit without first exhausting the technical options — then show
+  Ana and let her decide.
+- **Fix the note before the system.** Every /rndm note shares one sheet
+  (`note-sheet.tsx`, `use-swipe-dismiss.ts`). If one note misbehaves and the
+  others don't, find what's different about that note (in October 2026 it
+  was the only one taller than a phone's sheet) before touching the shared
+  code — and never rewrite shared infrastructure, or swap it for a library,
+  without asking. When the shared code does change, check every note, opened
+  from the index and by its own URL, on a small phone (375x667) and a common
+  one (390x664, Safari's bars showing).
+- **Don't hand-roll what has a proven answer.** Ana's `design-system` repo and
+  Emil Kowalski's skills (github.com/emilkowalski/skill) are the reference for
+  motion, sheets and mobile behaviour.
+
 ## Closing: merged is not live
 
-- **End with a PR to `main`** whenever you pushed work, and tell Ana it's
-  waiting for her "Merge". Work isn't saved until it's in `main`.
+- **End with a PR to `main`** whenever you pushed work. Work isn't saved
+  until it's in `main`.
+- **When Ana wants to see a change, merge it** and send her the anavare.la
+  link once the deploy is live: Vercel's preview links are harder for her to
+  open on the phone than production. Anything she hasn't asked to see yet
+  still waits on her "Merge".
 - **Vercel deploys `main` to production on every merge**, and it takes a
   minute or two. Until then anavare.la still shows the previous version.
   Tell Ana to wait for the green ✓ next to the latest commit on GitHub
