@@ -78,7 +78,7 @@ export const metadata: Metadata = {
 // Keeps mobile browser chrome the same colour as the page instead of a
 // system bar sitting over it. /rndm overrides this with its light value.
 export const viewport: Viewport = {
-  themeColor: "#1c1c1a",
+  themeColor: "#121317",
 };
 
 // JSON-LD: tells search engines that anavare.la and all these profiles are
