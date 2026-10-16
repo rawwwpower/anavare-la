@@ -3,9 +3,12 @@
 :root {
   --background: #121317;
   --foreground: #fafaf9;
-  /* Hover and focus colour of every text link: Pantone 16-1650 "Diva Pink"
-     (Ana, October 2026), the site's one accent. */
-  --accent: #ff1a56;
+  /* Hover and focus colour of every text link, the site's one accent: a
+     neon red (Ana, October 2026). It started as Pantone "Diva Pink" and was
+     pulled toward a pure red — a little more white, nothing pink — so it
+     sits with the reds of the eyeball instead of buzzing against the
+     ground. */
+  --accent: #ff3d4a;
   /* The page margin, the same on all four sides so the corners make a
      symmetric frame (Ana, October 2026: halved from 4rem/5rem, and the
      sides made to match). Read by the page shell and by any fixed-position
