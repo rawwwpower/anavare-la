@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #1c1c1a;
+  --background: #121317;
   --foreground: #fafaf9;
   /* Shared page gutter: read by both the page shell and any fixed-position
      overlay (poster, ball) that needs to align with the body copy's edge. */
