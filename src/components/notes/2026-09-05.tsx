@@ -26,7 +26,7 @@ export function NotaNote() {
       }
     >
       <p
-        className="reveal max-w-md font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-600"
+        className="reveal max-w-md text-base leading-relaxed text-zinc-600"
         style={{ "--reveal-delay": "60ms" } as CSSProperties}
       >
         Agotá el rango de lo posible y de lo imposible.

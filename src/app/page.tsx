@@ -25,7 +25,7 @@ export default function Home() {
       <div className="reveal min-h-[var(--heading-block)]">
         <h1
           aria-label="Ana Varela"
-          className={`${fraktur.className} text-base text-zinc-100`}
+          className={`${fraktur.className} text-xl leading-6 text-zinc-100`}
         >
           A
         </h1>

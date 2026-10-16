@@ -195,7 +195,7 @@ export function NoteShell({
           <div className="reveal min-h-[var(--heading-block)]">
             <h1
               aria-label={titleAria}
-              className={`text-base font-semibold tracking-tight ${palette.title}`}
+              className={`text-xl leading-6 font-semibold tracking-tight ${palette.title}`}
             >
               {title}
             </h1>
