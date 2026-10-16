@@ -28,6 +28,11 @@ const AXIS_LOCK_PX = 8; // travel before deciding whose gesture this is
 const RUBBER = 0.28; // resistance dragging the wrong way, instead of a wall
 const FADE_MAX = 0.35; // how far it dims while being dragged
 const SNAP_MS = 260;
+// After the content scrolls, no drag may dismiss for this long — vaul's
+// scrollLockTimeout, at its default. Without it, a fast scroll back up that
+// lands on the top hands the very next downward stroke to the sheet, and the
+// note vanishes mid-read.
+const SCROLL_LOCK_MS = 500;
 const NUDGE_PX = 120; // how far past the finger a "nudge" exit carries on
 
 // Speed is measured over the tail of the gesture, not its whole length: a
@@ -125,7 +130,15 @@ export function useSwipeDismiss({
       claimed = box
         ? box.scrollHeight <= box.clientHeight + 1
         : document.documentElement.scrollHeight <= window.innerHeight + 1;
-      document.body.style.touchAction = claimed ? "pan-x pinch-zoom" : "";
+      const action = claimed ? "pan-x pinch-zoom" : "";
+      document.body.style.touchAction = action;
+      // The browser only reads touch-action up to the nearest scroll box, so
+      // on <body> alone it never reaches a sheet's own scroller: the browser
+      // kept the vertical pan inside it and cancelled every drag, even on a
+      // note short enough not to scroll. The same value goes out as a custom
+      // property (those inherit) for the scroller to apply to itself — see
+      // NoteSheet.
+      document.body.style.setProperty("--swipe-touch-action", action || "auto");
     }
 
     const size = () => (vertical ? window.innerHeight : window.innerWidth);
@@ -181,18 +194,35 @@ export function useSwipeDismiss({
 
     // A sheet whose note scrolls used to give up the gesture entirely, which
     // left a tall note on the phone with no way off but the 32px strip of
-    // index above it. Now it behaves like an iOS sheet: when its content is
-    // already at the very top, pulling down moves the sheet instead of
-    // scrolling; anywhere else, or pushing up, the browser scrolls as usual.
+    // index above it. Now it follows vaul (the drawer the design system
+    // uses): when its content is already at the very top, and has been still
+    // for SCROLL_LOCK_MS, pulling down moves the sheet instead of scrolling;
+    // anywhere else, or pushing up, the browser scrolls as usual.
+    let lastScroll = 0;
+    const onScroll = () => {
+      lastScroll = performance.now();
+    };
     const atTop = () => {
       const box = scroller?.current;
-      return vertical && !!box && box.scrollTop <= 0;
+      return (
+        vertical &&
+        !!box &&
+        box.scrollTop <= 0 &&
+        performance.now() - lastScroll > SCROLL_LOCK_MS
+      );
     };
 
     function onDown(e: PointerEvent) {
-      if (leaving || e.pointerType === "mouse") return;
+      // A second finger landing mid-drag would restart the gesture from
+      // where it touched and make the sheet jump to it.
+      if (active || leaving || e.pointerType === "mouse") return;
       fromTop = !claimed && atTop();
       if (!claimed && !fromTop) return;
+      // Only this kind of gesture needs to cancel touch moves, so only it
+      // pays for a non-passive listener, and only while the finger is down.
+      if (fromTop) {
+        document.addEventListener("touchmove", onTouchMove, { passive: false });
+      }
       startX = e.clientX;
       startY = e.clientY;
       travel = 0;
@@ -221,7 +251,7 @@ export function useSwipeDismiss({
         // At the top of a scrolling note, only a pull downward is ours; a
         // push upward is the reader starting to scroll.
         if (Math.abs(along) <= Math.abs(across) || (fromTop && along <= 0)) {
-          active = false;
+          release();
           el!.style.willChange = "";
           return;
         }
@@ -239,9 +269,14 @@ export function useSwipeDismiss({
       paint(along < 0 ? along * RUBBER : along);
     }
 
+    function release() {
+      active = false;
+      document.removeEventListener("touchmove", onTouchMove);
+    }
+
     function onUp() {
       if (!active) return;
-      active = false;
+      release();
       if (!locked) return;
 
       const d = Math.max(travel, 0);
@@ -271,7 +306,7 @@ export function useSwipeDismiss({
 
     function onCancel() {
       if (!active) return;
-      active = false;
+      release();
       if (locked) settle();
     }
 
@@ -280,21 +315,24 @@ export function useSwipeDismiss({
     const content = scroller?.current?.firstElementChild ?? document.body;
     const resized = new ResizeObserver(syncTouchAction);
     resized.observe(content);
+    const box = scroller?.current;
+    box?.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("pointerdown", onDown, { passive: true });
     document.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerup", onUp, { passive: true });
     document.addEventListener("pointercancel", onCancel, { passive: true });
-    document.addEventListener("touchmove", onTouchMove, { passive: false });
 
     return () => {
       window.removeEventListener("resize", syncTouchAction);
       resized.disconnect();
+      box?.removeEventListener("scroll", onScroll);
       document.removeEventListener("pointerdown", onDown);
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
       document.removeEventListener("pointercancel", onCancel);
       document.removeEventListener("touchmove", onTouchMove);
       document.body.style.touchAction = "";
+      document.body.style.removeProperty("--swipe-touch-action");
     };
   }, [axis, enabled, fade, exit, ease, scroller]);
 
