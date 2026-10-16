@@ -1,15 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { UnifrakturMaguntia } from "next/font/google";
-import { getImageProps } from "next/image";
+import Image from "next/image";
 import type { CSSProperties } from "react";
-import { HoverArtwork } from "@/components/hover-artwork";
 import { NoteShell } from "@/components/note-shell";
 import { vault } from "@/lib/vault";
 
-// The vault's first room, named for the track that opens Blue Lines. Laid
-// out like every other note — title, text, close, and the piece in the
-// corner — with the record as the text: its name, the ficha, and the works
-// cited at the foot.
+// The vault's first room, named for the track that opens Blue Lines.
+// Everything sits in the text column under the note's title, phone first:
+// the record's head (cover and name), then the ficha, then the works cited.
 //
 // The record's name is the one thing set in blackletter. Declared here
 // rather than in the root layout, so only this note ever fetches the face.
@@ -30,13 +28,6 @@ export const beThankfulMetadata: Metadata = {
   alternates: { canonical: "/rndm/be-thankful" },
 };
 
-// What the cover actually draws at: clamp(176px, 28vw, 320px) in the
-// desktop corner, and the whole text column on the phone (the viewport
-// minus its two gutters). The browser picks the smallest optimized
-// candidate that covers it, at the screen's own density.
-const COVER_SIZES =
-  "(min-width: 1143px) 320px, (min-width: 640px) 28vw, calc(100vw - 48px)";
-
 // How a cited address is printed: no scheme, and a MusicBrainz id cut to
 // its first block the way a book shortens a long reference. The link itself
 // still goes to the full address.
@@ -50,57 +41,51 @@ const stagger = (i: number) =>
 
 export function BeThankfulNote() {
   const [record] = vault;
-  const {
-    props: { src, srcSet, sizes },
-  } = getImageProps({
-    src: record.cover.image,
-    alt: record.cover.alt,
-    sizes: COVER_SIZES,
-  });
 
   return (
     <NoteShell
       title="be thankful for what you’ve got"
       titleAria="Be thankful for what you’ve got — vault de vinilos"
       surface={BONE}
-      artworkFirst
-      artwork={
-        <HoverArtwork
-          lead
-          defaultSrc={src}
-          srcSet={srcSet}
-          sizes={sizes}
-          placeholder={record.cover.image.blurDataURL}
-          width={record.cover.image.width}
-          height={record.cover.image.height}
-          alt={record.cover.alt}
-        />
-      }
     >
       <article
         aria-label={`${record.artist} — ${record.title}`}
         className="max-w-md"
       >
-        {/* Blackletter sets small and dense, and this is the line that has to
-            be read at a glance: twice the ficha's size on desktop, and twice
-            that again on the phone, where it can take two lines. */}
-        <h2
-          className={`reveal ${fraktur.className} text-5xl leading-[1.05] text-zinc-900 sm:text-2xl sm:leading-tight`}
-          style={stagger(0)}
-        >
-          {record.title}
-        </h2>
-        <p
-          className="reveal mt-1 font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-500"
-          style={stagger(0)}
-        >
-          {record.artist} · {record.year}
-        </p>
+        {/* The name is the whole head, five times the ficha's size, on two
+            lines. The cover lies in the same spot and the two trade places
+            when the name is looked at closer: hover, a press on the phone,
+            or keyboard focus. The cover loads eagerly with the page, so the
+            swap never waits on a download. */}
+        <div className="reveal" style={stagger(0)}>
+          <div
+            tabIndex={0}
+            className="group relative w-fit outline-none select-none [-webkit-touch-callout:none]"
+          >
+            <h2
+              className={`${fraktur.className} text-[clamp(5rem,24vw,7.5rem)] leading-[0.85] text-zinc-900 transition-opacity duration-200 ease-out group-hover:opacity-0 group-focus-visible:opacity-0 group-active:opacity-0`}
+            >
+              {record.title}
+            </h2>
+            <Image
+              src={record.cover.image}
+              alt={record.cover.alt}
+              sizes="(min-width: 640px) 220px, 56vw"
+              placeholder="blur"
+              loading="eager"
+              draggable={false}
+              className="pointer-events-none absolute top-0 left-0 aspect-square h-full w-auto opacity-0 transition-opacity duration-200 ease-out group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
+            />
+          </div>
+          <p className="mt-4 font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-500">
+            {record.artist} · {record.year}
+          </p>
+        </div>
 
         {/* The ficha as a card: a hairline frame and a hairline between rows,
             like a library catalogue card. */}
         <dl
-          className="reveal mt-6 border-[0.5px] border-zinc-300 px-3 font-mono text-xs font-light leading-relaxed tracking-wide"
+          className="reveal mt-8 border-[0.5px] border-zinc-300 px-3 font-mono text-xs font-light leading-relaxed tracking-wide"
           style={stagger(1)}
         >
           {record.details.map(([label, value, source]) => (
