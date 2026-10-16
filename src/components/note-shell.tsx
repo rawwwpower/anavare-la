@@ -75,7 +75,7 @@ const TONES = {
   // ink, and the hover goes white, since the accent is the paper itself.
   ink: {
     title: "text-black",
-    exit: "text-black/60 decoration-black/40 hover:text-white hover:decoration-white focus-visible:text-white",
+    exit: "text-black/60 decoration-black/60 hover:text-white hover:decoration-white focus-visible:text-white",
   },
 };
 

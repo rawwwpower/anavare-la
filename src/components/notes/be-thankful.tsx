@@ -90,7 +90,7 @@ export function BeThankfulNote() {
               </dt>
               <dd className="text-black">
                 <span className="block">{record.title}</span>
-                <span className="block text-black/40">
+                <span className="block text-black/60">
                   {record.year}
                 </span>
               </dd>
@@ -109,7 +109,7 @@ export function BeThankfulNote() {
                     // The citation is the link itself: the number goes straight
                     // to the work it cites, so the note needs no list of works
                     // at its foot and fits the sheet like every other note.
-                    <sup className="ml-0.5 text-[10px] text-black/40">
+                    <sup className="ml-0.5 text-[10px] text-black/60">
                       <a
                         href={record.sources[source - 1].url}
                         target="_blank"
