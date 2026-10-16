@@ -41,6 +41,12 @@ export const notes: Note[] = [
     date: "2026-09-05T18:21",
     place: "Buenos Aires",
   },
+  {
+    slug: "be-thankful",
+    label: "be thankful for what you’ve got",
+    date: "2026-10-16T00:50",
+    place: "Buenos Aires",
+  },
 ];
 
 const shortDate = new Intl.DateTimeFormat("es-AR", {
