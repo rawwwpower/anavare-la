@@ -118,8 +118,14 @@ export function NoteSheet({
     router.back();
   }, [router]);
 
+  // The sheet is fixed to the screen, so a note taller than it scrolls
+  // inside it — never the index underneath, which would slide the dark page
+  // past a sheet that does not move.
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const sheetRef = useSwipeDismiss({
     axis: "down",
+    scroller: scrollRef,
     enabled: slides,
     // Opaque all the way out. Fading it would show the index through the
     // note on its way off, which is two layers at once — the opposite of
@@ -312,7 +318,14 @@ export function NoteSheet({
 
       {/* NoteShell's <main> is `relative`, so the content paints above the
           surface layer without either of them needing a z-index. */}
-      <SheetContext value={sheet}>{children}</SheetContext>
+      <div
+        ref={scrollRef}
+        className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
+      >
+        <div className="flex min-h-full flex-col">
+          <SheetContext value={sheet}>{children}</SheetContext>
+        </div>
+      </div>
     </div>
   );
 }

@@ -48,6 +48,7 @@ export function useSwipeDismiss({
   enabled,
   onDismiss,
   onTrack,
+  scroller,
   fade = true,
   exit = "nudge",
   ease = "var(--ease-out)",
@@ -60,6 +61,10 @@ export function useSwipeDismiss({
   // own duration once it is released. That pair is enough for a second layer
   // to move in step with this one without ticking a frame loop of its own.
   onTrack?: (progress: number, ms: number) => void;
+  // A layer that scrolls inside itself (a sheet, whose page underneath never
+  // moves) passes its scroll box here, so "is there anything to scroll" is
+  // asked of the box the content actually lives in, not of the document.
+  scroller?: React.RefObject<HTMLElement | null>;
   // Dimming as it goes only makes sense when there is nothing underneath to
   // reveal. A sheet lying on the index stays opaque: what it uncovers is the
   // point, and fading the sheet would show both layers at once.
@@ -101,9 +106,10 @@ export function useSwipeDismiss({
     // and taking it away is taking away someone's way of reading the page.
     //
     // A downward drag and a scroll are the same gesture, so the vertical
-    // sheet only claims it while the page has nothing to scroll — true for
-    // every note today, and it hands the gesture straight back if one ever
-    // grows past the fold rather than fighting the scroll.
+    // sheet only claims it while there is nothing to scroll, and hands it
+    // straight back to the browser the moment a note grows past the fold
+    // rather than fighting the scroll. Re-checked whenever the content
+    // changes size (an image or a font arriving can push it over).
     let claimed = true;
     function syncTouchAction() {
       if (!vertical) {
@@ -111,8 +117,10 @@ export function useSwipeDismiss({
         document.body.style.touchAction = "pan-y pinch-zoom";
         return;
       }
-      claimed =
-        document.documentElement.scrollHeight <= window.innerHeight + 1;
+      const box = scroller?.current;
+      claimed = box
+        ? box.scrollHeight <= box.clientHeight + 1
+        : document.documentElement.scrollHeight <= window.innerHeight + 1;
       document.body.style.touchAction = claimed ? "pan-x pinch-zoom" : "";
     }
 
@@ -237,6 +245,9 @@ export function useSwipeDismiss({
 
     syncTouchAction();
     window.addEventListener("resize", syncTouchAction);
+    const content = scroller?.current?.firstElementChild ?? document.body;
+    const resized = new ResizeObserver(syncTouchAction);
+    resized.observe(content);
     document.addEventListener("pointerdown", onDown, { passive: true });
     document.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerup", onUp, { passive: true });
@@ -244,13 +255,14 @@ export function useSwipeDismiss({
 
     return () => {
       window.removeEventListener("resize", syncTouchAction);
+      resized.disconnect();
       document.removeEventListener("pointerdown", onDown);
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
       document.removeEventListener("pointercancel", onCancel);
       document.body.style.touchAction = "";
     };
-  }, [axis, enabled, fade, exit, ease]);
+  }, [axis, enabled, fade, exit, ease, scroller]);
 
   return ref;
 }
