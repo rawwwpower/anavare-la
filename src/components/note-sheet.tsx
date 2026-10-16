@@ -320,9 +320,12 @@ export function NoteSheet({
           surface layer without either of them needing a z-index. */}
       <div
         ref={scrollRef}
-        className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
+        className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain [touch-action:var(--swipe-touch-action,auto)]"
       >
-        <div className="flex min-h-full flex-col">
+        {/* shrink-0: without it, flex squeezes this box to the sheet's height
+            and the content just overflows it, so it never changes size and
+            the swipe never hears that the note grew past the fold. */}
+        <div className="flex min-h-full shrink-0 flex-col">
           <SheetContext value={sheet}>{children}</SheetContext>
         </div>
       </div>
