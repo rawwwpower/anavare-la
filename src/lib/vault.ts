@@ -32,10 +32,13 @@ export type VaultRecord = {
   // item, when present, is the source's number in `sources` (1-based), set
   // as a superscript call like a book's footnote.
   details: [label: string, value: string, source?: number][];
-  // Ana's own photo of her copy (the back, with the tracklist): this is her
-  // record, not the release in general. Kept in the repo and imported, not
-  // linked: the file gets a content hash and is cached for good, and Next
-  // derives its size and a blurred placeholder from it at build time.
+  // The release's official front cover, from the Cover Art Archive
+  // (MusicBrainz release 79c806ce: Virgin 5700960, Europe 2016 — the
+  // catalogue sticker is on it), so it shows this exact edition. Kept in the
+  // repo and imported, not linked: the site never waits on someone else's
+  // server, the file gets a content hash and is cached for good, and Next
+  // serves it resized to what the page shows (56px in the ficha) in WebP or
+  // AVIF, with a blurred placeholder derived at build time.
   cover: { image: StaticImageData; alt: string };
   sources: Source[];
 };
@@ -52,7 +55,7 @@ export const vault: VaultRecord[] = [
       ["Barcode", "602557009606", 2],
       ["Prensado", "Optimal Media, Alemania", 1],
     ],
-    cover: { image: blueLines, alt: "Blue Lines, Massive Attack, contratapa con la lista de temas" },
+    cover: { image: blueLines, alt: "Blue Lines, Massive Attack, tapa" },
     sources: [
       {
         author: "Discogs",
