@@ -5,20 +5,14 @@ import { links } from "@/lib/links";
 import { BouncyBall } from "@/components/bouncy-ball";
 import localFont from "next/font/local";
 
-// The home page sets one letter in blackletter and one word in mono, so it
-// carries just those glyphs, cut from the faces /rndm uses (see
-// src/lib/fraktur.ts and src/lib/mono.ts): 3.5KB and 1.2KB, preloaded,
-// instead of the full 22KB and 23KB files. `block` because they are tiny and
-// preloaded — they land with the first paint, and swapping in a fallback for
+// The home page sets one letter in blackletter, so it carries just that
+// glyph, cut from the face be-thankful uses (src/lib/fraktur.ts): 3.5KB,
+// preloaded, instead of the full 22KB file. `block` because it is tiny and
+// preloaded — it lands with the first paint, and swapping in a fallback for
 // a single decorative glyph would only flash the wrong letter. Change the
-// text and these must be re-cut (fontTools subset, text= the new letters).
+// letter and it must be re-cut (fontTools subset, text= the new letter).
 const homeA = localFont({
   src: "./fonts/UnifrakturMaguntia-A.woff2",
-  display: "block",
-  adjustFontFallback: false,
-});
-const homeMono = localFont({
-  src: "./fonts/GeistMono-designer.woff2",
   display: "block",
   adjustFontFallback: false,
 });
@@ -47,11 +41,7 @@ export default function Home() {
         >
           A
         </h1>
-        <p
-          className={`${homeMono.className} text-xs leading-6 tracking-wide text-zinc-400`}
-        >
-          designer
-        </p>
+        <p className="text-base text-zinc-400">designer</p>
       </div>
 
       <p
