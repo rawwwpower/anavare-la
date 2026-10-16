@@ -76,8 +76,9 @@ export function NoteShell({
   children,
   title,
   titleAria,
-  titleClassName = "text-base font-semibold tracking-tight",
   artwork,
+  artworkFirst = false,
+  surface = "var(--foreground)",
   exitTo = "/rndm",
   exitLabel = "close",
   dismiss = "down",
@@ -89,10 +90,15 @@ export function NoteShell({
   // a heading visually never shortens it for a screen reader.
   title: string;
   titleAria: string;
-  // Replaces the heading's type (Switzer semibold at text-base) for a note
-  // whose title is set in its own face. Colour still comes from the tone.
-  titleClassName?: string;
   artwork?: React.ReactNode;
+  // On the phone, where the artwork sits in normal flow, put it straight
+  // under the title instead of after the text — for a note whose image is
+  // what you look at first. From sm: up the artwork is fixed to its corner
+  // either way, so this only ever changes the phone.
+  artworkFirst?: boolean;
+  // The light sheet's paper, for a note reached by its own URL. Opened from
+  // the index, the sheet is NoteSheet's and takes its `surface` instead.
+  surface?: string;
   exitTo?: string;
   exitLabel?: string;
   dismiss?: "down" | "right";
@@ -142,6 +148,24 @@ export function NoteShell({
     setTimeout(go, CLOSE_MS);
   }
 
+  const slide = {
+    transitionDuration: `${CLOSE_MS}ms`,
+    transform: closing ? "translateY(12%)" : "translateY(0)",
+    opacity: closing ? 0 : 1,
+  };
+
+  const artworkLayer = artwork && (
+    <div
+      className="transition-opacity ease-out"
+      style={{
+        transitionDuration: `${FADE_MS}ms`,
+        opacity: closing ? 0 : 1,
+      }}
+    >
+      {artwork}
+    </div>
+  );
+
   return (
     <main
       ref={sheetRef}
@@ -158,7 +182,7 @@ export function NoteShell({
           aria-hidden
           className="absolute inset-0 transition-opacity ease-out"
           style={{
-            background: "var(--foreground)",
+            background: surface,
             transitionDuration: `${CLOSE_MS}ms`,
             opacity: closing ? 0 : 1,
           }}
@@ -166,41 +190,40 @@ export function NoteShell({
       )}
 
       <div className="relative mx-auto flex w-full flex-1 flex-col">
+        {/* Title and text slide out as one, but they are two boxes so the
+            artwork can sit between them on the phone. The artwork itself
+            stays out of both: a transform on an ancestor would make it the
+            containing block for its sm:fixed corner. */}
         <div
           className="transition-[transform,opacity] ease-sheet"
-          style={{
-            transitionDuration: `${CLOSE_MS}ms`,
-            transform: closing ? "translateY(12%)" : "translateY(0)",
-            opacity: closing ? 0 : 1,
-          }}
+          style={slide}
         >
           <div className="reveal min-h-[var(--heading-block)]">
             <h1
               aria-label={titleAria}
-              className={`${titleClassName} ${palette.title}`}
+              className={`text-base font-semibold tracking-tight ${palette.title}`}
             >
               {title}
             </h1>
           </div>
+        </div>
 
+        {artworkFirst && artworkLayer}
+
+        <div
+          className="transition-[transform,opacity] ease-sheet"
+          style={slide}
+        >
           {/* Starts exactly where the home page's paragraph does. The reveal
               belongs to the content itself, not to this box: a list wants to
               stagger item by item, and animating both would play the same
               move twice on top of itself. */}
-          <div className="mt-12 sm:mt-14">{children}</div>
+          <div className={artworkFirst ? "mt-10 sm:mt-14" : "mt-12 sm:mt-14"}>
+            {children}
+          </div>
         </div>
 
-        {artwork && (
-          <div
-            className="transition-opacity ease-out"
-            style={{
-              transitionDuration: `${FADE_MS}ms`,
-              opacity: closing ? 0 : 1,
-            }}
-          >
-            {artwork}
-          </div>
-        )}
+        {!artworkFirst && artworkLayer}
 
         {/* Kept even with no link below it, so the content above lands on
             the same pixel whether or not the exit is drawn. */}

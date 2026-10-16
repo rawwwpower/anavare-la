@@ -3,17 +3,42 @@
 // Dead Wax collection database (rawwwpower/deadwax, coleccion.db) — this is a
 // hand-picked copy of the fields worth showing, so when a record's edition
 // gets confirmed there (a matrix read, a grading), it gets copied here too.
+//
+// Only what is known gets written down. A field still waiting on a check
+// (say, the matrix before the dead wax has been read) is left out entirely
+// rather than shown as "a confirmar": the ficha says what this copy is, not
+// what is still missing.
+
+import type { StaticImageData } from "next/image";
+import blueLines from "@/assets/vault/blue-lines.jpg";
+
+// A work cited, the way a book lists them at the back: who published it,
+// what it is called, and where to find it.
+export type Source = {
+  author: string;
+  title: string;
+  detail?: string;
+  url?: string;
+};
+
 export type VaultRecord = {
   artist: string;
   title: string;
   // Year the album first came out, shown next to the title. The edition's
-  // own year lives in `edition`.
+  // own year lives in the details.
   year: number;
-  // What this copy is, in order: label, catalogue, barcode, pressing plant.
-  // Ordered pairs rather than fixed fields, because a record only lists what
-  // is actually known about it — an empty field is just not drawn.
-  details: [label: string, value: string][];
-  cover: { src: string; hoverSrc?: string; width: number; height: number; alt: string };
+  // What this copy is, in order. Ordered pairs rather than fixed fields,
+  // because a record only lists what is actually known about it. The third
+  // item, when present, is the source's number in `sources` (1-based), set
+  // as a superscript call like a book's footnote.
+  details: [label: string, value: string, source?: number][];
+  // A catalogue scan of this exact release (from the Cover Art Archive),
+  // never a phone photo, so every cover in the vault reads the same. Kept
+  // in the repo and imported, not linked: the site never waits on someone
+  // else's server, the file gets a content hash and is cached for good, and
+  // Next derives its size and a blurred placeholder from it at build time.
+  cover: { image: StaticImageData; alt: string };
+  sources: Source[];
 };
 
 export const vault: VaultRecord[] = [
@@ -22,19 +47,31 @@ export const vault: VaultRecord[] = [
     title: "Blue Lines",
     year: 1991,
     details: [
-      ["edición", "reedición 2016 · LP 180 g"],
-      ["sello", "Virgin / Circa / Wild Bunch"],
-      ["catálogo", "5700960"],
-      ["barcode", "602557009606"],
-      ["prensado", "Optimal Media, Alemania"],
-      ["matrix", "a confirmar"],
+      ["edición", "reedición 2016 · LP 180 g", 1],
+      ["sello", "Virgin / Circa / Wild Bunch", 1],
+      ["catálogo", "5700960", 1],
+      ["barcode", "602557009606", 2],
+      ["prensado", "Optimal Media, Alemania", 1],
     ],
-    cover: {
-      src: "/toys/blue-lines.jpg",
-      hoverSrc: "/toys/blue-lines-hover.jpg",
-      width: 640,
-      height: 640,
-      alt: "Blue Lines, Massive Attack, tapa",
-    },
+    cover: { image: blueLines, alt: "Blue Lines, Massive Attack, tapa" },
+    sources: [
+      {
+        author: "Discogs",
+        title: "Massive Attack – Blue Lines",
+        detail: "Virgin, 5700960, Europa, 2016",
+        url: "https://www.discogs.com/release/9442778",
+      },
+      {
+        author: "MusicBrainz",
+        title: "Blue Lines",
+        detail: "release 79c806ce, 2016",
+        url: "https://musicbrainz.org/release/79c806ce-52c7-44f6-8279-469569bbca94",
+      },
+      {
+        author: "Cover Art Archive",
+        title: "Blue Lines, tapa",
+        url: "https://coverartarchive.org/release/79c806ce-52c7-44f6-8279-469569bbca94",
+      },
+    ],
   },
 ];

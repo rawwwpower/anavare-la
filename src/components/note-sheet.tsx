@@ -75,6 +75,7 @@ function clearGround() {
 export function NoteSheet({
   title,
   children,
+  surface = NOTE_THEME_COLOR,
 }: {
   // The note's own name. An intercepted route sits in a parallel slot and
   // Next builds <head> from the main tree, so while a sheet is open the
@@ -88,6 +89,9 @@ export function NoteSheet({
   // already right.
   title: string;
   children: React.ReactNode;
+  // The sheet's paper. Every note shares the same light surface unless it
+  // asks for its own; the phone's chrome follows whichever it is.
+  surface?: string;
 }) {
   const router = useRouter();
   // Both queries are read every render on purpose — `&&` between two hook
@@ -201,13 +205,13 @@ export function NoteSheet({
     const prevColor = meta?.getAttribute("content") ?? null;
 
     document.title = pageTitle(title);
-    meta?.setAttribute("content", NOTE_THEME_COLOR);
+    meta?.setAttribute("content", surface);
 
     return () => {
       document.title = prevTitle;
       if (prevColor !== null) meta?.setAttribute("content", prevColor);
     };
-  }, [title]);
+  }, [title, surface]);
 
   // The exit link plays the same leaving as the gesture, at the pace of a
   // deliberate tap rather than a throw. A second tap while it is already on
@@ -278,7 +282,7 @@ export function NoteSheet({
         ref={surfaceRef}
         aria-hidden
         className="absolute inset-0"
-        style={{ background: "var(--foreground)" }}
+        style={{ background: surface }}
       />
 
       {isBottomSheet && (
