@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 
 // Vending-machine bouncy ball: drops from the top the first time the user
-// tries to scroll after DWELL_MS on the page. Physics tuned to feel like the
+// tries to scroll, once DWELL_MS on the page have passed — or right at
+// DWELL_MS, if they already tried before it. Physics tuned to feel like the
 // real late-90s rubber balls: high first bounce, energy loss per hit, squash
 // on impact, then a short roll before resting on the bottom edge.
 //
@@ -20,7 +21,9 @@ import { useEffect, useRef } from "react";
 // with the pointer's recent velocity — a real toss against the same walls,
 // not just a swat.
 
-const DWELL_MS = 4000;
+// Short enough that someone who scrolls a little and stops still gets the
+// eye: at 4s, a reader who flicked once early and then sat still never saw it.
+const DWELL_MS = 1500;
 const SIZE = 64;
 const IMAGE_SRC = "/toys/eyeball-v2.webp";
 const GRAVITY = 3400; // px/s²
@@ -57,12 +60,17 @@ export function BouncyBall() {
     if (!ball || !squashEl || !spinEl || !shadowEl) return;
 
     let armed = false;
+    // A scroll that came before the dwell was up still counts: it is kept
+    // and honoured the moment the ball is armed, instead of waiting for a
+    // second scroll that may never come.
+    let wanted = false;
     let launched = false;
     let running = false;
     let rafId = 0;
 
     const armTimer = setTimeout(() => {
       armed = true;
+      if (wanted) launch();
     }, DWELL_MS);
 
     let x = 0;
@@ -323,6 +331,7 @@ export function BouncyBall() {
 
     function onIntent() {
       if (armed) launch();
+      else wanted = true;
     }
 
     // Tracks the paddle for checkPaddleHit(). Kept alive for the component's
@@ -553,7 +562,7 @@ export function BouncyBall() {
               height={SIZE}
               draggable={false}
               decoding="async"
-              // It cannot appear for at least four seconds, so it must never
+              // It cannot appear for at least DWELL_MS, so it must never
               // compete with the fonts and copy that make up the first paint.
               fetchPriority="low"
               className="h-full w-full select-none"
