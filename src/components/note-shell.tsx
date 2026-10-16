@@ -83,6 +83,7 @@ export function NoteShell({
   children,
   title,
   titleAria,
+  titleClassName = "text-xl leading-6 font-semibold tracking-tight",
   artwork,
   surface = "var(--foreground)",
   exitTo = "/rndm",
@@ -96,6 +97,9 @@ export function NoteShell({
   // a heading visually never shortens it for a screen reader.
   title: string;
   titleAria: string;
+  // The title's type. Every note keeps the sans default; the /rndm index sets
+  // its own in the home page's blackletter.
+  titleClassName?: string;
   artwork?: React.ReactNode;
   // The light sheet's paper, for a note reached by its own URL. Opened from
   // the index, the sheet is NoteSheet's and takes its `surface` instead.
@@ -213,7 +217,7 @@ export function NoteShell({
           <div className="reveal min-h-[var(--heading-block)]">
             <h1
               aria-label={titleAria}
-              className={`text-xl leading-6 font-semibold tracking-tight ${palette.title}`}
+              className={`${titleClassName} ${palette.title}`}
             >
               {title}
             </h1>
