@@ -202,13 +202,14 @@ export function useSwipeDismiss({
     const onScroll = () => {
       lastScroll = performance.now();
     };
+    // A note reached by its own URL scrolls the document instead of a box
+    // of its own, and gets the same rule: the two ways of opening a note
+    // have to close the same way.
     const atTop = () => {
       const box = scroller?.current;
+      const top = box ? box.scrollTop : window.scrollY;
       return (
-        vertical &&
-        !!box &&
-        box.scrollTop <= 0 &&
-        performance.now() - lastScroll > SCROLL_LOCK_MS
+        vertical && top <= 0 && performance.now() - lastScroll > SCROLL_LOCK_MS
       );
     };
 
@@ -315,8 +316,8 @@ export function useSwipeDismiss({
     const content = scroller?.current?.firstElementChild ?? document.body;
     const resized = new ResizeObserver(syncTouchAction);
     resized.observe(content);
-    const box = scroller?.current;
-    box?.addEventListener("scroll", onScroll, { passive: true });
+    const scrolling: HTMLElement | Window = scroller?.current ?? window;
+    scrolling.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("pointerdown", onDown, { passive: true });
     document.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerup", onUp, { passive: true });
@@ -325,7 +326,7 @@ export function useSwipeDismiss({
     return () => {
       window.removeEventListener("resize", syncTouchAction);
       resized.disconnect();
-      box?.removeEventListener("scroll", onScroll);
+      scrolling.removeEventListener("scroll", onScroll);
       document.removeEventListener("pointerdown", onDown);
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);

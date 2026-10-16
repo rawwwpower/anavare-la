@@ -54,8 +54,8 @@ export function BeThankfulNote() {
       >
         {/* The name is the whole head, five times the ficha's size, on two
             lines. Looking closer (hover, a press on the phone, or keyboard
-            focus) lays Ana's photo of her copy over it, as wide as the text
-            column: a quick, quiet fade, nothing more. The photo loads
+            focus) lays Ana's photo of her copy over it, square and exactly
+            as tall as the name: a quick, quiet fade, nothing more. The photo loads
             eagerly with the page, so the swap never waits on a download. */}
         <div className="reveal" style={stagger(0)}>
           <div
@@ -70,11 +70,11 @@ export function BeThankfulNote() {
             <Image
               src={record.cover.image}
               alt={record.cover.alt}
-              sizes="(min-width: 640px) 448px, calc(100vw - 3rem)"
+              sizes="(min-width: 640px) 220px, 56vw"
               placeholder="blur"
               loading="eager"
               draggable={false}
-              className="pointer-events-none absolute top-0 left-0 z-10 aspect-square w-[min(28rem,calc(100vw-2*var(--page-pad-x)))] max-w-none opacity-0 transition-opacity duration-150 ease-[ease] group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
+              className="pointer-events-none absolute top-0 left-0 z-10 aspect-square h-full w-auto max-w-none opacity-0 transition-opacity duration-150 ease-[ease] group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
             />
           </div>
           <p className="mt-4 font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-500">
