@@ -3,6 +3,7 @@ import { UnifrakturMaguntia } from "next/font/google";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { NoteShell } from "@/components/note-shell";
+import { WideArtwork } from "@/components/notes/wide-artwork";
 import { vault } from "@/lib/vault";
 
 // The vault's first room, named for the track that opens Blue Lines.
@@ -40,34 +41,46 @@ export function BeThankfulNote() {
       title="be thankful for what you’ve got"
       titleAria="Be thankful for what you’ve got — vault de vinilos"
       surface={BONE}
+      // On a wide screen the photo takes the corner every other note's
+      // artwork sits in; on the phone it lives on the name instead (below).
+      artwork={
+        <WideArtwork
+          defaultSrc={record.cover.image.src}
+          width={record.cover.image.width}
+          height={record.cover.image.height}
+          alt={record.cover.alt}
+        />
+      }
     >
       <article
         aria-label={`${record.artist} — ${record.title}`}
         className="max-w-md"
       >
         {/* The name is the whole head, five times the ficha's size, on two
-            lines. Looking closer (hover, a press on the phone, or keyboard
-            focus) lays Ana's photo of her copy over it, square and exactly
-            as tall as the name: a quick, quiet fade, nothing more. The photo loads
-            eagerly with the page, so the swap never waits on a download. */}
+            lines. On the phone, looking closer (a press, or keyboard focus)
+            lays Ana's photo of her copy over it, square and exactly as tall
+            as the name: a quick, quiet fade, nothing more. The photo loads
+            eagerly with the page, so the swap never waits on a download.
+            From sm: up the photo is in the corner instead, so the name just
+            stays the name. */}
         <div className="reveal" style={stagger(0)}>
           <div
             tabIndex={0}
             className="group relative w-fit outline-none select-none [-webkit-touch-callout:none]"
           >
             <h2
-              className={`${fraktur.className} text-[clamp(5rem,24vw,7.5rem)] leading-[0.85] text-zinc-900 transition-opacity duration-150 ease-[ease] group-hover:opacity-0 group-focus-visible:opacity-0 group-active:opacity-0`}
+              className={`${fraktur.className} text-[clamp(5rem,24vw,7.5rem)] leading-[0.85] text-zinc-900 transition-opacity duration-150 ease-[ease] max-sm:group-hover:opacity-0 max-sm:group-focus-visible:opacity-0 max-sm:group-active:opacity-0`}
             >
               {record.title}
             </h2>
             <Image
               src={record.cover.image}
               alt={record.cover.alt}
-              sizes="(min-width: 640px) 220px, 56vw"
+              sizes="56vw"
               placeholder="blur"
               loading="eager"
               draggable={false}
-              className="pointer-events-none absolute top-0 left-0 z-10 aspect-square h-full w-auto max-w-none opacity-0 transition-opacity duration-150 ease-[ease] group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
+              className="pointer-events-none absolute top-0 left-0 z-10 aspect-square h-full w-auto max-w-none opacity-0 sm:hidden transition-opacity duration-150 ease-[ease] group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
             />
           </div>
           <p className="mt-3 font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-500">
