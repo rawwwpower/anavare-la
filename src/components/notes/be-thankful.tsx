@@ -91,7 +91,7 @@ export function BeThankfulNote() {
           {record.details.map(([label, value, source]) => (
             <div
               key={label}
-              className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-x-4 border-b-[0.5px] border-zinc-300 py-1.5 last:border-b-0"
+              className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-baseline gap-x-3 border-b-[0.5px] border-zinc-300 py-1.5 last:border-b-0"
             >
               <dt className="text-[10px] tracking-[0.08em] text-zinc-400">
                 {label}
