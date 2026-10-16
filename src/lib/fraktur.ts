@@ -9,6 +9,3 @@ export const fraktur = UnifrakturMaguntia({
   subsets: ["latin"],
   display: "swap",
 });
-
-// The size a vault record's name is set at.
-export const FRAKTUR_DISPLAY = "text-[clamp(5rem,24vw,7.5rem)]";

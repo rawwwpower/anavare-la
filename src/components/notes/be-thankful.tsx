@@ -1,9 +1,8 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { NoteShell } from "@/components/note-shell";
-import { WideArtwork } from "@/components/notes/wide-artwork";
-import { FRAKTUR_DISPLAY, fraktur } from "@/lib/fraktur";
+import { fraktur } from "@/lib/fraktur";
 import { vault } from "@/lib/vault";
 
 // The vault's first room, named for the track that opens Blue Lines.
@@ -13,16 +12,15 @@ import { vault } from "@/lib/vault";
 //
 // The record's name is set in the site's blackletter (src/lib/fraktur.ts).
 
-// Bone instead of the other notes' #fafaf9: as white as they are, just a
-// touch warmer — old paper next to them, never a colour of its own.
-export const BONE = "#fcfaf6";
-
-export const beThankfulViewport: Viewport = { themeColor: BONE };
-
 export const beThankfulMetadata: Metadata = {
   title: "be thankful for what you’ve got",
   alternates: { canonical: "/rndm/be-thankful" },
 };
+
+// "Massive Attack" sets 6.3em wide in this face; dividing the column by 6.4
+// makes the phone's single line fill it with a hair to spare, at any width.
+const BAND_SIZE =
+  "text-[calc((100vw-2*var(--page-pad-x))/6.4)] sm:text-[clamp(5rem,24vw,7.5rem)]";
 
 // One grid for every row of the ficha, so the values share one left edge.
 // The padding is on the row, not the card, so each hairline runs from one
@@ -40,26 +38,18 @@ export function BeThankfulNote() {
     <NoteShell
       title="be thankful for what you’ve got"
       titleAria="Be thankful for what you’ve got — vault de vinilos"
-      surface={BONE}
-      // On a wide screen the photo takes the corner every other note's
-      // artwork sits in; on the phone it lives on the name instead (below).
-      artwork={
-        <WideArtwork
-          defaultSrc={record.cover.image.src}
-          width={record.cover.image.width}
-          height={record.cover.image.height}
-          alt={record.cover.alt}
-        />
-      }
     >
       <article
         aria-label={`${record.artist} — ${record.title}`}
         className="max-w-md"
       >
-        {/* The band's name is the whole head, five times the ficha's size,
-            on two lines; the record itself is the ficha's first row. */}
+        {/* The band's name is the whole head; the record itself is the
+            ficha's first row. On the phone it is one line, as wide as the
+            column — so the note fits the same sheet as every other note
+            without scrolling. From sm: up, two lines at the vault's display
+            size. */}
         <h2
-          className={`reveal ${fraktur.className} ${FRAKTUR_DISPLAY} leading-[0.85] text-zinc-900`}
+          className={`reveal ${fraktur.className} ${BAND_SIZE} leading-[0.85] whitespace-nowrap text-zinc-900 sm:whitespace-normal`}
           style={stagger(0)}
         >
           {record.artist}
@@ -68,17 +58,15 @@ export function BeThankfulNote() {
         {/* The ficha as a card: a hairline frame and a hairline between rows,
             like a library catalogue card. Every row, the first included,
             shares one two-column grid, so the values all start on the same
-            line. The first row names the record: on the phone the label
-            column holds Ana's photo of her copy, exactly as wide as that
-            column — the head an iconic record's card has in the vinilos
-            artifact; from sm: up the photo lives in the page's corner (see
-            the artwork above), so the column holds a label like the rest. */}
+            line. The first row names the record, its label column holding
+            Ana's photo of her copy, exactly as wide as that column — the
+            head an iconic record's card has in the vinilos artifact. */}
         <div
           className="reveal mt-6 border-[0.5px] border-zinc-300 font-mono text-xs leading-relaxed tracking-wide"
           style={stagger(1)}
         >
           <dl>
-            <div className={`${FICHA_ROW} items-center py-3.5 sm:items-baseline sm:py-2.5`}>
+            <div className={`${FICHA_ROW} items-center py-3.5`}>
               <dt>
                 <Image
                   src={record.cover.image}
@@ -87,18 +75,15 @@ export function BeThankfulNote() {
                   placeholder="blur"
                   loading="eager"
                   draggable={false}
-                  className="size-14 select-none sm:hidden"
+                  className="size-14 select-none"
                 />
-                <span className="text-[10px] tracking-[0.08em] text-zinc-400 max-sm:sr-only">
+                <span className="sr-only">
                   Disco
                 </span>
               </dt>
               <dd className="text-zinc-600">
-                <span className="block sm:inline">{record.title}</span>
-                <span aria-hidden className="hidden sm:inline">
-                  {" · "}
-                </span>
-                <span className="block text-zinc-400 sm:inline sm:text-zinc-600">
+                <span className="block">{record.title}</span>
+                <span className="block text-zinc-400">
                   {record.year}
                 </span>
               </dd>
