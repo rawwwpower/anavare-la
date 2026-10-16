@@ -1,7 +1,8 @@
 import { UnifrakturMaguntia } from "next/font/google";
 
-// The site's one blackletter, for its two display moments: the home page's
-// "A" and a vault record's name. Declared once so both use the same face
+// The site's one blackletter, for its two moments: the home page's "A" (at
+// body size, in place of the bold sans it replaced) and a vault record's
+// name. Declared once so both use the same face
 // file, and imported only by those pages, never by the root layout, so no
 // other page ever fetches it.
 export const fraktur = UnifrakturMaguntia({
@@ -10,6 +11,5 @@ export const fraktur = UnifrakturMaguntia({
   display: "swap",
 });
 
-// The size a vault record's name is set at; the home page's large "A" is
-// measured against it.
+// The size a vault record's name is set at.
 export const FRAKTUR_DISPLAY = "text-[clamp(5rem,24vw,7.5rem)]";
