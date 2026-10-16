@@ -1,10 +1,9 @@
 import { UnifrakturMaguntia } from "next/font/google";
 
-// The site's one blackletter, for its two moments: the home page's "A" (at
-// body size, in place of the bold sans it replaced) and a vault record's
-// name. Declared once so both use the same face
-// file, and imported only by those pages, never by the root layout, so no
-// other page ever fetches it.
+// The site's one blackletter, for a vault record's name. (The home page's
+// "A" uses a one-glyph cut of this same face — see src/app/page.tsx.)
+// Imported only where it's used, never by the root layout, so no other page
+// ever fetches it.
 export const fraktur = UnifrakturMaguntia({
   weight: "400",
   subsets: ["latin"],

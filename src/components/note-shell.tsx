@@ -65,11 +65,11 @@ const exitShape =
 const TONES = {
   dark: {
     title: "text-zinc-100",
-    exit: "text-zinc-400 decoration-zinc-600 hover:text-zinc-100 hover:decoration-zinc-400 focus-visible:text-zinc-100",
+    exit: "text-zinc-400 decoration-zinc-600 hover:text-accent hover:decoration-accent focus-visible:text-accent",
   },
   light: {
     title: "text-zinc-900",
-    exit: "text-zinc-500 decoration-zinc-400 hover:text-zinc-900 hover:decoration-zinc-600 focus-visible:text-zinc-900",
+    exit: "text-zinc-500 decoration-zinc-400 hover:text-accent hover:decoration-accent focus-visible:text-accent",
   },
 };
 

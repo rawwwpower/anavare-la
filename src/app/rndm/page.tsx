@@ -46,7 +46,7 @@ export default function RndmPage() {
             }
           >
             <Link href={`/rndm/${note.slug}`} className={noteClassName}>
-              <span className="text-base text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-colors duration-150 ease-out group-hover:text-zinc-100 group-hover:decoration-zinc-400">
+              <span className="text-base text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-colors duration-150 ease-out group-hover:text-accent group-hover:decoration-accent">
                 {note.label}
               </span>
               <span className="font-mono text-[10px] tracking-[0.08em] text-zinc-500 transition-colors duration-150 ease-out group-hover:text-zinc-400">

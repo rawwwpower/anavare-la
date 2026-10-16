@@ -3,14 +3,32 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { links } from "@/lib/links";
 import { BouncyBall } from "@/components/bouncy-ball";
-import { fraktur } from "@/lib/fraktur";
+import localFont from "next/font/local";
+
+// The home page sets one letter in blackletter and one word in mono, so it
+// carries just those glyphs, cut from the faces /rndm uses (see
+// src/lib/fraktur.ts and src/lib/mono.ts): 3.5KB and 1.2KB, preloaded,
+// instead of the full 22KB and 23KB files. `block` because they are tiny and
+// preloaded — they land with the first paint, and swapping in a fallback for
+// a single decorative glyph would only flash the wrong letter. Change the
+// text and these must be re-cut (fontTools subset, text= the new letters).
+const homeA = localFont({
+  src: "./fonts/UnifrakturMaguntia-A.woff2",
+  display: "block",
+  adjustFontFallback: false,
+});
+const homeMono = localFont({
+  src: "./fonts/GeistMono-designer.woff2",
+  display: "block",
+  adjustFontFallback: false,
+});
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
 const linkClassName =
-  "inline-flex min-h-11 items-center px-3 text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-zinc-100 hover:decoration-zinc-400 active:scale-[0.97] focus-visible:text-zinc-100 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
+  "inline-flex min-h-11 items-center px-3 text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-accent hover:decoration-accent active:scale-[0.97] focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
 
 // Staggered arrival, top to bottom. 60ms steps: enough to read as a
 // sequence, short enough that the whole page is settled in well under half a
@@ -25,11 +43,15 @@ export default function Home() {
       <div className="reveal min-h-[var(--heading-block)]">
         <h1
           aria-label="Ana Varela"
-          className={`${fraktur.className} text-xl leading-6 text-zinc-100`}
+          className={`${homeA.className} text-2xl leading-6 text-zinc-100`}
         >
           A
         </h1>
-        <p className="text-base text-zinc-400">designer</p>
+        <p
+          className={`${homeMono.className} text-xs leading-6 tracking-wide text-zinc-400`}
+        >
+          designer
+        </p>
       </div>
 
       <p
@@ -41,7 +63,7 @@ export default function Home() {
           href="https://youtu.be/ED3mufU58bk?si=6SR5NY0_-KCdtNQ-&t=75"
           target="_blank"
           rel="noreferrer"
-          className="inline-block underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-zinc-100 hover:decoration-zinc-400 active:scale-[0.97]"
+          className="inline-block underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-accent hover:decoration-accent active:scale-[0.97]"
         >
           raw power
         </a>

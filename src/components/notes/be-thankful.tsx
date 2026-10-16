@@ -108,7 +108,7 @@ export function BeThankfulNote() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`fuente: ${record.sources[source - 1].author}`}
-                      className="hover:text-zinc-700"
+                      className="hover:text-accent"
                     >
                       {source}
                     </a>
