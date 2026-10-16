@@ -51,35 +51,35 @@ export function BeThankfulNote() {
         className="max-w-md"
       >
         {/* The name is the whole head, five times the ficha's size, on two
-            lines. On the phone, looking closer (a press, or keyboard focus)
-            lays Ana's photo of her copy over it, square and exactly as tall
-            as the name: a quick, quiet fade, nothing more. The photo loads
-            eagerly with the page, so the swap never waits on a download.
-            From sm: up the photo is in the corner instead, so the name just
-            stays the name. */}
+            lines. Under it, the record's line: on the phone, Ana's photo of
+            her copy small at the left margin with the artist and year beside
+            it — the same head an iconic record's card has in the vinilos
+            artifact. From sm: up the photo lives in the page's corner
+            instead (see the artwork above), so the line is just text. */}
         <div className="reveal" style={stagger(0)}>
-          <div
-            tabIndex={0}
-            className="group relative w-fit outline-none select-none [-webkit-touch-callout:none]"
+          <h2
+            className={`${fraktur.className} ${FRAKTUR_DISPLAY} leading-[0.85] text-zinc-900`}
           >
-            <h2
-              className={`${fraktur.className} ${FRAKTUR_DISPLAY} leading-[0.85] text-zinc-900 transition-opacity duration-150 ease-[ease] max-sm:group-hover:opacity-0 max-sm:group-focus-visible:opacity-0 max-sm:group-active:opacity-0`}
-            >
-              {record.title}
-            </h2>
+            {record.title}
+          </h2>
+          <div className="mt-4 flex items-center gap-3.5 sm:mt-3">
             <Image
               src={record.cover.image}
               alt={record.cover.alt}
-              sizes="56vw"
+              sizes="64px"
               placeholder="blur"
               loading="eager"
               draggable={false}
-              className="pointer-events-none absolute top-0 left-0 z-10 aspect-square h-full w-auto max-w-none opacity-0 sm:hidden transition-opacity duration-150 ease-[ease] group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
+              className="size-16 shrink-0 select-none sm:hidden"
             />
+            <p className="font-mono text-xs leading-relaxed tracking-wide text-zinc-500">
+              <span className="block sm:inline">{record.artist}</span>
+              <span aria-hidden className="hidden sm:inline">
+                {" · "}
+              </span>
+              <span className="block sm:inline">{record.year}</span>
+            </p>
           </div>
-          <p className="mt-3 font-mono text-xs leading-relaxed tracking-wide text-zinc-500">
-            {record.artist} · {record.year}
-          </p>
         </div>
 
         {/* The ficha as a card: a hairline frame and a hairline between rows,
