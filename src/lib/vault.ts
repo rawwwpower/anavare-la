@@ -10,7 +10,7 @@
 // what is still missing.
 
 import type { StaticImageData } from "next/image";
-import blueLines from "@/assets/vault/blue-lines.jpg";
+import blueLines from "@/assets/vault/blue-lines.webp";
 
 // A work cited, the way a book lists them at the back: who published it,
 // what it is called, and where to find it.
@@ -32,13 +32,14 @@ export type VaultRecord = {
   // item, when present, is the source's number in `sources` (1-based), set
   // as a superscript call like a book's footnote.
   details: [label: string, value: string, source?: number][];
-  // The release's official front cover, from the Cover Art Archive
-  // (MusicBrainz release 79c806ce: Virgin 5700960, Europe 2016 — the
-  // catalogue sticker is on it), so it shows this exact edition. Kept in the
-  // repo and imported, not linked: the site never waits on someone else's
-  // server, the file gets a content hash and is cached for good, and Next
-  // serves it resized to what the page shows (56px in the ficha) in WebP or
-  // AVIF, with a blurred placeholder derived at build time.
+  // Ana's treatment of the release's official front cover (Cover Art
+  // Archive, MusicBrainz release 79c806ce: Virgin 5700960, Europe 2016): a
+  // monotone of black shadows and the accent, made in Figma (desaturate,
+  // contrast, an #ff3d4a fill on Multiply), exported sRGB and kept at
+  // 1200x1200. Kept in the repo and imported, not linked: the file gets a
+  // content hash and is cached for good, and Next serves it resized to what
+  // the page shows (56px in the ficha) in WebP or AVIF, with a blurred
+  // placeholder derived at build time.
   cover: { image: StaticImageData; alt: string };
   sources: Source[];
 };
