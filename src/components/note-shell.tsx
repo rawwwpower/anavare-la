@@ -163,7 +163,7 @@ export function NoteShell({
   return (
     <main
       ref={sheetRef}
-      className="relative flex flex-1 flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]"
+      className="relative flex flex-1 flex-col px-[var(--page-pad-x)] pt-[var(--page-pad-y)] pb-[var(--page-pad-bottom)]"
       style={tone === "light" ? { color: "var(--background)" } : undefined}
     >
       {tone === "light" && !sheet && (

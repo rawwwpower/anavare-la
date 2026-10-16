@@ -31,7 +31,7 @@ const step = (ms: number) => ({ "--reveal-delay": `${ms}ms` }) as CSSProperties;
 
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-svh w-full flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]">
+    <main className="mx-auto flex min-h-svh w-full flex-col px-[var(--page-pad-x)] pt-[var(--page-pad-y)] pb-[var(--page-pad-bottom)]">
       <BouncyBall />
 
       <div className="reveal min-h-[var(--heading-block)]">
