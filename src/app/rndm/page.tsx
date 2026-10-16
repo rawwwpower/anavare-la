@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { notes, formatNoteShort } from "@/lib/notes";
 import { NoteShell } from "@/components/note-shell";
+import { FRAKTUR_TITLE, frakturTitles } from "@/lib/fraktur-titles";
 
 // The root layout's title template ("%s · Ana Varela") was never used, so
 // every note shared the home page's title. Each page names itself now.
@@ -26,6 +27,7 @@ export default function RndmPage() {
     <NoteShell
       title="rndm"
       titleAria="Notas — Ana Varela"
+      titleClassName={`${frakturTitles.className} ${FRAKTUR_TITLE}`}
       exitTo="/"
       exitLabel="back"
       dismiss="right"

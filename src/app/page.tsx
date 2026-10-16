@@ -3,19 +3,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { links } from "@/lib/links";
 import { BouncyBall } from "@/components/bouncy-ball";
-import localFont from "next/font/local";
-
-// The home page sets one letter in blackletter, so it carries just that
-// glyph, cut from the face be-thankful uses (src/lib/fraktur.ts): 3.5KB,
-// preloaded, instead of the full 22KB file. `block` because it is tiny and
-// preloaded — it lands with the first paint, and swapping in a fallback for
-// a single decorative glyph would only flash the wrong letter. Change the
-// letter and it must be re-cut (fontTools subset, text= the new letter).
-const homeA = localFont({
-  src: "./fonts/UnifrakturMaguntia-A.woff2",
-  display: "block",
-  adjustFontFallback: false,
-});
+import { FRAKTUR_TITLE, frakturTitles } from "@/lib/fraktur-titles";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -37,7 +25,7 @@ export default function Home() {
       <div className="reveal min-h-[var(--heading-block)]">
         <h1
           aria-label="Ana Varela"
-          className={`${homeA.className} text-2xl leading-6 text-zinc-100`}
+          className={`${frakturTitles.className} ${FRAKTUR_TITLE} text-zinc-100`}
         >
           A
         </h1>
