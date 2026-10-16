@@ -48,10 +48,11 @@ const SLIDE_IN_MS = 420;
 const SLIDE_OUT_MS = 300;
 const FADE_MS = 200;
 
-// How much of the index is left showing above the sheet. Small enough to read
-// as an edge rather than a second panel, big enough that the sheet is
-// obviously sitting on something.
-const GAP_PX = 32;
+// How much of the index is left showing above the sheet: its whole title row,
+// "rndm" with a margin's worth of air above and below it (Ana, October 2026).
+// The index's own title stays readable under every note, so where you are,
+// and the way back, is always on screen — and the strip is the close button.
+const GAP = "calc(var(--page-pad-y) * 2 + 1.5rem)";
 
 // The top corners, as iOS draws them: not a quarter circle but Figma's 60%
 // corner smoothing, which starts the curve 1.6x the radius back along each
@@ -236,17 +237,14 @@ export function NoteSheet({
     setTimeout(dismiss, outMs);
   }, [sheetRef, slides, outMs, dismiss]);
 
-  // The 32px of index left showing above the sheet is also the way off it.
-  // Tapping there closes it, the way tapping the dimmed background does on
-  // iOS — and it is a real button, so it is the one focusable thing in a
-  // sheet that otherwise has none. That is the point: the exit link came out
-  // because the drag says it better, but a drag is the one thing some people
-  // cannot do, and "swipe or nothing" is not a choice.
-  //
-  // 44px of target out of a 32px strip: the extra 12px hangs BELOW the
-  // sheet's own top edge, over its padding, so the target reaches the
-  // minimum without moving a visible pixel — and stops exactly where the
-  // grabber starts.
+  // The strip of index left showing above the sheet — the "rndm" title row —
+  // is also the way off it. Tapping there closes the sheet and leaves you on
+  // the index, the way tapping the dimmed background does on iOS — and it is
+  // a real button, so it is the one focusable thing in a sheet that
+  // otherwise has none. That is the point: the exit link came out because the
+  // drag says it better, but a drag is the one thing some people cannot do,
+  // and "swipe or nothing" is not a choice. The button covers the whole
+  // strip, so the title itself is the target.
   const tapStart = useRef<{ x: number; y: number } | null>(null);
   const onStripDown = useCallback((e: React.PointerEvent) => {
     tapStart.current = { x: e.clientX, y: e.clientY };
@@ -279,7 +277,7 @@ export function NoteSheet({
       data-arrival={arrival}
       className="fixed inset-x-0 bottom-0 z-50 flex flex-col"
       style={{
-        top: isBottomSheet ? GAP_PX : 0,
+        top: isBottomSheet ? GAP : 0,
         color: "var(--background)",
         willChange: slides ? "transform" : undefined,
       }}
@@ -301,8 +299,8 @@ export function NoteSheet({
             aria-label="close"
             onPointerDown={onStripDown}
             onClick={onStripClick}
-            className="absolute inset-x-0 z-20 h-11 rounded-sm focus-visible:outline focus-visible:outline-1 focus-visible:outline-zinc-500 focus-visible:outline-offset-[-2px]"
-            style={{ top: -GAP_PX }}
+            className="absolute inset-x-0 z-20 rounded-sm focus-visible:outline focus-visible:outline-1 focus-visible:outline-zinc-500 focus-visible:outline-offset-[-2px]"
+            style={{ top: `calc(-1 * ${GAP})`, height: GAP }}
           />
 
           {/* A sign, not a control: the whole screen is already the grab
