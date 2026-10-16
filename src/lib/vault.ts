@@ -32,11 +32,10 @@ export type VaultRecord = {
   // item, when present, is the source's number in `sources` (1-based), set
   // as a superscript call like a book's footnote.
   details: [label: string, value: string, source?: number][];
-  // A catalogue scan of this exact release (from the Cover Art Archive),
-  // never a phone photo, so every cover in the vault reads the same. Kept
-  // in the repo and imported, not linked: the site never waits on someone
-  // else's server, the file gets a content hash and is cached for good, and
-  // Next derives its size and a blurred placeholder from it at build time.
+  // Ana's own photo of her copy (the back, with the tracklist): this is her
+  // record, not the release in general. Kept in the repo and imported, not
+  // linked: the file gets a content hash and is cached for good, and Next
+  // derives its size and a blurred placeholder from it at build time.
   cover: { image: StaticImageData; alt: string };
   sources: Source[];
 };
@@ -53,7 +52,7 @@ export const vault: VaultRecord[] = [
       ["barcode", "602557009606", 2],
       ["prensado", "Optimal Media, Alemania", 1],
     ],
-    cover: { image: blueLines, alt: "Blue Lines, Massive Attack, tapa" },
+    cover: { image: blueLines, alt: "Blue Lines, Massive Attack, contratapa con la lista de temas" },
     sources: [
       {
         author: "Discogs",
@@ -66,11 +65,6 @@ export const vault: VaultRecord[] = [
         title: "Blue Lines",
         detail: "release 79c806ce, 2016",
         url: "https://musicbrainz.org/release/79c806ce-52c7-44f6-8279-469569bbca94",
-      },
-      {
-        author: "Cover Art Archive",
-        title: "Blue Lines, tapa",
-        url: "https://coverartarchive.org/release/79c806ce-52c7-44f6-8279-469569bbca94",
       },
     ],
   },
