@@ -3,7 +3,25 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { links } from "@/lib/links";
 import { BouncyBall } from "@/components/bouncy-ball";
-import { fraktur } from "@/lib/fraktur";
+import localFont from "next/font/local";
+
+// The home page sets one letter in blackletter and one word in mono, so it
+// carries just those glyphs, cut from the faces /rndm uses (see
+// src/lib/fraktur.ts and src/lib/mono.ts): 3.5KB and 1.2KB, preloaded,
+// instead of the full 22KB and 23KB files. `block` because they are tiny and
+// preloaded — they land with the first paint, and swapping in a fallback for
+// a single decorative glyph would only flash the wrong letter. Change the
+// text and these must be re-cut (fontTools subset, text= the new letters).
+const homeA = localFont({
+  src: "./fonts/UnifrakturMaguntia-A.woff2",
+  display: "block",
+  adjustFontFallback: false,
+});
+const homeMono = localFont({
+  src: "./fonts/GeistMono-designer.woff2",
+  display: "block",
+  adjustFontFallback: false,
+});
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -25,11 +43,15 @@ export default function Home() {
       <div className="reveal min-h-[var(--heading-block)]">
         <h1
           aria-label="Ana Varela"
-          className={`${fraktur.className} text-xl leading-6 text-zinc-100`}
+          className={`${homeA.className} text-2xl leading-6 text-zinc-100`}
         >
           A
         </h1>
-        <p className="text-base text-zinc-400">designer</p>
+        <p
+          className={`${homeMono.className} text-xs leading-6 tracking-wide text-zinc-400`}
+        >
+          designer
+        </p>
       </div>
 
       <p
