@@ -9,17 +9,25 @@
      sits with the reds of the eyeball instead of buzzing against the
      ground. */
   --accent: #ff3d4a;
-  /* The page margin, the same on all four sides so the corners make a
-     symmetric frame (Ana, October 2026: halved from 4rem/5rem, and the
-     sides made to match). Read by the page shell and by any fixed-position
-     overlay (poster, ball) that has to align with the body copy's edge. */
-  --page-pad-y: 2rem;
+  /* The page margin. What has to match on all four sides is the ink, not
+     the box (Ana, October 2026): the corners make a symmetric frame, close
+     to the edge on a phone. Read by the page shell and by any
+     fixed-position overlay (poster, ball) that aligns with the copy's edge.
+
+     The bottom one is set apart because the last row is links, and a link
+     row is 44px tall for the thumb with its 24px line centred in it: the
+     letters sit 10px above the row's own bottom. --page-pad-bottom takes
+     those 10px back on the phone, so the links' ink lands as close to the
+     bottom edge as the title's does to the top, without shrinking the tap
+     target. */
+  --page-pad-y: 20px;
   --page-pad-x: var(--page-pad-y);
+  --page-pad-bottom: calc(var(--page-pad-y) - 10px);
   /* The invisible line the ball, the poster and any future corner object
-     share as their bottom — never just page-pad-y, which is where the links
+     share as their bottom — never just page-pad-bottom, which is where the links
      row itself sits. 44px is the link row's own height (min-h-11), 18px is
      clearance so the ball can rest above it without ever touching a link. */
-  --shelf-bottom: calc(var(--page-pad-y) + 44px + 18px);
+  --shelf-bottom: calc(var(--page-pad-bottom) + 44px + 18px);
   /* Every page's heading reserves the same box: two text-base lines, which
      is exactly what "A" + "designer" occupies on the home page. A one-word
      title like "rndm" or "vhs" is a single line but keeps the same height,
@@ -30,6 +38,7 @@
 @media (min-width: 640px) {
   :root {
     --page-pad-y: 2.5rem;
+    --page-pad-bottom: var(--page-pad-y);
   }
 }
 
