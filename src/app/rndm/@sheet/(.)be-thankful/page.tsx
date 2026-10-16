@@ -1,18 +1,18 @@
+import { noteViewport } from "@/lib/notes";
 import { NoteSheet } from "@/components/note-sheet";
 import {
-  BONE,
   BeThankfulNote,
   beThankfulMetadata,
-  beThankfulViewport,
 } from "@/components/notes/be-thankful";
 
-// The same note, intercepted — see the note beside this one.
+// The same note, intercepted: reached from the index, it comes up as a sheet
+// on top of it instead of replacing it — the same sheet every note uses.
 export const metadata = beThankfulMetadata;
-export const viewport = beThankfulViewport;
+export const viewport = noteViewport;
 
 export default function BeThankfulSheet() {
   return (
-    <NoteSheet title="be thankful for what you’ve got" surface={BONE}>
+    <NoteSheet title="be thankful for what you’ve got">
       <BeThankfulNote />
     </NoteSheet>
   );
