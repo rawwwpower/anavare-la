@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { NoteShell } from "@/components/note-shell";
+import { ACCENT } from "@/lib/accent";
 import { fraktur } from "@/lib/fraktur";
 import { vault } from "@/lib/vault";
 
@@ -11,6 +12,10 @@ import { vault } from "@/lib/vault";
 // citation numbers link straight to their sources.
 //
 // The record's name is set in the site's blackletter (src/lib/fraktur.ts).
+
+// Printed on the accent: the vault's first record gets the site's red as its
+// paper, black ink on it, and a white hover. The phone's chrome follows.
+export const beThankfulViewport: Viewport = { themeColor: ACCENT };
 
 export const beThankfulMetadata: Metadata = {
   title: "be thankful for what you’ve got",
@@ -26,7 +31,7 @@ const BAND_SIZE =
 // The padding is on the row, not the card, so each hairline runs from one
 // side of the frame to the other.
 const FICHA_ROW =
-  "grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 border-b-[0.5px] border-zinc-200 px-3 last:border-b-0";
+  "grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 border-b-[0.5px] border-black/30 px-3 last:border-b-0";
 
 const stagger = (i: number) =>
   ({ "--reveal-delay": `${60 + i * 45}ms` }) as CSSProperties;
@@ -38,6 +43,8 @@ export function BeThankfulNote() {
     <NoteShell
       title="be thankful for what you’ve got"
       titleAria="Be thankful for what you’ve got — vault de vinilos"
+      tone="ink"
+      surface={ACCENT}
     >
       <article
         aria-label={`${record.artist} — ${record.title}`}
@@ -49,7 +56,7 @@ export function BeThankfulNote() {
             without scrolling. From sm: up, two lines at the vault's display
             size. */}
         <h2
-          className={`reveal ${fraktur.className} ${BAND_SIZE} leading-[0.85] whitespace-nowrap text-zinc-900 sm:whitespace-normal`}
+          className={`reveal ${fraktur.className} ${BAND_SIZE} leading-[0.85] whitespace-nowrap text-black sm:whitespace-normal`}
           style={stagger(0)}
         >
           {record.artist}
@@ -62,7 +69,7 @@ export function BeThankfulNote() {
             Ana's photo of her copy, exactly as wide as that column — the
             head an iconic record's card has in the vinilos artifact. */}
         <div
-          className="reveal mt-6 border-[0.5px] border-zinc-300 font-mono text-xs leading-relaxed tracking-wide"
+          className="reveal mt-6 border-[0.5px] border-black/30 font-mono text-xs leading-relaxed tracking-wide"
           style={stagger(1)}
         >
           <dl>
@@ -81,9 +88,9 @@ export function BeThankfulNote() {
                   Disco
                 </span>
               </dt>
-              <dd className="text-zinc-600">
+              <dd className="text-black">
                 <span className="block">{record.title}</span>
-                <span className="block text-zinc-400">
+                <span className="block text-black/40">
                   {record.year}
                 </span>
               </dd>
@@ -93,22 +100,22 @@ export function BeThankfulNote() {
                 key={label}
                 className={`${FICHA_ROW} items-baseline py-2.5`}
               >
-                <dt className="text-[10px] tracking-[0.08em] text-zinc-400">
+                <dt className="text-[10px] tracking-[0.08em] text-black/60">
                   {label}
                 </dt>
-                <dd className="text-zinc-600">
+                <dd className="text-black">
                   {value}
                   {source && (
                     // The citation is the link itself: the number goes straight
                     // to the work it cites, so the note needs no list of works
                     // at its foot and fits the sheet like every other note.
-                    <sup className="ml-0.5 text-[10px] text-zinc-400">
+                    <sup className="ml-0.5 text-[10px] text-black/40">
                       <a
                         href={record.sources[source - 1].url}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`fuente: ${record.sources[source - 1].author}`}
-                        className="hover:text-accent"
+                        className="hover:text-white"
                       >
                         {source}
                       </a>

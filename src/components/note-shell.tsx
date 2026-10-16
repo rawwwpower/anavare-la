@@ -71,6 +71,12 @@ const TONES = {
     title: "text-zinc-900",
     exit: "text-zinc-500 decoration-zinc-400 hover:text-accent hover:decoration-accent focus-visible:text-accent",
   },
+  // A note printed on a coloured paper (be-thankful, on the accent): black
+  // ink, and the hover goes white, since the accent is the paper itself.
+  ink: {
+    title: "text-black",
+    exit: "text-black/60 decoration-black/40 hover:text-white hover:decoration-white focus-visible:text-white",
+  },
 };
 
 export function NoteShell({
@@ -97,7 +103,7 @@ export function NoteShell({
   exitTo?: string;
   exitLabel?: string;
   dismiss?: "down" | "right";
-  tone?: "dark" | "light";
+  tone?: "dark" | "light" | "ink";
 }) {
   const router = useRouter();
   const [closing, setClosing] = useState(false);
@@ -138,7 +144,7 @@ export function NoteShell({
   // scrolling, an overscroll at either end — and left alone it is the site's
   // dark ground, flashing under a light note. <body> itself stays dark, so a
   // closing note still dissolves onto the index's colour, not onto paper.
-  const ownsPage = tone === "light" && !sheet;
+  const ownsPage = tone !== "dark" && !sheet;
   useLayoutEffect(() => {
     if (!ownsPage) return;
     const html = document.documentElement.style;
@@ -164,9 +170,9 @@ export function NoteShell({
     <main
       ref={sheetRef}
       className="relative flex flex-1 flex-col px-[var(--page-pad-x)] pt-[var(--page-pad-y)] pb-[var(--page-pad-bottom)]"
-      style={tone === "light" ? { color: "var(--background)" } : undefined}
+      style={tone !== "dark" ? { color: "var(--background)" } : undefined}
     >
-      {tone === "light" && !sheet && (
+      {tone !== "dark" && !sheet && (
         // The sheet's own surface, as a layer rather than a background on
         // <main>: a swipe carries it along with the content, and the exit
         // link can dissolve it on its own without fading the text twice.

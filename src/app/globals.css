@@ -8,7 +8,7 @@
      pulled toward a pure red — a little more white, nothing pink — so it
      sits with the reds of the eyeball instead of buzzing against the
      ground. */
-  --accent: #ff3d4a;
+  --accent: #ff3d4a; /* also in src/lib/accent.ts */
   /* The page margin. What has to match on all four sides is the ink, not
      the box (Ana, October 2026): the corners make a symmetric frame, close
      to the edge on a phone. Read by the page shell and by any
