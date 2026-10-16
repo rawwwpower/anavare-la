@@ -3,6 +3,9 @@
 :root {
   --background: #121317;
   --foreground: #fafaf9;
+  /* Hover and focus colour of every text link: Pantone 16-1650 "Diva Pink"
+     (Ana, October 2026), the site's one accent. */
+  --accent: #ff1a56;
   /* The page margin, the same on all four sides so the corners make a
      symmetric frame (Ana, October 2026: halved from 4rem/5rem, and the
      sides made to match). Read by the page shell and by any fixed-position
@@ -30,6 +33,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
   --font-sans: var(--font-switzer);
   --font-mono: var(--font-geist-mono);
 }
