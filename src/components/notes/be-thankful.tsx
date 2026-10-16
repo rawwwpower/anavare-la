@@ -77,7 +77,7 @@ export function BeThankfulNote() {
               className="pointer-events-none absolute top-0 left-0 z-10 aspect-square h-full w-auto max-w-none opacity-0 sm:hidden transition-opacity duration-150 ease-[ease] group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
             />
           </div>
-          <p className="mt-3 font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-500">
+          <p className="mt-3 font-mono text-xs leading-relaxed tracking-wide text-zinc-500">
             {record.artist} · {record.year}
           </p>
         </div>
@@ -85,13 +85,13 @@ export function BeThankfulNote() {
         {/* The ficha as a card: a hairline frame and a hairline between rows,
             like a library catalogue card. */}
         <dl
-          className="reveal mt-6 border-[0.5px] border-zinc-300 px-3 font-mono text-xs font-light leading-relaxed tracking-wide"
+          className="reveal mt-6 border-[0.5px] border-zinc-300 px-3 font-mono text-xs leading-relaxed tracking-wide"
           style={stagger(1)}
         >
           {record.details.map(([label, value, source]) => (
             <div
               key={label}
-              className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-x-4 border-b-[0.5px] border-zinc-300 py-1.5 last:border-b-0"
+              className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-baseline gap-x-3 border-b-[0.5px] border-zinc-300 py-1.5 last:border-b-0"
             >
               <dt className="text-[10px] tracking-[0.08em] text-zinc-400">
                 {label}
@@ -102,7 +102,7 @@ export function BeThankfulNote() {
                   // The citation is the link itself: the number goes straight
                   // to the work it cites, so the note needs no list of works
                   // at its foot and fits the sheet like every other note.
-                  <sup className="ml-0.5 text-[8px] text-zinc-400">
+                  <sup className="ml-0.5 text-[10px] text-zinc-400">
                     <a
                       href={record.sources[source - 1].url}
                       target="_blank"

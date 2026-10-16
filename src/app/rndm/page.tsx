@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 const noteClassName =
-  "group -ml-3 flex min-h-11 flex-col justify-start gap-1 px-3 font-mono transition-transform duration-150 ease-out active:scale-[0.97] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
+  "group -ml-3 flex min-h-11 flex-col justify-start gap-1 px-3 transition-transform duration-150 ease-out active:scale-[0.97] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
 
 export default function RndmPage() {
   const ordered = [...notes].reverse();
@@ -46,10 +46,10 @@ export default function RndmPage() {
             }
           >
             <Link href={`/rndm/${note.slug}`} className={noteClassName}>
-              <span className="text-sm text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-colors duration-150 ease-out group-hover:text-zinc-100 group-hover:decoration-zinc-400">
+              <span className="text-base text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-colors duration-150 ease-out group-hover:text-zinc-100 group-hover:decoration-zinc-400">
                 {note.label}
               </span>
-              <span className="text-[10px] tracking-[0.08em] text-zinc-500 transition-colors duration-150 ease-out group-hover:text-zinc-400">
+              <span className="font-mono text-[10px] tracking-[0.08em] text-zinc-500 transition-colors duration-150 ease-out group-hover:text-zinc-400">
                 {formatNoteShort(note)}
               </span>
             </Link>

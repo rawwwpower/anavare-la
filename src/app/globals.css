@@ -3,10 +3,12 @@
 :root {
   --background: #121317;
   --foreground: #fafaf9;
-  /* Shared page gutter: read by both the page shell and any fixed-position
-     overlay (poster, ball) that needs to align with the body copy's edge. */
-  --page-pad-x: clamp(1.5rem, 6vw, 5rem);
-  --page-pad-y: 4rem;
+  /* The page margin, the same on all four sides so the corners make a
+     symmetric frame (Ana, October 2026: halved from 4rem/5rem, and the
+     sides made to match). Read by the page shell and by any fixed-position
+     overlay (poster, ball) that has to align with the body copy's edge. */
+  --page-pad-y: 2rem;
+  --page-pad-x: var(--page-pad-y);
   /* The invisible line the ball, the poster and any future corner object
      share as their bottom — never just page-pad-y, which is where the links
      row itself sits. 44px is the link row's own height (min-h-11), 18px is
@@ -21,7 +23,7 @@
 
 @media (min-width: 640px) {
   :root {
-    --page-pad-y: 5rem;
+    --page-pad-y: 2.5rem;
   }
 }
 
