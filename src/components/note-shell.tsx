@@ -123,14 +123,26 @@ export function NoteShell({
   const isNarrow = useMediaQuery(NARROW);
   const canSwipe = !sheet && !covered && (artwork ? isNarrow : true);
 
+  // A note reached by its own URL leaves for the index with a full load, not
+  // a client-side push. A push kept the router's copy of this note as a
+  // whole page, and the next tap on any note from the index reused it: the
+  // note came up as a page again, with no sheet, no grabber and no drag to
+  // close (October 2026). A fresh document has no such copy, so every note
+  // opened from it arrives as the sheet. The index is static and small; the
+  // exit animation still plays first. The index's own way home stays a push.
+  const hardExit = tone !== "dark";
+
   // Warm the destination while the reader is still reading, so the exit
   // animation is the only wait — not the animation plus a fetch. Inside a
   // sheet the way out is the history entry the index already occupies.
   useEffect(() => {
-    if (!sheet) router.prefetch(exitTo);
-  }, [router, exitTo, sheet]);
+    if (!sheet && !hardExit) router.prefetch(exitTo);
+  }, [router, exitTo, sheet, hardExit]);
 
-  const go = useCallback(() => router.push(exitTo), [router, exitTo]);
+  const go = useCallback(() => {
+    if (hardExit) window.location.assign(exitTo);
+    else router.push(exitTo);
+  }, [router, exitTo, hardExit]);
 
   const sheetRef = useSwipeDismiss({
     axis: dismiss,
