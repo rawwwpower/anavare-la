@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { links } from "@/lib/links";
 import { BouncyBall } from "@/components/bouncy-ball";
+import { FRAKTUR_DISPLAY, fraktur } from "@/lib/fraktur";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -21,10 +22,10 @@ export default function Home() {
     <main className="mx-auto flex min-h-svh w-full flex-col px-[var(--page-pad-x)] py-[var(--page-pad-y)]">
       <BouncyBall />
 
-      <div className="reveal min-h-[var(--heading-block)]">
+      <div className="reveal flex h-[calc(var(--heading-block)+3rem)] items-baseline gap-3 sm:h-[calc(var(--heading-block)+3.5rem)]">
         <h1
           aria-label="Ana Varela"
-          className="text-base font-semibold tracking-tight text-zinc-100"
+          className={`${fraktur.className} ${FRAKTUR_DISPLAY} leading-[0.85] text-zinc-100`}
         >
           A
         </h1>
@@ -32,7 +33,7 @@ export default function Home() {
       </div>
 
       <p
-        className="reveal mt-12 max-w-md text-base leading-relaxed text-zinc-400 sm:mt-14"
+        className="reveal max-w-md text-base leading-relaxed text-zinc-400"
         style={step(60)}
       >
         Ana Belén Varela in real life. On the internet, you might know me as{" "}
