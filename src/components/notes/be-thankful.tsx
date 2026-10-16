@@ -24,6 +24,12 @@ export const beThankfulMetadata: Metadata = {
   alternates: { canonical: "/rndm/be-thankful" },
 };
 
+// One grid for every row of the ficha, so the values share one left edge.
+// The padding is on the row, not the card, so each hairline runs from one
+// side of the frame to the other.
+const FICHA_ROW =
+  "grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 border-b-[0.5px] border-zinc-200 px-3 last:border-b-0";
+
 const stagger = (i: number) =>
   ({ "--reveal-delay": `${60 + i * 45}ms` }) as CSSProperties;
 
@@ -50,75 +56,84 @@ export function BeThankfulNote() {
         aria-label={`${record.artist} — ${record.title}`}
         className="max-w-md"
       >
-        {/* The name is the whole head, five times the ficha's size, on two
-            lines. Under it, the record's line: on the phone, Ana's photo of
-            her copy small at the left margin with the artist and year beside
-            it — the same head an iconic record's card has in the vinilos
-            artifact. From sm: up the photo lives in the page's corner
-            instead (see the artwork above), so the line is just text. */}
-        <div className="reveal" style={stagger(0)}>
-          <h2
-            className={`${fraktur.className} ${FRAKTUR_DISPLAY} leading-[0.85] text-zinc-900`}
-          >
-            {record.title}
-          </h2>
-          <div className="mt-4 flex items-center gap-3.5 sm:mt-3">
-            <Image
-              src={record.cover.image}
-              alt={record.cover.alt}
-              sizes="64px"
-              placeholder="blur"
-              loading="eager"
-              draggable={false}
-              className="size-16 shrink-0 select-none sm:hidden"
-            />
-            <p className="font-mono text-xs leading-relaxed tracking-wide text-zinc-500">
-              <span className="block sm:inline">{record.artist}</span>
-              <span aria-hidden className="hidden sm:inline">
-                {" · "}
-              </span>
-              <span className="block sm:inline">{record.year}</span>
-            </p>
-          </div>
-        </div>
+        {/* The band's name is the whole head, five times the ficha's size,
+            on two lines; the record itself is the ficha's first row. */}
+        <h2
+          className={`reveal ${fraktur.className} ${FRAKTUR_DISPLAY} leading-[0.85] text-zinc-900`}
+          style={stagger(0)}
+        >
+          {record.artist}
+        </h2>
 
         {/* The ficha as a card: a hairline frame and a hairline between rows,
-            like a library catalogue card. */}
-        <dl
-          className="reveal mt-6 border-[0.5px] border-zinc-300 px-3 font-mono text-xs leading-relaxed tracking-wide"
+            like a library catalogue card. Every row, the first included,
+            shares one two-column grid, so the values all start on the same
+            line. The first row names the record: on the phone the label
+            column holds Ana's photo of her copy, exactly as wide as that
+            column — the head an iconic record's card has in the vinilos
+            artifact; from sm: up the photo lives in the page's corner (see
+            the artwork above), so the column holds a label like the rest. */}
+        <div
+          className="reveal mt-6 border-[0.5px] border-zinc-300 font-mono text-xs leading-relaxed tracking-wide"
           style={stagger(1)}
         >
-          {record.details.map(([label, value, source]) => (
-            <div
-              key={label}
-              className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-baseline gap-x-3 border-b-[0.5px] border-zinc-300 py-1.5 last:border-b-0"
-            >
-              <dt className="text-[10px] tracking-[0.08em] text-zinc-400">
-                {label}
+          <dl>
+            <div className={`${FICHA_ROW} items-center py-3.5 sm:items-baseline sm:py-2.5`}>
+              <dt>
+                <Image
+                  src={record.cover.image}
+                  alt={record.cover.alt}
+                  sizes="56px"
+                  placeholder="blur"
+                  loading="eager"
+                  draggable={false}
+                  className="size-14 select-none sm:hidden"
+                />
+                <span className="text-[10px] tracking-[0.08em] text-zinc-400 max-sm:sr-only">
+                  Disco
+                </span>
               </dt>
               <dd className="text-zinc-600">
-                {value}
-                {source && (
-                  // The citation is the link itself: the number goes straight
-                  // to the work it cites, so the note needs no list of works
-                  // at its foot and fits the sheet like every other note.
-                  <sup className="ml-0.5 text-[10px] text-zinc-400">
-                    <a
-                      href={record.sources[source - 1].url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`fuente: ${record.sources[source - 1].author}`}
-                      className="hover:text-accent"
-                    >
-                      {source}
-                    </a>
-                  </sup>
-                )}
+                <span className="block sm:inline">{record.title}</span>
+                <span aria-hidden className="hidden sm:inline">
+                  {" · "}
+                </span>
+                <span className="block text-zinc-400 sm:inline sm:text-zinc-600">
+                  {record.year}
+                </span>
               </dd>
             </div>
-          ))}
-        </dl>
-
+            {record.details.map(([label, value, source]) => (
+              <div
+                key={label}
+                className={`${FICHA_ROW} items-baseline py-2.5`}
+              >
+                <dt className="text-[10px] tracking-[0.08em] text-zinc-400">
+                  {label}
+                </dt>
+                <dd className="text-zinc-600">
+                  {value}
+                  {source && (
+                    // The citation is the link itself: the number goes straight
+                    // to the work it cites, so the note needs no list of works
+                    // at its foot and fits the sheet like every other note.
+                    <sup className="ml-0.5 text-[10px] text-zinc-400">
+                      <a
+                        href={record.sources[source - 1].url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`fuente: ${record.sources[source - 1].author}`}
+                        className="hover:text-accent"
+                      >
+                        {source}
+                      </a>
+                    </sup>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </article>
     </NoteShell>
   );
