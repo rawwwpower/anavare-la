@@ -20,8 +20,11 @@
      those 10px back on the phone, so the links' ink lands as close to the
      bottom edge as the title's does to the top, without shrinking the tap
      target. */
-  --page-pad-y: 20px;
-  --page-pad-x: var(--page-pad-y);
+  /* On the phone the top and bottom get more than the sides: in a browser
+     they meet the browser's own bars, a harder edge than the glass at the
+     sides, and at 20px the title and the links read pinched against them. */
+  --page-pad-y: 32px;
+  --page-pad-x: 20px;
   --page-pad-bottom: calc(var(--page-pad-y) - 10px);
   /* The invisible line the ball, the poster and any future corner object
      share as their bottom — never just page-pad-bottom, which is where the links
@@ -38,6 +41,7 @@
 @media (min-width: 640px) {
   :root {
     --page-pad-y: 2.5rem;
+    --page-pad-x: var(--page-pad-y);
     --page-pad-bottom: var(--page-pad-y);
   }
 }
