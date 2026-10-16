@@ -19,10 +19,9 @@ const fraktur = UnifrakturMaguntia({
   display: "swap",
 });
 
-// Bone instead of the other notes' #fafaf9: a few points warmer, enough to
-// read as old paper next to them without ever looking like a different
-// colour on its own.
-export const BONE = "#f9f6ef";
+// Bone instead of the other notes' #fafaf9: as white as they are, just a
+// touch warmer — old paper next to them, never a colour of its own.
+export const BONE = "#fcfaf6";
 
 export const beThankfulViewport: Viewport = { themeColor: BONE };
 
@@ -31,10 +30,12 @@ export const beThankfulMetadata: Metadata = {
   alternates: { canonical: "/rndm/be-thankful" },
 };
 
-// The artwork box is clamp(176px, 28vw, 320px) wide (see HoverArtwork), so
-// this is exactly what it draws at: the browser picks the smallest optimized
+// What the cover actually draws at: clamp(176px, 28vw, 320px) in the
+// desktop corner, and the whole text column on the phone (the viewport
+// minus its two gutters). The browser picks the smallest optimized
 // candidate that covers it, at the screen's own density.
-const COVER_SIZES = "(min-width: 1143px) 320px, (min-width: 629px) 28vw, 176px";
+const COVER_SIZES =
+  "(min-width: 1143px) 320px, (min-width: 640px) 28vw, calc(100vw - 48px)";
 
 // How a cited address is printed: no scheme, and a MusicBrainz id cut to
 // its first block the way a book shortens a long reference. The link itself
@@ -62,8 +63,10 @@ export function BeThankfulNote() {
       title="be thankful for what you’ve got"
       titleAria="Be thankful for what you’ve got — vault de vinilos"
       surface={BONE}
+      artworkFirst
       artwork={
         <HoverArtwork
+          lead
           defaultSrc={src}
           srcSet={srcSet}
           sizes={sizes}
@@ -78,10 +81,11 @@ export function BeThankfulNote() {
         aria-label={`${record.artist} — ${record.title}`}
         className="max-w-md"
       >
-        {/* Twice the size of the note's own text: blackletter sets small and
-            dense, and this is the line that has to be read at a glance. */}
+        {/* Blackletter sets small and dense, and this is the line that has to
+            be read at a glance: twice the ficha's size on desktop, and twice
+            that again on the phone, where it can take two lines. */}
         <h2
-          className={`reveal ${fraktur.className} text-2xl leading-tight text-zinc-900`}
+          className={`reveal ${fraktur.className} text-5xl leading-[1.05] text-zinc-900 sm:text-2xl sm:leading-tight`}
           style={stagger(0)}
         >
           {record.title}
@@ -93,12 +97,17 @@ export function BeThankfulNote() {
           {record.artist} · {record.year}
         </p>
 
+        {/* The ficha as a card: a hairline frame and a hairline between rows,
+            like a library catalogue card. */}
         <dl
-          className="reveal mt-6 grid grid-cols-[auto_1fr] items-baseline gap-x-6 gap-y-1.5 font-mono text-xs font-light leading-relaxed tracking-wide"
+          className="reveal mt-6 border-[0.5px] border-zinc-300 px-3 font-mono text-xs font-light leading-relaxed tracking-wide"
           style={stagger(1)}
         >
           {record.details.map(([label, value, source]) => (
-            <div key={label} className="contents">
+            <div
+              key={label}
+              className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-x-4 border-b-[0.5px] border-zinc-300 py-2 last:border-b-0"
+            >
               <dt className="text-[10px] tracking-[0.08em] text-zinc-400">
                 {label}
               </dt>
@@ -117,15 +126,17 @@ export function BeThankfulNote() {
         </dl>
 
         {/* Works cited, the way a book closes: author, title in italics,
-            the edition, and where to find it — one size down from the ficha. */}
+            the edition, and where to find it. Set apart from the ficha in
+            the light sans, two sizes down, so it reads as the small print
+            it is. */}
         <footer className="reveal mt-12" style={stagger(2)}>
-          <h3 className="font-mono text-[10px] tracking-[0.08em] text-zinc-400">
+          <h3 className="font-sans text-[9px] tracking-[0.04em] text-zinc-400">
             fuentes
           </h3>
-          <ol className="mt-2 flex flex-col gap-1 font-mono text-[10px] font-light leading-relaxed tracking-wide text-zinc-500">
+          <ol className="mt-1.5 flex flex-col gap-0.5 font-sans text-[9px] leading-relaxed text-zinc-400">
             {record.sources.map((s, i) => (
               <li key={s.author} id={`fuente-${i + 1}`} className="flex gap-2">
-                <span className="text-zinc-400">{i + 1}.</span>
+                <span>{i + 1}.</span>
                 <span className="min-w-0 [overflow-wrap:anywhere]">
                   {s.author}. <i>{s.title}</i>
                   {s.detail && `. ${s.detail}`}.
@@ -134,7 +145,7 @@ export function BeThankfulNote() {
                       {" "}
                       <a
                         href={s.url}
-                        className="underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900"
+                        className="underline decoration-zinc-200 underline-offset-2 hover:text-zinc-700"
                       >
                         {shortUrl(s.url)}
                       </a>
