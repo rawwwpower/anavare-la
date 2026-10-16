@@ -285,7 +285,12 @@ export function NoteSheet({
       <div
         ref={surfaceRef}
         aria-hidden
-        className="absolute inset-0"
+        // The paper runs a full screen past the sheet's bottom edge. Pushed
+        // up against the rubber band, the sheet lifts off the bottom of the
+        // screen, and with the paper ending at its edge the index showed
+        // through underneath (Ana, October 2026). With the overhang there is
+        // always more sheet below — the lift stays, the gap never appears.
+        className="absolute inset-x-0 top-0 -bottom-[100vh]"
         style={{ background: surface }}
       />
 
