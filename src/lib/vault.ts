@@ -46,11 +46,11 @@ export const vault: VaultRecord[] = [
     title: "Blue Lines",
     year: 1991,
     details: [
-      ["edición", "reedición 2016 · LP 180 g", 1],
-      ["sello", "Virgin / Circa / Wild Bunch", 1],
-      ["catálogo", "5700960", 1],
-      ["barcode", "602557009606", 2],
-      ["prensado", "Optimal Media, Alemania", 1],
+      ["Edición", "reedición 2016 · LP 180 g", 1],
+      ["Sello", "Virgin / Circa / Wild Bunch", 1],
+      ["Catálogo", "5700960", 1],
+      ["Barcode", "602557009606", 2],
+      ["Prensado", "Optimal Media, Alemania", 1],
     ],
     cover: { image: blueLines, alt: "Blue Lines, Massive Attack, contratapa con la lista de temas" },
     sources: [

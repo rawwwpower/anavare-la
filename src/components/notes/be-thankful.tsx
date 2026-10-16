@@ -25,8 +25,10 @@ export const beThankfulMetadata: Metadata = {
 };
 
 // One grid for every row of the ficha, so the values share one left edge.
+// The padding is on the row, not the card, so each hairline runs from one
+// side of the frame to the other.
 const FICHA_ROW =
-  "grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 border-b-[0.5px] border-zinc-300 last:border-b-0";
+  "grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 border-b-[0.5px] border-zinc-200 px-3 last:border-b-0";
 
 const stagger = (i: number) =>
   ({ "--reveal-delay": `${60 + i * 45}ms` }) as CSSProperties;
@@ -72,11 +74,11 @@ export function BeThankfulNote() {
             artifact; from sm: up the photo lives in the page's corner (see
             the artwork above), so the column holds a label like the rest. */}
         <div
-          className="reveal mt-6 border-[0.5px] border-zinc-300 px-3 font-mono text-xs leading-relaxed tracking-wide"
+          className="reveal mt-6 border-[0.5px] border-zinc-300 font-mono text-xs leading-relaxed tracking-wide"
           style={stagger(1)}
         >
           <dl>
-            <div className={`${FICHA_ROW} items-center py-3 sm:items-baseline sm:py-1.5`}>
+            <div className={`${FICHA_ROW} items-center py-3.5 sm:items-baseline sm:py-2.5`}>
               <dt>
                 <Image
                   src={record.cover.image}
@@ -88,7 +90,7 @@ export function BeThankfulNote() {
                   className="size-14 select-none sm:hidden"
                 />
                 <span className="text-[10px] tracking-[0.08em] text-zinc-400 max-sm:sr-only">
-                  disco
+                  Disco
                 </span>
               </dt>
               <dd className="text-zinc-600">
@@ -104,7 +106,7 @@ export function BeThankfulNote() {
             {record.details.map(([label, value, source]) => (
               <div
                 key={label}
-                className={`${FICHA_ROW} items-baseline py-1.5`}
+                className={`${FICHA_ROW} items-baseline py-2.5`}
               >
                 <dt className="text-[10px] tracking-[0.08em] text-zinc-400">
                   {label}
