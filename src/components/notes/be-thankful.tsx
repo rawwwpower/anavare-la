@@ -24,6 +24,10 @@ export const beThankfulMetadata: Metadata = {
   alternates: { canonical: "/rndm/be-thankful" },
 };
 
+// One grid for every row of the ficha, so the values share one left edge.
+const FICHA_ROW =
+  "grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 border-b-[0.5px] border-zinc-300 last:border-b-0";
+
 const stagger = (i: number) =>
   ({ "--reveal-delay": `${60 + i * 45}ms` }) as CSSProperties;
 
@@ -50,51 +54,57 @@ export function BeThankfulNote() {
         aria-label={`${record.artist} — ${record.title}`}
         className="max-w-md"
       >
-        {/* The name is the whole head, five times the ficha's size, on two
-            lines. */}
+        {/* The band's name is the whole head, five times the ficha's size,
+            on two lines; the record itself is the ficha's first row. */}
         <h2
           className={`reveal ${fraktur.className} ${FRAKTUR_DISPLAY} leading-[0.85] text-zinc-900`}
           style={stagger(0)}
         >
-          {record.title}
+          {record.artist}
         </h2>
 
         {/* The ficha as a card: a hairline frame and a hairline between rows,
-            like a library catalogue card. Its first row says whose record it
-            is: on the phone, Ana's photo of her copy small at the left with
-            the artist and year beside it — the head an iconic record's card
-            has in the vinilos artifact. From sm: up the photo lives in the
-            page's corner instead (see the artwork above), so the row is
-            just text. */}
+            like a library catalogue card. Every row, the first included,
+            shares one two-column grid, so the values all start on the same
+            line. The first row names the record: on the phone the label
+            column holds Ana's photo of her copy, exactly as wide as that
+            column — the head an iconic record's card has in the vinilos
+            artifact; from sm: up the photo lives in the page's corner (see
+            the artwork above), so the column holds a label like the rest. */}
         <div
           className="reveal mt-6 border-[0.5px] border-zinc-300 px-3 font-mono text-xs leading-relaxed tracking-wide"
           style={stagger(1)}
         >
-          <div className="flex items-center gap-3 border-b-[0.5px] border-zinc-300 py-3 sm:py-1.5">
-            <Image
-              src={record.cover.image}
-              alt={record.cover.alt}
-              sizes="64px"
-              placeholder="blur"
-              loading="eager"
-              draggable={false}
-              className="size-16 shrink-0 select-none sm:hidden"
-            />
-            <p className="text-zinc-600">
-              <span className="block sm:inline">{record.artist}</span>
-              <span aria-hidden className="hidden sm:inline">
-                {" · "}
-              </span>
-              <span className="block text-zinc-400 sm:inline sm:text-zinc-600">
-                {record.year}
-              </span>
-            </p>
-          </div>
           <dl>
+            <div className={`${FICHA_ROW} items-center py-3 sm:items-baseline sm:py-1.5`}>
+              <dt>
+                <Image
+                  src={record.cover.image}
+                  alt={record.cover.alt}
+                  sizes="56px"
+                  placeholder="blur"
+                  loading="eager"
+                  draggable={false}
+                  className="size-14 select-none sm:hidden"
+                />
+                <span className="text-[10px] tracking-[0.08em] text-zinc-400 max-sm:sr-only">
+                  disco
+                </span>
+              </dt>
+              <dd className="text-zinc-600">
+                <span className="block sm:inline">{record.title}</span>
+                <span aria-hidden className="hidden sm:inline">
+                  {" · "}
+                </span>
+                <span className="block text-zinc-400 sm:inline sm:text-zinc-600">
+                  {record.year}
+                </span>
+              </dd>
+            </div>
             {record.details.map(([label, value, source]) => (
               <div
                 key={label}
-                className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-baseline gap-x-3 border-b-[0.5px] border-zinc-300 py-1.5 last:border-b-0"
+                className={`${FICHA_ROW} items-baseline py-1.5`}
               >
                 <dt className="text-[10px] tracking-[0.08em] text-zinc-400">
                   {label}
