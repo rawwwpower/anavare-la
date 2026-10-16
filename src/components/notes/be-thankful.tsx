@@ -52,30 +52,34 @@ export function BeThankfulNote() {
         aria-label={`${record.artist} — ${record.title}`}
         className="max-w-md"
       >
-        {/* The name is the whole head, five times the ficha's size, on two
-            lines. The cover lies in the same spot and the two trade places
-            when the name is looked at closer: hover, a press on the phone,
-            or keyboard focus. The cover loads eagerly with the page, so the
-            swap never waits on a download. */}
+        {/* The head is the cover itself, square and exactly as wide as the
+            text column. At rest it is the Sísifo note's hover state turned
+            into the resting one: the cover thrown out of focus, the name
+            set over it. Looking closer (hover, a press on the phone, or
+            keyboard focus) pulls the cover into focus and lets the name go.
+            Same timing as that note: 280ms to look, 180ms to let go. The
+            blur is the browser's, on the one image, scaled up a touch so
+            its soft edge never shows inside the square. */}
         <div className="reveal" style={stagger(0)}>
           <div
             tabIndex={0}
-            className="group relative w-fit outline-none select-none [-webkit-touch-callout:none]"
+            className="group relative aspect-square w-full overflow-hidden bg-zinc-900 outline-none select-none [-webkit-touch-callout:none] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500"
           >
-            <h2
-              className={`${fraktur.className} text-[clamp(5rem,24vw,7.5rem)] leading-[0.85] text-zinc-900 transition-opacity duration-200 ease-out group-hover:opacity-0 group-focus-visible:opacity-0 group-active:opacity-0`}
-            >
-              {record.title}
-            </h2>
             <Image
               src={record.cover.image}
               alt={record.cover.alt}
-              sizes="(min-width: 640px) 220px, 56vw"
+              sizes="(min-width: 640px) 448px, calc(100vw - 3rem)"
               placeholder="blur"
               loading="eager"
               draggable={false}
-              className="pointer-events-none absolute top-0 left-0 aspect-square h-full w-auto opacity-0 transition-opacity duration-200 ease-out group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100"
+              className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover blur-[14px] transition-[filter,transform] duration-[180ms] ease-out group-hover:scale-100 group-hover:blur-none group-hover:duration-[280ms] group-focus-visible:scale-100 group-focus-visible:blur-none group-active:scale-100 group-active:blur-none motion-reduce:transition-none"
             />
+            <h2
+              className={`${fraktur.className} relative p-[8%] text-[clamp(5rem,24vw,7.5rem)] leading-[0.85] transition-[opacity,filter] duration-[180ms] ease-out group-hover:opacity-0 group-hover:blur-[3px] group-hover:duration-[280ms] group-focus-visible:opacity-0 group-active:opacity-0`}
+              style={{ color: BONE }}
+            >
+              {record.title}
+            </h2>
           </div>
           <p className="mt-4 font-mono text-xs font-light leading-relaxed tracking-wide text-zinc-500">
             {record.artist} · {record.year}

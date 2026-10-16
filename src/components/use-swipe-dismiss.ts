@@ -97,6 +97,9 @@ export function useSwipeDismiss({
     let active = false;
     let locked = false;
     let leaving = false;
+    // Set when a gesture starts on a sheet that scrolls but is sitting at
+    // the very top of its content. See onDown.
+    let fromTop = false;
     // Rolling positions for the tail-end speed reading above.
     let samples: { t: number; d: number }[] = [];
 
@@ -106,10 +109,11 @@ export function useSwipeDismiss({
     // and taking it away is taking away someone's way of reading the page.
     //
     // A downward drag and a scroll are the same gesture, so the vertical
-    // sheet only claims it while there is nothing to scroll, and hands it
-    // straight back to the browser the moment a note grows past the fold
+    // sheet only claims it outright while there is nothing to scroll, and
+    // hands it back to the browser the moment a note grows past the fold
     // rather than fighting the scroll. Re-checked whenever the content
-    // changes size (an image or a font arriving can push it over).
+    // changes size (an image or a font arriving can push it over). A note
+    // that does scroll can still be pulled away from its top — see onDown.
     let claimed = true;
     function syncTouchAction() {
       if (!vertical) {
@@ -175,8 +179,20 @@ export function useSwipeDismiss({
       setTimeout(() => dismissRef.current(), ms);
     }
 
+    // A sheet whose note scrolls used to give up the gesture entirely, which
+    // left a tall note on the phone with no way off but the 32px strip of
+    // index above it. Now it behaves like an iOS sheet: when its content is
+    // already at the very top, pulling down moves the sheet instead of
+    // scrolling; anywhere else, or pushing up, the browser scrolls as usual.
+    const atTop = () => {
+      const box = scroller?.current;
+      return vertical && !!box && box.scrollTop <= 0;
+    };
+
     function onDown(e: PointerEvent) {
-      if (leaving || !claimed || e.pointerType === "mouse") return;
+      if (leaving || e.pointerType === "mouse") return;
+      fromTop = !claimed && atTop();
+      if (!claimed && !fromTop) return;
       startX = e.clientX;
       startY = e.clientY;
       travel = 0;
@@ -202,7 +218,9 @@ export function useSwipeDismiss({
         // Whoever moved further wins. Guessing wrong is what makes a page
         // feel like it is grabbing at you, so bow out of the gesture
         // entirely rather than half-tracking it.
-        if (Math.abs(along) <= Math.abs(across)) {
+        // At the top of a scrolling note, only a pull downward is ours; a
+        // push upward is the reader starting to scroll.
+        if (Math.abs(along) <= Math.abs(across) || (fromTop && along <= 0)) {
           active = false;
           el!.style.willChange = "";
           return;
@@ -237,6 +255,20 @@ export function useSwipeDismiss({
       }
     }
 
+    // touch-action can't change mid-gesture, so on a scrolling note the
+    // browser still owns the pan when the finger lands. Cancelling the touch
+    // moves of a downward pull from the top is what keeps it from scrolling
+    // (or rubber-banding) the box, and from cancelling our pointer stream
+    // with a pointercancel. Needs a non-passive listener to be allowed to.
+    function onTouchMove(e: TouchEvent) {
+      if (!active || !fromTop) return;
+      const t = e.touches[0];
+      if (!t) return;
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      if (locked || (dy > 0 && dy >= Math.abs(dx))) e.preventDefault();
+    }
+
     function onCancel() {
       if (!active) return;
       active = false;
@@ -252,6 +284,7 @@ export function useSwipeDismiss({
     document.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerup", onUp, { passive: true });
     document.addEventListener("pointercancel", onCancel, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
 
     return () => {
       window.removeEventListener("resize", syncTouchAction);
@@ -260,6 +293,7 @@ export function useSwipeDismiss({
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
       document.removeEventListener("pointercancel", onCancel);
+      document.removeEventListener("touchmove", onTouchMove);
       document.body.style.touchAction = "";
     };
   }, [axis, enabled, fade, exit, ease, scroller]);
