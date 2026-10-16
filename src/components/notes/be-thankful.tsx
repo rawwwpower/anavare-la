@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import type { CSSProperties } from "react";
+import { ArrivalImage } from "@/components/arrival";
 import { NoteShell } from "@/components/note-shell";
 import { ACCENT } from "@/lib/accent";
 import { fraktur } from "@/lib/fraktur";
@@ -75,12 +76,14 @@ export function BeThankfulNote() {
           <dl>
             <div className={`${FICHA_ROW} items-center py-3.5`}>
               <dt>
-                <Image
-                  src={record.cover.image}
-                  alt={record.cover.alt}
-                  sizes="56px"
-                  placeholder="blur"
-                  loading="eager"
+                {/* Next sizes and encodes it; it arrives the site's one way. */}
+                <ArrivalImage
+                  {...getImageProps({
+                    src: record.cover.image,
+                    alt: record.cover.alt,
+                    sizes: "56px",
+                    loading: "eager",
+                  }).props}
                   draggable={false}
                   className="size-14 select-none"
                 />

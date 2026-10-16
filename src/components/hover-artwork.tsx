@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { preload } from "react-dom";
+import { ARRIVAL_CLASS, arrivalStyle, useArrival } from "@/components/arrival";
 
 // A piece anchored bottom-right (same corner and gutter as the home page's
 // poster, at 2x its size). With hoverSrc, it swaps for a second image on
@@ -56,20 +57,14 @@ export function HoverArtwork({
   preload(defaultSrc, { as: "image", fetchPriority: "high" });
 
   // Holds the piece back until the image is actually decoded, so it resolves
-  // into place instead of popping in mid-download.
-  const [loaded, setLoaded] = useState(false);
-  const defaultImgRef = useRef<HTMLImageElement>(null);
+  // into place instead of popping in mid-download — the site's one arrival
+  // (src/components/arrival.tsx).
+  const { ref: defaultImgRef, loaded, instant, onLoad } = useArrival();
 
   // The hover image is only fetched once something actually reveals it —
   // most visits never trigger it.
   const [everHovered, setEverHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
-
-  // A cached image can already be .complete by the time this effect runs,
-  // in which case the load event fired before React attached the handler.
-  useEffect(() => {
-    if (defaultImgRef.current?.complete) setLoaded(true);
-  }, []);
 
   function onTouchDown(e: React.PointerEvent) {
     if (e.pointerType === "mouse") return;
@@ -88,17 +83,11 @@ export function HoverArtwork({
       // containing block) honors offsets too, so leaving them as an
       // always-on inline style shifted the whole box on mobile instead of
       // leaving it in normal flow.
-      className="group relative mt-10 sm:fixed sm:right-[var(--page-pad-x)] sm:bottom-[var(--shelf-bottom)] sm:mt-0 z-40 transition-[opacity,filter,transform] duration-[450ms] ease-out motion-reduce:transition-opacity motion-reduce:duration-200"
+      className={`group relative mt-10 sm:fixed sm:right-[var(--page-pad-x)] sm:bottom-[var(--shelf-bottom)] sm:mt-0 z-40 ${ARRIVAL_CLASS}`}
       style={{
         width: "clamp(176px, 28vw, 320px)",
         aspectRatio: `${width} / ${height}`,
-        opacity: loaded ? 1 : 0,
-        // Resolving out of a blur reads as the image developing rather than
-        // switching on — the right register for a scanned poster or a
-        // painting. Transform and filter only, and only for the ~600ms it
-        // takes to arrive; nothing here animates again afterwards.
-        filter: loaded ? "blur(0px)" : "blur(6px)",
-        transform: loaded ? "scale(1)" : "scale(0.985)",
+        ...arrivalStyle(loaded, instant),
       }}
       onPointerEnter={hoverSrc ? () => setEverHovered(true) : undefined}
       onPointerDown={hoverSrc ? onTouchDown : undefined}
@@ -116,7 +105,7 @@ export function HoverArtwork({
         draggable={false}
         decoding="async"
         fetchPriority="high"
-        onLoad={() => setLoaded(true)}
+        onLoad={onLoad}
         className={
           hoverSrc
             ? // The base duration is the one the browser uses on the way
