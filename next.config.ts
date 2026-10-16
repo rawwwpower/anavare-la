@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
 
   poweredByHeader: false,
 
+  // Imported images (the vault's record covers) are served by the
+  // optimizer as AVIF, falling back to WebP, at the size each screen
+  // actually draws — a phone on a weak connection gets a few KB, not the
+  // original scan.
+  images: {
+    formats: ["image/avif", "image/webp"],
+    qualities: [75],
+  },
+
   // Everything under /public is served with no cache by default, so the
   // artwork is re-downloaded on every visit. A day of freshness plus a week
   // of stale-while-revalidate makes repeat visits instant while still

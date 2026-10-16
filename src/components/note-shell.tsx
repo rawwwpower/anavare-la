@@ -76,8 +76,8 @@ export function NoteShell({
   children,
   title,
   titleAria,
-  titleClassName = "text-base font-semibold tracking-tight",
   artwork,
+  surface = "var(--foreground)",
   exitTo = "/rndm",
   exitLabel = "close",
   dismiss = "down",
@@ -89,10 +89,10 @@ export function NoteShell({
   // a heading visually never shortens it for a screen reader.
   title: string;
   titleAria: string;
-  // Replaces the heading's type (Switzer semibold at text-base) for a note
-  // whose title is set in its own face. Colour still comes from the tone.
-  titleClassName?: string;
   artwork?: React.ReactNode;
+  // The light sheet's paper, for a note reached by its own URL. Opened from
+  // the index, the sheet is NoteSheet's and takes its `surface` instead.
+  surface?: string;
   exitTo?: string;
   exitLabel?: string;
   dismiss?: "down" | "right";
@@ -158,7 +158,7 @@ export function NoteShell({
           aria-hidden
           className="absolute inset-0 transition-opacity ease-out"
           style={{
-            background: "var(--foreground)",
+            background: surface,
             transitionDuration: `${CLOSE_MS}ms`,
             opacity: closing ? 0 : 1,
           }}
@@ -177,7 +177,7 @@ export function NoteShell({
           <div className="reveal min-h-[var(--heading-block)]">
             <h1
               aria-label={titleAria}
-              className={`${titleClassName} ${palette.title}`}
+              className={`text-base font-semibold tracking-tight ${palette.title}`}
             >
               {title}
             </h1>

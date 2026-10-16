@@ -19,11 +19,16 @@ type HoverArtworkProps = {
   width: number;
   height: number;
   alt?: string;
-  // "corner" pins the piece bottom-right from sm: up, the way every note's
-  // artwork sits. "inline" keeps it in the text column at every width, for
-  // a note where the image is part of the content (a record's cover above
-  // its ficha) rather than something hung beside it.
-  placement?: "corner" | "inline";
+  // For a remote image run through the optimizer: the browser picks the
+  // smallest candidate that fills the box, so a phone never downloads the
+  // desktop size.
+  srcSet?: string;
+  sizes?: string;
+  // A tiny blurred copy of the image (a data URL, well under 1KB), painted
+  // in the box from the first frame. On a slow connection the piece is
+  // already there, soft, instead of an empty corner — and if the real image
+  // never arrives, that is what stays.
+  placeholder?: string;
 };
 
 // A crossfade between two different images reads as two objects swapping,
@@ -55,15 +60,26 @@ export function HoverArtwork({
   width,
   height,
   alt = "",
-  placement = "corner",
+  srcSet,
+  sizes,
+  placeholder,
 }: HoverArtworkProps) {
   // The artwork is the whole point of a note, so it starts downloading with
   // the document instead of waiting for React to hydrate and mount an <img>.
-  preload(defaultSrc, { as: "image", fetchPriority: "high" });
+  preload(defaultSrc, {
+    as: "image",
+    fetchPriority: "high",
+    imageSrcSet: srcSet,
+    imageSizes: sizes,
+  });
 
   // Holds the piece back until the image is actually decoded, so it resolves
   // into place instead of popping in mid-download.
   const [loaded, setLoaded] = useState(false);
+  // A remote image that never arrives (the archive is down, the connection
+  // drops) is hidden rather than drawn as a broken-image icon over the
+  // placeholder — the blurred copy is a better last word than an error.
+  const [failed, setFailed] = useState(false);
   const defaultImgRef = useRef<HTMLImageElement>(null);
 
   // The hover image is only fetched once something actually reveals it —
@@ -94,15 +110,15 @@ export function HoverArtwork({
       // containing block) honors offsets too, so leaving them as an
       // always-on inline style shifted the whole box on mobile instead of
       // leaving it in normal flow.
-      className={`group relative ${
-        placement === "corner"
-          ? "mt-10 sm:fixed sm:right-[var(--page-pad-x)] sm:bottom-[var(--shelf-bottom)] sm:mt-0 z-40"
-          : ""
-      } transition-[opacity,filter,transform] duration-[450ms] ease-out motion-reduce:transition-opacity motion-reduce:duration-200`}
+      className="group relative mt-10 sm:fixed sm:right-[var(--page-pad-x)] sm:bottom-[var(--shelf-bottom)] sm:mt-0 z-40 transition-[opacity,filter,transform] duration-[450ms] ease-out motion-reduce:transition-opacity motion-reduce:duration-200"
       style={{
         width: "clamp(176px, 28vw, 320px)",
         aspectRatio: `${width} / ${height}`,
-        opacity: loaded ? 1 : 0,
+        // With a placeholder there is something to show from the first frame,
+        // so the box is visible at once and the real image resolves on top.
+        opacity: loaded || placeholder ? 1 : 0,
+        backgroundImage: placeholder ? `url("${placeholder}")` : undefined,
+        backgroundSize: "cover",
         // Resolving out of a blur reads as the image developing rather than
         // switching on — the right register for a scanned poster or a
         // painting. Transform and filter only, and only for the ~600ms it
@@ -120,6 +136,8 @@ export function HoverArtwork({
       <img
         ref={defaultImgRef}
         src={defaultSrc}
+        srcSet={srcSet}
+        sizes={sizes}
         alt={alt}
         width={width}
         height={height}
@@ -127,6 +145,7 @@ export function HoverArtwork({
         decoding="async"
         fetchPriority="high"
         onLoad={() => setLoaded(true)}
+        onError={() => setFailed(true)}
         className={
           hoverSrc
             ? // The base duration is the one the browser uses on the way
@@ -135,7 +154,13 @@ export function HoverArtwork({
               "w-full select-none transition-[opacity,filter] duration-[180ms] ease-out group-hover:opacity-0 group-hover:blur-[3px] group-hover:duration-[280ms]"
             : "w-full select-none"
         }
-        style={pressed ? PRESSED_CLEAN_STYLE : undefined}
+        style={
+          failed
+            ? { visibility: "hidden" }
+            : pressed
+              ? PRESSED_CLEAN_STYLE
+              : undefined
+        }
       />
       {hoverSrc && everHovered && (
         // eslint-disable-next-line @next/next/no-img-element
