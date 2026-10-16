@@ -19,6 +19,11 @@ type HoverArtworkProps = {
   width: number;
   height: number;
   alt?: string;
+  // "corner" pins the piece bottom-right from sm: up, the way every note's
+  // artwork sits. "inline" keeps it in the text column at every width, for
+  // a note where the image is part of the content (a record's cover above
+  // its ficha) rather than something hung beside it.
+  placement?: "corner" | "inline";
 };
 
 // A crossfade between two different images reads as two objects swapping,
@@ -50,6 +55,7 @@ export function HoverArtwork({
   width,
   height,
   alt = "",
+  placement = "corner",
 }: HoverArtworkProps) {
   // The artwork is the whole point of a note, so it starts downloading with
   // the document instead of waiting for React to hydrate and mount an <img>.
@@ -88,7 +94,11 @@ export function HoverArtwork({
       // containing block) honors offsets too, so leaving them as an
       // always-on inline style shifted the whole box on mobile instead of
       // leaving it in normal flow.
-      className="group relative mt-10 sm:fixed sm:right-[var(--page-pad-x)] sm:bottom-[var(--shelf-bottom)] sm:mt-0 z-40 transition-[opacity,filter,transform] duration-[450ms] ease-out motion-reduce:transition-opacity motion-reduce:duration-200"
+      className={`group relative ${
+        placement === "corner"
+          ? "mt-10 sm:fixed sm:right-[var(--page-pad-x)] sm:bottom-[var(--shelf-bottom)] sm:mt-0 z-40"
+          : ""
+      } transition-[opacity,filter,transform] duration-[450ms] ease-out motion-reduce:transition-opacity motion-reduce:duration-200`}
       style={{
         width: "clamp(176px, 28vw, 320px)",
         aspectRatio: `${width} / ${height}`,

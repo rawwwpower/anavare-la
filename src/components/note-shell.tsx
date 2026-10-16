@@ -76,6 +76,7 @@ export function NoteShell({
   children,
   title,
   titleAria,
+  titleClassName = "text-base font-semibold tracking-tight",
   artwork,
   exitTo = "/rndm",
   exitLabel = "close",
@@ -88,6 +89,9 @@ export function NoteShell({
   // a heading visually never shortens it for a screen reader.
   title: string;
   titleAria: string;
+  // Replaces the heading's type (Switzer semibold at text-base) for a note
+  // whose title is set in its own face. Colour still comes from the tone.
+  titleClassName?: string;
   artwork?: React.ReactNode;
   exitTo?: string;
   exitLabel?: string;
@@ -173,7 +177,7 @@ export function NoteShell({
           <div className="reveal min-h-[var(--heading-block)]">
             <h1
               aria-label={titleAria}
-              className={`text-base font-semibold tracking-tight ${palette.title}`}
+              className={`${titleClassName} ${palette.title}`}
             >
               {title}
             </h1>
