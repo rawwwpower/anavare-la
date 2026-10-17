@@ -31,7 +31,7 @@ export type Note = {
 export const notes: Note[] = [
   {
     slug: "2026-09-05",
-    label: "nota",
+    label: "Sísifo",
     date: "2026-09-05T00:23",
     place: "Buenos Aires",
   },
