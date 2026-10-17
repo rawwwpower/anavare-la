@@ -8,7 +8,7 @@ export const viewport = noteViewport;
 
 export default function NotaSheet() {
   return (
-    <NoteSheet title="nota">
+    <NoteSheet title="Sísifo">
       <NotaNote />
     </NoteSheet>
   );
