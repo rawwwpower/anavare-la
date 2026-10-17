@@ -10,7 +10,7 @@ import { FRAKTUR_TITLE, frakturTitles } from "@/lib/fraktur-titles";
 export const metadata: Metadata = pageMetadata(
   "rndm",
   "/rndm",
-  "Notas sueltas de Ana Varela: Sísifo, vhs y un vault de vinilos.",
+  "Mis notas sueltas: Sísifo, vhs y mi vault de vinilos.",
 );
 
 const noteClassName =

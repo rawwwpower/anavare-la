@@ -22,7 +22,7 @@ export const beThankfulViewport: Viewport = { themeColor: ACCENT };
 export const beThankfulMetadata: Metadata = pageMetadata(
   "be thankful for what you’ve got",
   "/rndm/be-thankful",
-  "El vault de vinilos de Ana Varela. Primer disco: Blue Lines de Massive Attack, reedición europea 2016 en 180 g.",
+  "Mi vault de vinilos. Empieza con mi Blue Lines de Massive Attack, reedición europea 2016 en 180 g.",
 );
 
 // "Massive Attack" sets 6.3em wide in this face; dividing the column by 6.4
