@@ -1,4 +1,4 @@
-import type { Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 
 // A note is the one light surface on the site, so the browser chrome flips
 // with it. Shared by a note's own page and by the sheet it is shown in when
@@ -14,6 +14,42 @@ export const noteViewport: Viewport = {
 // <head> from the main tree — so that head still belongs to the index and
 // the sheet has to say its own name from the client (see note-sheet.tsx).
 export const pageTitle = (title: string) => `${title} · Ana Varela`;
+
+// A page's own entry for search results and link previews. Without one, a
+// page inherits the root layout's: Google gets the home page's description
+// on every note, and a note shared on WhatsApp or X previews as the home
+// page — its title, its description, its URL. Open Graph and Twitter are
+// replaced whole rather than merged, so the site-wide fields are repeated
+// here, the image included: src/app/opengraph-image.tsx, at its route.
+const OG_IMAGE = { url: "/opengraph-image", width: 1200, height: 630 };
+
+export function pageMetadata(
+  title: string,
+  path: string,
+  description: string,
+): Metadata {
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "article",
+      url: path,
+      siteName: "Ana Varela",
+      title: pageTitle(title),
+      description,
+      images: OG_IMAGE,
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@_rawpower",
+      creator: "@_rawpower",
+      title: pageTitle(title),
+      description,
+      images: OG_IMAGE,
+    },
+  };
+}
 
 // Index of /rndm entries. Each note is its own page under src/app/rndm/<slug>,
 // free to hold whatever it needs (text, images, more later) — this list only

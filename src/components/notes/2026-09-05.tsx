@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/notes";
 import type { CSSProperties } from "react";
 import { HoverArtwork } from "@/components/hover-artwork";
 import { NoteShell } from "@/components/note-shell";
 
 // See the note beside this one: the content lives here so a deep link and a
 // sheet opened from the index render exactly the same thing.
-export const notaMetadata: Metadata = {
-  title: "Sísifo",
-  alternates: { canonical: "/rndm/2026-09-05" },
-};
+export const notaMetadata: Metadata = pageMetadata(
+  "Sísifo",
+  "/rndm/2026-09-05",
+  "Agotá el rango de lo posible y de lo imposible. Sísifo, Franz von Stuck, 1920.",
+);
 
 export function NotaNote() {
   return (

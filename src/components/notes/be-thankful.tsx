@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import { ArrivalImage } from "@/components/arrival";
 import { NoteShell } from "@/components/note-shell";
 import { ACCENT } from "@/lib/accent";
+import { pageMetadata } from "@/lib/notes";
 import { fraktur } from "@/lib/fraktur";
 import { vault } from "@/lib/vault";
 
@@ -18,10 +19,11 @@ import { vault } from "@/lib/vault";
 // paper, black ink on it, and a white hover. The phone's chrome follows.
 export const beThankfulViewport: Viewport = { themeColor: ACCENT };
 
-export const beThankfulMetadata: Metadata = {
-  title: "be thankful for what you’ve got",
-  alternates: { canonical: "/rndm/be-thankful" },
-};
+export const beThankfulMetadata: Metadata = pageMetadata(
+  "be thankful for what you’ve got",
+  "/rndm/be-thankful",
+  "El vault de vinilos de Ana Varela. Primer disco: Blue Lines de Massive Attack, reedición europea 2016 en 180 g.",
+);
 
 // "Massive Attack" sets 6.3em wide in this face; dividing the column by 6.4
 // makes the phone's single line fill it with a hair to spare, at any width.
