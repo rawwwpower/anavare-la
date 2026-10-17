@@ -87,6 +87,8 @@ const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: "Ana Varela",
+  // The name the home page introduces her by, and the one she goes by online.
+  alternateName: ["Ana Belén Varela", "raw power"],
   url: "https://anavare.la",
   jobTitle: "Designer",
   description,

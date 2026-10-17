@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/notes";
 import type { CSSProperties } from "react";
 import { HoverArtwork } from "@/components/hover-artwork";
 import { NoteShell } from "@/components/note-shell";
@@ -7,10 +8,11 @@ import { NoteShell } from "@/components/note-shell";
 // as its own page (a deep link, where there is no index underneath) and as a
 // sheet lying on the index (opened from /rndm). Same note either way — only
 // the layer it arrives on differs.
-export const vhsMetadata: Metadata = {
-  title: "vhs",
-  alternates: { canonical: "/rndm/vhs" },
-};
+export const vhsMetadata: Metadata = pageMetadata(
+  "vhs",
+  "/rndm/vhs",
+  "Indiana Jones y los Cazadores del Arca Perdida, en vhs.",
+);
 
 export function VhsNote() {
   return (

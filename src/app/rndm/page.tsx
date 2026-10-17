@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { notes, formatNoteShort } from "@/lib/notes";
+import { notes, formatNoteShort, pageMetadata } from "@/lib/notes";
 import { NoteShell } from "@/components/note-shell";
 import { FRAKTUR_TITLE, frakturTitles } from "@/lib/fraktur-titles";
 
 // The root layout's title template ("%s · Ana Varela") was never used, so
 // every note shared the home page's title. Each page names itself now.
-export const metadata: Metadata = {
-  title: "rndm",
-  alternates: { canonical: "/rndm" },
-};
+export const metadata: Metadata = pageMetadata(
+  "rndm",
+  "/rndm",
+  "Mis notas sueltas: Sísifo, vhs y mi vault de vinilos.",
+);
 
 const noteClassName =
   "group -ml-3 flex min-h-11 flex-col justify-start gap-1 px-3 transition-transform duration-150 ease-out active:scale-[0.97] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";

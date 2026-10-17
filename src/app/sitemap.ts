@@ -17,6 +17,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     ...notes.map((note) => ({
       url: `${base}/rndm/${note.slug}`,
+      // The day only: a time without a timezone isn't a valid sitemap date.
+      lastModified: note.date.slice(0, 10),
       changeFrequency: "yearly" as const,
       priority: 0.3,
     })),
