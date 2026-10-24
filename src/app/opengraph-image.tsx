@@ -7,7 +7,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const description =
-  "designer based in Argentina. Raised by FADU & soulseek and making the internet fun (and raw) again.";
+  "design engineer based in Argentina. Raised by FADU & soulseek and making the internet fun (and raw) again.";
 
 export default async function Image() {
   // Build-time only, and the one thing keeping GeistMono-Regular.woff in the
