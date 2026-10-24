@@ -37,7 +37,7 @@ const switzer = localFont({
 });
 
 const description =
-  "designer based in Argentina. Raised by FADU & soulseek and making the internet fun (and raw) again.";
+  "design engineer based in Argentina. Raised by FADU & soulseek and making the internet fun (and raw) again.";
 
 const socialLinks = [
   "https://x.com/_rawpower",
@@ -48,7 +48,7 @@ const socialLinks = [
 export const metadata: Metadata = {
   metadataBase: new URL("https://anavare.la"),
   title: {
-    default: "Ana Varela, designer",
+    default: "Ana Varela, design engineer",
     template: "%s · Ana Varela",
   },
   description,
@@ -63,14 +63,14 @@ export const metadata: Metadata = {
     url: "https://anavare.la",
     siteName: "Ana Varela",
     locale: "en_US",
-    title: "Ana Varela, designer",
+    title: "Ana Varela, design engineer",
     description,
   },
   twitter: {
     card: "summary_large_image",
     site: "@_rawpower",
     creator: "@_rawpower",
-    title: "Ana Varela, designer",
+    title: "Ana Varela, design engineer",
     description,
   },
 };
@@ -90,7 +90,7 @@ const personJsonLd = {
   // The name the home page introduces her by, and the one she goes by online.
   alternateName: ["Ana Belén Varela", "raw power"],
   url: "https://anavare.la",
-  jobTitle: "Designer",
+  jobTitle: "Design Engineer",
   description,
   sameAs: socialLinks,
 };

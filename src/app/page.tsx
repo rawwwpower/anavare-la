@@ -29,7 +29,7 @@ export default function Home() {
         >
           A
         </h1>
-        <p className="text-base text-zinc-400">designer</p>
+        <p className="text-base text-zinc-400">design engineer</p>
       </div>
 
       <p
