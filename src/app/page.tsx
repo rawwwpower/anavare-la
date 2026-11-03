@@ -17,13 +17,13 @@ const linkClassName =
 // second — the entrance must never be the reason the site feels slow.
 const rndm = links.find((link) => !link.external)!;
 
-// rndm stands as a column, one letter under the other, without the
-// underline every other link wears. py-2.5 keeps the 10px under its last
-// line that a 44px link row has under its own, so "m" sits where a single
-// line's letters would and the social links, on the row's bottom, share
-// its line.
+// rndm stands as a column, one letter under the other, white like the "A"
+// of the title and without the underline every other link wears. py-2.5
+// keeps the 10px under its last line that a 44px link row has under its
+// own, so "m" sits where a single line's letters would and the social
+// links, on the row's bottom, share its line.
 const rndmClassName =
-  "flex flex-col items-start -ml-3 px-3 py-2.5 text-zinc-400 transition-[color,transform] duration-150 ease-out hover:text-accent active:scale-[0.97] focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
+  "flex flex-col items-start -ml-3 px-3 py-2.5 text-zinc-100 transition-[color,transform] duration-150 ease-out hover:text-accent active:scale-[0.97] focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
 const social = links.filter((link) => link.external);
 
 const step = (ms: number) => ({ "--reveal-delay": `${ms}ms` }) as CSSProperties;
