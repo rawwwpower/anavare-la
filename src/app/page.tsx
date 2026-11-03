@@ -34,11 +34,20 @@ export default function Home() {
       <BouncyBall />
 
       <div className="reveal min-h-[var(--heading-block)]">
+        {/* The "A" opens the record library. -m-2.5 p-2.5 grows its tap
+            target to 44px without moving a pixel of the heading. */}
         <h1
           aria-label="Ana Varela"
           className={`${frakturTitles.className} ${FRAKTUR_TITLE} text-zinc-100`}
         >
-          A
+          <Link
+            href="/a"
+            aria-label="Biblioteca de discos"
+            prefetch={false}
+            className="-m-2.5 inline-block p-2.5 transition-[color,transform] duration-150 ease-out hover:text-accent active:scale-[0.97] focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-zinc-500 rounded-sm"
+          >
+            A
+          </Link>
         </h1>
         <p className="text-base text-zinc-400">design engineer</p>
       </div>

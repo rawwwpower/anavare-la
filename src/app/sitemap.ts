@@ -11,6 +11,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: `${base}/a`,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
       url: `${base}/rndm`,
       changeFrequency: "monthly",
       priority: 0.5,
