@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from "react";
 
-// Vending-machine bouncy ball: drops from the top the first time the user
-// tries to scroll, once DWELL_MS on the page have passed — or right at
-// DWELL_MS, if they already tried before it. Physics tuned to feel like the
+// Vending-machine bouncy ball: drops from the top as the /rndm index opens
+// (ENTRY_MS after it mounts, once its image is decoded, so it never falls
+// as an empty circle) — the first of the objects that index is filling up
+// with (Ana, November 2026). Physics tuned to feel like the
 // real late-90s rubber balls: high first bounce, energy loss per hit, squash
 // on impact, then a short roll before resting on the bottom edge.
 //
@@ -21,9 +22,9 @@ import { useEffect, useRef } from "react";
 // with the pointer's recent velocity — a real toss against the same walls,
 // not just a swat.
 
-// Short enough that someone who scrolls a little and stops still gets the
-// eye: at 4s, a reader who flicked once early and then sat still never saw it.
-const DWELL_MS = 1500;
+// Long enough for the index's own entrance (its list staggers in over
+// ~250ms) to land first, so the eye falls onto a page that is already there.
+const ENTRY_MS = 350;
 const SIZE = 64;
 const IMAGE_SRC = "/toys/eyeball-v2.webp";
 const GRAVITY = 3400; // px/s²
@@ -59,19 +60,22 @@ export function BouncyBall() {
     const shadowEl = shadowRef.current;
     if (!ball || !squashEl || !spinEl || !shadowEl) return;
 
-    let armed = false;
-    // A scroll that came before the dwell was up still counts: it is kept
-    // and honoured the moment the ball is armed, instead of waiting for a
-    // second scroll that may never come.
-    let wanted = false;
     let launched = false;
     let running = false;
     let rafId = 0;
 
-    const armTimer = setTimeout(() => {
-      armed = true;
-      if (wanted) launch();
-    }, DWELL_MS);
+    let cancelled = false;
+    const decoded = new Image();
+    decoded.src = IMAGE_SRC;
+    let armTimer: ReturnType<typeof setTimeout> | undefined;
+    Promise.all([
+      new Promise<void>((resolve) => {
+        armTimer = setTimeout(resolve, ENTRY_MS);
+      }),
+      decoded.decode().catch(() => {}),
+    ]).then(() => {
+      if (!cancelled) launch();
+    });
 
     let x = 0;
     let y = -SIZE * 2;
@@ -318,10 +322,8 @@ export function BouncyBall() {
       ball!.style.pointerEvents = "auto";
       ball!.style.cursor = "grab";
       startLoop();
-      removeListeners();
 
-      // Scroll was only ever a way to say "wake up" pre-launch. Once the
-      // eye exists, a touch-drag aimed at the paddle would otherwise also
+      // Once the eye exists, a touch-drag aimed at the paddle would otherwise also
       // scroll the page underneath it, fighting the very gesture meant to
       // catch the ball.
       document.documentElement.style.overflow = "hidden";
@@ -329,14 +331,8 @@ export function BouncyBall() {
       document.body.style.touchAction = "none";
     }
 
-    function onIntent() {
-      if (armed) launch();
-      else wanted = true;
-    }
-
     // Tracks the paddle for checkPaddleHit(). Kept alive for the component's
-    // whole lifetime (unlike the pre-launch intent listeners below), since
-    // the paddle only matters once the ball actually exists to hit.
+    // whole lifetime, since the paddle only matters once the ball exists.
     function onPointerMove(e: PointerEvent) {
       const t = performance.now();
       const dt = (t - lastPointerT) / 1000;
@@ -462,28 +458,11 @@ export function BouncyBall() {
       });
     }
 
-    function onKey(e: KeyboardEvent) {
-      if (["ArrowDown", "ArrowUp", "PageDown", "Space", " "].includes(e.key)) {
-        onIntent();
-      }
-    }
-
-    function removeListeners() {
-      window.removeEventListener("wheel", onIntent);
-      window.removeEventListener("touchmove", onIntent);
-      window.removeEventListener("scroll", onIntent);
-      window.removeEventListener("keydown", onKey);
-    }
-
     function onWindowBlur() {
       release(true);
     }
 
     refreshLayout();
-    window.addEventListener("wheel", onIntent, { passive: true });
-    window.addEventListener("touchmove", onIntent, { passive: true });
-    window.addEventListener("scroll", onIntent, { passive: true });
-    window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onViewportChange);
     window.addEventListener("scroll", onViewportChange, { passive: true });
     window.visualViewport?.addEventListener("resize", onViewportChange);
@@ -494,9 +473,9 @@ export function BouncyBall() {
     window.addEventListener("blur", onWindowBlur);
 
     return () => {
+      cancelled = true;
       clearTimeout(armTimer);
       cancelAnimationFrame(rafId);
-      removeListeners();
       window.removeEventListener("resize", onViewportChange);
       window.removeEventListener("scroll", onViewportChange);
       window.visualViewport?.removeEventListener("resize", onViewportChange);
@@ -564,8 +543,8 @@ export function BouncyBall() {
               height={SIZE}
               draggable={false}
               decoding="async"
-              // It cannot appear for at least DWELL_MS, so it must never
-              // compete with the fonts and copy that make up the first paint.
+              // It waits ENTRY_MS anyway, so it never competes with the
+              // fonts and copy that make up the first paint.
               fetchPriority="low"
               className="h-full w-full select-none"
               style={{
