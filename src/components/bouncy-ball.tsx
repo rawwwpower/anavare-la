@@ -515,8 +515,10 @@ export function BouncyBall() {
     };
   }, []);
 
+  // z-40, under a note's sheet (z-50): the ball lives on the /rndm index,
+  // and a note opened from it lies on top of the whole page.
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-50">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-40">
       <div
         ref={shadowRef}
         className="absolute left-0 top-0 h-2.5 rounded-full opacity-0"
