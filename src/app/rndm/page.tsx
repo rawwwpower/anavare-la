@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { notes, formatNoteShort, pageMetadata } from "@/lib/notes";
 import { NoteShell } from "@/components/note-shell";
+import { BouncyBall } from "@/components/bouncy-ball";
 import { FRAKTUR_TITLE, frakturTitles } from "@/lib/fraktur-titles";
 
 // The root layout's title template ("%s · Ana Varela") was never used, so
@@ -34,6 +35,10 @@ export default function RndmPage() {
       dismiss="right"
       tone="dark"
     >
+      {/* The eye lives in rndm (Ana, November 2026: it fits the section)
+          and falls onto the index's own floor. */}
+      <BouncyBall />
+
       <ul className="flex flex-col">
         {ordered.map((note, i) => (
           // The list is the page's content, so it staggers item by item

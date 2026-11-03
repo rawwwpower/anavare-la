@@ -86,6 +86,13 @@
   }
 }
 
+/* The home page is printed on the accent: the body under it, which shows
+   in an overscroll, is the same red. Unlayered, so it outranks the body's
+   bg-background utility from the root layout. */
+body:has([data-home]) {
+  background: var(--accent);
+}
+
 @layer utilities {
   /* The site's one entrance: content lifts a few pixels into place instead
      of hard-cutting in. Applied per element with --reveal-delay to stagger a
