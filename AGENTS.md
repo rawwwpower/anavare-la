@@ -49,10 +49,13 @@ can't happen again. Talk to Ana in Rioplatense Spanish.
 
 - **End with a PR to `main`** whenever you pushed work. Work isn't saved
   until it's in `main`.
-- **When Ana wants to see a change, merge it** and send her the anavare.la
-  link once the deploy is live: Vercel's preview links are harder for her to
-  open on the phone than production. Anything she hasn't asked to see yet
-  still waits on her "Merge".
+- **Show the preview before merging** (Ana, November 2026: "antes de mergear
+  tirame link para ver, soy muy visual"). After pushing, wait for Vercel's
+  ✓ on the branch's latest commit and send her the branch preview,
+  `https://anavare-la-git-<branch-with-slashes-as-dashes>-uilabs.vercel.app`
+  (the vercel[bot] comment on the PR names it). It follows every push to
+  the branch. Never merge for her to see a change: merging waits on her
+  "Merge", or on her saying so explicitly.
 - **Vercel deploys `main` to production on every merge**, and it takes a
   minute or two. Until then anavare.la still shows the previous version.
   Tell Ana to wait for the green ✓ next to the latest commit on GitHub
