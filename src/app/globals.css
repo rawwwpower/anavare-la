@@ -31,11 +31,6 @@
      row itself sits. 44px is the link row's own height (min-h-11), 18px is
      clearance so the ball can rest above it without ever touching a link. */
   --shelf-bottom: calc(var(--page-pad-bottom) + 44px + 18px);
-  /* The ball's own shelf, on the home page only: there rndm stands as a
-     column of four 24px lines (plus the link row's 10px above and below),
-     taller than a link row, and the ball rests above it instead of on its
-     letters. */
-  --ball-shelf-bottom: calc(var(--page-pad-bottom) + 4 * 24px + 20px + 18px);
   /* Every page's heading reserves the same box: two text-base lines, which
      is exactly what "A" + "design engineer" occupies on the home page. A one-word
      title like "rndm" or "vhs" is a single line but keeps the same height,
