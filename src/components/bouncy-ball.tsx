@@ -108,10 +108,10 @@ export function BouncyBall() {
 
     const radius = SIZE / 2;
 
-    // The shelf is the same --shelf-bottom token every fixed-position corner
-    // object (poster, note artwork) aligns to — read from CSS instead of
-    // measured from the links row, so the ball can never drift from that
-    // shared line. Side walls match --page-pad-x (where the "A" and the
+    // The shelf is a CSS token, --ball-shelf-bottom (the shared
+    // --shelf-bottom raised over the home page's rndm column) — read from
+    // CSS instead of measured from the links row, so the ball can never
+    // drift from that line. Side walls match --page-pad-x (where the "A" and the
     // paragraphs start), and the ceiling matches --page-pad-y (the "A"'s own
     // top) — the ball stays inside that content box instead of roaming into
     // a wide desktop's empty margins or flying off the top of the screen.
@@ -127,7 +127,7 @@ export function BouncyBall() {
     // to actual pixels, the same way the poster and note artwork see it.
     const shelfProbe = document.createElement("div");
     shelfProbe.style.cssText =
-      "position: fixed; bottom: var(--shelf-bottom); visibility: hidden;";
+      "position: fixed; bottom: var(--ball-shelf-bottom); visibility: hidden;";
     document.body.appendChild(shelfProbe);
 
     const padXProbe = document.createElement("div");
