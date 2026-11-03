@@ -16,6 +16,13 @@ const linkClassName =
 // sequence, short enough that the whole page is settled in well under half a
 // second — the entrance must never be the reason the site feels slow.
 const rndm = links.find((link) => !link.external)!;
+
+// rndm wears no underline: set in the blackletter, at the title's size, it
+// already reads as the way in to its own page.
+const rndmClassName = linkClassName.replace(
+  " underline decoration-zinc-600 underline-offset-4",
+  "",
+);
 const social = links.filter((link) => link.external);
 
 const step = (ms: number) => ({ "--reveal-delay": `${ms}ms` }) as CSSProperties;
@@ -69,7 +76,7 @@ export default function Home() {
             // The home page's only prefetch was pulling all of /rndm
             // into it, including the mono font it never renders.
             prefetch={false}
-            className={`${linkClassName} -ml-3 ${frakturTitles.className} ${FRAKTUR_TITLE}`}
+            className={`${rndmClassName} -ml-3 ${frakturTitles.className} ${FRAKTUR_TITLE}`}
           >
             {rndm.label}
           </Link>
