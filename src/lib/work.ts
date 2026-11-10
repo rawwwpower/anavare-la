@@ -27,13 +27,17 @@ export const projects: Project[] = [
     year: "2023",
     client: "Lemon app",
     // A hook, not a description (Ana: "tipo bandeja"), two lines at most.
-    summary: "El P2P ya existía. Faltaba que lo entienda cualquiera.",
+    // The clock was the brief: two months from the idea to the app, to be
+    // out before Argentina's 2023 elections moved the market.
+    summary: "Había elecciones y el mercado se iba a mover. Nosotros teníamos que movernos antes.",
     ficha: [
       { label: "Diseño", value: "Ana Varela" },
       // PENDIENTE: el link a su LinkedIn.
       { label: "PM", value: "Agostina Rey" },
       { label: "Año", value: "2023" },
       { label: "App", value: "Lemon" },
+      { label: "Tiempo", value: "2 meses, de la idea a la app" },
+      { label: "Contexto", value: "Elecciones 2023, Argentina" },
     ],
   },
 ];

@@ -8,7 +8,7 @@ const stagger = (i: number) =>
 // The ficha's grid, the vinyl note's (be-thankful.tsx): a hairline frame, a
 // hairline between rows, labels and values on two shared edges.
 const FICHA_ROW =
-  "grid grid-cols-[3.5rem_minmax(0,1fr)] items-baseline gap-x-3 border-b-[0.5px] border-black/30 px-3 py-2.5 last:border-b-0";
+  "grid grid-cols-[4.5rem_minmax(0,1fr)] items-baseline gap-x-3 border-b-[0.5px] border-black/30 px-3 py-2.5 last:border-b-0";
 
 // A project, as its own page or carried by the sheet: title and the line
 // under it, what it is and what it solves, the image, the ficha.
