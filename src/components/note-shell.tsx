@@ -15,6 +15,7 @@ import {
   useSheet,
 } from "@/components/sheet-context";
 import { useSwipeDismiss } from "@/components/use-swipe-dismiss";
+import { tintChrome } from "@/components/tinted-link";
 
 // The shell every /rndm page shares — a note and the index itself.
 //
@@ -90,6 +91,7 @@ export function NoteShell({
   exitLabel = "close",
   dismiss = "down",
   tone = "light",
+  exitTint,
 }: {
   children: React.ReactNode;
   // Shown at the top in the same type as the home page's "A", at the same
@@ -108,6 +110,10 @@ export function NoteShell({
   exitLabel?: string;
   dismiss?: "down" | "right";
   tone?: "dark" | "light" | "ink";
+  // The chrome colour of the page the exit leads to, when it differs from
+  // this one's. Set the moment the leaving starts, so the browser's own fade
+  // of its bar runs with the exit instead of after it (see tinted-link.tsx).
+  exitTint?: string;
 }) {
   const router = useRouter();
   const [closing, setClosing] = useState(false);
@@ -144,9 +150,10 @@ export function NoteShell({
   }, [router, exitTo, sheet, hardExit]);
 
   const go = useCallback(() => {
+    if (exitTint) tintChrome(exitTint);
     if (hardExit) window.location.assign(exitTo);
     else router.push(exitTo);
-  }, [router, exitTo, hardExit]);
+  }, [router, exitTo, hardExit, exitTint]);
 
   const sheetRef = useSwipeDismiss({
     axis: dismiss,
@@ -179,6 +186,7 @@ export function NoteShell({
     }
     if (closing) return;
     setClosing(true);
+    if (exitTint) tintChrome(exitTint);
     setTimeout(go, CLOSE_MS);
   }
 

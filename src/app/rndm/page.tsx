@@ -5,6 +5,7 @@ import { notes, formatNoteShort, pageMetadata } from "@/lib/notes";
 import { NoteShell } from "@/components/note-shell";
 import { BouncyBall } from "@/components/bouncy-ball";
 import { FRAKTUR_TITLE, frakturTitles } from "@/lib/fraktur-titles";
+import { ACCENT } from "@/lib/accent";
 
 // The root layout's title template ("%s · Ana Varela") was never used, so
 // every note shared the home page's title. Each page names itself now.
@@ -34,6 +35,7 @@ export default function RndmPage() {
       exitLabel="back"
       dismiss="right"
       tone="dark"
+      exitTint={ACCENT}
     >
       {/* The eye lives in rndm (Ana, November 2026: it fits the section)
           and falls onto the index's own floor. */}

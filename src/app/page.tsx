@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { ACCENT } from "@/lib/accent";
-import Link from "next/link";
+import { ACCENT, BACKGROUND } from "@/lib/accent";
+import { TintedLink } from "@/components/tinted-link";
 import type { CSSProperties } from "react";
 import { links } from "@/lib/links";
 import { FRAKTUR_TITLE, frakturTitles } from "@/lib/fraktur-titles";
@@ -73,16 +73,20 @@ export default function Home() {
           so the ink meets the page margin on both sides. */}
       <div className="reveal flex items-baseline justify-between gap-4" style={step(120)}>
         <nav aria-label="Sections">
-          <Link
+          {/* Prefetched (Next's default, production only): /rndm is
+              static and small, so it is already in the router by the time
+              the thumb gets there and the tap is instant. Without it every
+              tap waited on the network with the home frozen on screen
+              (Ana, November 2026: "no puede lucir trabado"). The dark tint
+              is the index's chrome, set at the tap — see tinted-link.tsx. */}
+          <TintedLink
             href={rndm.href}
             aria-label={rndm.aria}
-            // The home page's only prefetch was pulling all of /rndm
-            // into it, including the mono font it never renders.
-            prefetch={false}
+            tint={BACKGROUND}
             className={`${rndmClassName} -ml-3 ${frakturTitles.className} ${FRAKTUR_TITLE}`}
           >
             {rndm.label}
-          </Link>
+          </TintedLink>
         </nav>
 
         <nav aria-label="Social links" className="-mr-3">
