@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { BACKGROUND } from "@/lib/accent";
 
@@ -111,6 +112,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         />
         {children}
+        {/* Vercel Web Analytics (Ana, November 2026: where do people come
+            in from, phone or desktop, Instagram or LinkedIn). Cookieless,
+            so no consent banner; the script loads after the page, from
+            the site's own domain, and counts nothing until the project's
+            Analytics tab on Vercel is switched on. */}
+        <Analytics />
       </body>
     </html>
   );
