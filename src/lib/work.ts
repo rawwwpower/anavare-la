@@ -15,7 +15,7 @@ export type Project = {
   // The index's second line, in mono, and the project's own under its title.
   year: string;
   client: string;
-  // What it is and what it solves, in two lines at most.
+  // The line that hooks the reader into the project, two lines at most.
   summary: string;
   ficha: FichaRow[];
 };
@@ -26,9 +26,8 @@ export const projects: Project[] = [
     name: "p2p para todo el mundo",
     year: "2023",
     client: "Lemon app",
-    // BORRADOR: Ana lo corrige con sus palabras antes de mergear.
-    summary:
-      "El P2P de Lemon: comprar y vender cripto directo entre personas, con pesos. Pensado para que alguien que nunca operó P2P lo haga en minutos y con confianza.",
+    // A hook, not a description (Ana: "tipo bandeja"), two lines at most.
+    summary: "El P2P ya existía. Faltaba que lo entienda cualquiera.",
     ficha: [
       { label: "Diseño", value: "Ana Varela" },
       // PENDIENTE: el link a su LinkedIn.
