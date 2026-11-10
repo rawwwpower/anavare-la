@@ -11,7 +11,7 @@ const FICHA_ROW =
   "grid grid-cols-[4.5rem_minmax(0,1fr)] items-baseline gap-x-3 border-b-[0.5px] border-black/30 px-3 py-2.5 last:border-b-0";
 
 // A project, as its own page or carried by the sheet: title and the line
-// under it, what it is and what it solves, the image, the ficha.
+// under it, the hook, the image, what the design changed, the ficha.
 export function ProjectNote({ project }: { project: Project }) {
   return (
     <NoteShell
@@ -43,9 +43,18 @@ export function ProjectNote({ project }: { project: Project }) {
           style={stagger(2)}
         />
 
+        {project.turn && (
+          <p
+            className="reveal mt-8 max-w-md text-base leading-relaxed"
+            style={stagger(3)}
+          >
+            {project.turn}
+          </p>
+        )}
+
         <div
           className="reveal mt-8 max-w-md border-[0.5px] border-black/30 font-mono text-xs leading-relaxed tracking-wide"
-          style={stagger(3)}
+          style={stagger(4)}
         >
           <dl>
             {project.ficha.map((row) => (
