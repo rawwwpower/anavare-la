@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { BACKGROUND } from "@/lib/accent";
 
 // Only Regular and Semibold are ever used (font-semibold on the h1, Regular
 // everywhere else) — Medium and Bold aren't referenced anywhere in the site,
@@ -78,7 +79,7 @@ export const metadata: Metadata = {
 // Keeps mobile browser chrome the same colour as the page instead of a
 // system bar sitting over it. /rndm overrides this with its light value.
 export const viewport: Viewport = {
-  themeColor: "#121317",
+  themeColor: BACKGROUND,
 };
 
 // JSON-LD: tells search engines that anavare.la and all these profiles are
