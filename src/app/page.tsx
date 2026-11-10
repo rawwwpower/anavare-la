@@ -20,9 +20,9 @@ const linkClassName =
 // Staggered arrival, top to bottom. 60ms steps: enough to read as a
 // sequence, short enough that the whole page is settled in well under half a
 // second — the entrance must never be the reason the site feels slow.
-const rndm = links.find((link) => !link.external)!;
+const sections = links.filter((link) => !link.external);
 
-// rndm wears no underline: set in the blackletter, at the title's size, it
+// The section names wear no underline: set in the blackletter, at the title's size, it
 // already reads as the way in to its own page.
 const rndmClassName = linkClassName.replace(
   " underline decoration-black/40 underline-offset-4",
@@ -66,27 +66,32 @@ export default function Home() {
           stay pinned to the bottom edge. */}
       <div className="my-10 min-h-40 flex-1 sm:my-14" />
 
-      {/* The bottom row: rndm on the left, in the blackletter its own page
-          is titled in, at that title's size (the cut in fraktur-titles
-          already holds its letters); the social links on the right, on
-          rndm's baseline. -ml-3 and -mr-3 take back the links' side padding,
+      {/* The bottom row: the sections on the left, wrk then rndm, in the
+          blackletter their own pages are titled in, at that title's size;
+          the social links on the right, on their baseline. -ml-3 and -mr-3 take back the links' side padding,
           so the ink meets the page margin on both sides. */}
       <div className="reveal flex items-baseline justify-between gap-4" style={step(120)}>
-        <nav aria-label="Sections">
-          {/* Prefetched (Next's default, production only): /rndm is
+        <nav aria-label="Sections" className="-ml-3">
+          {/* Prefetched (Next's default, production only): each section is
               static and small, so it is already in the router by the time
               the thumb gets there and the tap is instant. Without it every
               tap waited on the network with the home frozen on screen
               (Ana, November 2026: "no puede lucir trabado"). The dark tint
               is the index's chrome, set at the tap — see tinted-link.tsx. */}
-          <TintedLink
-            href={rndm.href}
-            aria-label={rndm.aria}
-            tint={BACKGROUND}
-            className={`${rndmClassName} -ml-3 ${frakturTitles.className} ${FRAKTUR_TITLE}`}
-          >
-            {rndm.label}
-          </TintedLink>
+          <ul className="flex flex-row">
+            {sections.map((section) => (
+              <li key={section.href}>
+                <TintedLink
+                  href={section.href}
+                  aria-label={section.aria}
+                  tint={BACKGROUND}
+                  className={`${rndmClassName} ${frakturTitles.className} ${FRAKTUR_TITLE}`}
+                >
+                  {section.label}
+                </TintedLink>
+              </li>
+            ))}
+          </ul>
         </nav>
 
         <nav aria-label="Social links" className="-mr-3">

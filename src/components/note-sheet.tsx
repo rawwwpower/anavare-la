@@ -77,6 +77,7 @@ export function NoteSheet({
   title,
   children,
   surface = NOTE_THEME_COLOR,
+  expands = false,
 }: {
   // The note's own name. An intercepted route sits in a parallel slot and
   // Next builds <head> from the main tree, so while a sheet is open the
@@ -93,6 +94,13 @@ export function NoteSheet({
   // The sheet's paper. Every note shares the same light surface unless it
   // asks for its own; the phone's chrome follows whichever it is.
   surface?: string;
+  // A long read (a project in /wrk) opts into a second resting place: the
+  // whole screen. Scrolling the sheet first lifts it over the strip of index
+  // above it, then scrolls its content — one native scroll doing both, so
+  // the lift has the phone's own momentum and can be caught mid-flight
+  // (Ana, November 2026). Pulled down from its top it still leaves, as every
+  // note does. Notes don't set this, and render exactly as before.
+  expands?: boolean;
 }) {
   const router = useRouter();
   // Both queries are read every render on purpose — `&&` between two hook
@@ -108,6 +116,8 @@ export function NoteSheet({
   // never ran, or reshape the surface out from under the reader.
   const [arrival] = useState<"slide" | "fade">(slides ? "slide" : "fade");
   const isBottomSheet = arrival === "slide";
+  // Only the phone's bottom sheet has somewhere to expand to.
+  const lifts = expands && isBottomSheet;
 
   // The sheet only ever exists after a click on the index, so the entry
   // behind it is always that index: going back is what closes it, which
@@ -203,7 +213,7 @@ export function NoteSheet({
     const observer = new ResizeObserver(shape);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [isBottomSheet]);
+  }, [isBottomSheet, lifts]);
 
   // See the `title` prop: the head belongs to the index underneath.
   useLayoutEffect(() => {
@@ -267,6 +277,61 @@ export function NoteSheet({
     () => ({ close, bottom: isBottomSheet }),
     [close, isBottomSheet],
   );
+
+  if (lifts) {
+    return (
+      <div
+        ref={sheetRef}
+        data-arrival={arrival}
+        // The whole screen, and transparent: the strip of index at the top
+        // is the scroller's own first GAP of height, so scrolling up is what
+        // carries the paper over it.
+        className="fixed inset-0 z-50 flex flex-col"
+        style={{ color: "var(--background)", willChange: "transform" }}
+      >
+        {/* Paper below the sheet's bottom edge, for the rubber band — see
+            the overhang in the layout below. Outside the scroller, so it adds
+            nothing to what scrolls. */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-full h-[100vh]"
+          style={{ background: surface }}
+        />
+        <div
+          ref={scrollRef}
+          className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain [touch-action:var(--swipe-touch-action,auto)]"
+        >
+          <div className="flex shrink-0 flex-col">
+            {/* The strip of index: see onStripClick. Tapping it closes, a
+                drag on it scrolls the paper up over it. */}
+            <button
+              type="button"
+              aria-label="close"
+              onPointerDown={onStripDown}
+              onClick={onStripClick}
+              className="shrink-0 rounded-sm focus-visible:outline focus-visible:outline-1 focus-visible:outline-zinc-500 focus-visible:outline-offset-[-2px]"
+              style={{ height: GAP }}
+            />
+            {/* At least a screen tall, so even a short project can be
+                lifted all the way: the strip's height is always there to
+                scroll. */}
+            <div
+              ref={surfaceRef}
+              className="relative flex min-h-[100svh] flex-col"
+              style={{ background: surface }}
+            >
+              <div
+                aria-hidden
+                className="absolute top-3 left-1/2 z-10 h-[5px] w-9 -translate-x-1/2 rounded-full"
+                style={{ background: "rgb(0 0 0 / 0.14)" }}
+              />
+              <SheetContext value={sheet}>{children}</SheetContext>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
