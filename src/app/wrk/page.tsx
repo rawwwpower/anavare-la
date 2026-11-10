@@ -45,7 +45,7 @@ export default function WrkPage() {
                 {project.name}
               </span>
               <span className="font-mono text-[10px] tracking-[0.08em] text-zinc-500 transition-colors duration-150 ease-out group-hover:text-zinc-400">
-                {project.year} · {project.role}
+                {project.year} · {project.client}
               </span>
             </Link>
           </li>

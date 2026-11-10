@@ -2,39 +2,40 @@
 // as a sheet over the index (src/app/wrk/@sheet), like a /rndm note, but
 // one that can be lifted to the whole screen, since a project is a long
 // read.
-//
-// PLACEHOLDERS: these entries only exist to try the section out on a phone.
-// Swap them for the real projects before this reaches main.
+export type FichaRow = {
+  label: string;
+  value: string;
+  // A person's or a product's own page, when the row should lead there.
+  href?: string;
+};
+
 export type Project = {
   slug: string;
   name: string;
-  // The index's second line, in mono: when, and in what role or for whom.
+  // The index's second line, in mono, and the project's own under its title.
   year: string;
-  role: string;
+  client: string;
+  // What it is and what it solves, in two lines at most.
   summary: string;
+  ficha: FichaRow[];
 };
 
 export const projects: Project[] = [
   {
-    slug: "proyecto-uno",
-    name: "proyecto uno",
-    year: "2026",
-    role: "placeholder",
-    summary: "Texto de prueba. Acá va de qué se trató el proyecto y qué hizo Ana.",
-  },
-  {
-    slug: "proyecto-dos",
-    name: "proyecto dos",
-    year: "2025",
-    role: "placeholder",
-    summary: "Texto de prueba. Acá va de qué se trató el proyecto y qué hizo Ana.",
-  },
-  {
-    slug: "proyecto-tres",
-    name: "proyecto tres",
+    slug: "lemon-p2p",
+    name: "p2p para todo el mundo",
     year: "2023",
-    role: "placeholder",
-    summary: "Texto de prueba. Acá va de qué se trató el proyecto y qué hizo Ana.",
+    client: "Lemon app",
+    // BORRADOR: Ana lo corrige con sus palabras antes de mergear.
+    summary:
+      "El P2P de Lemon: comprar y vender cripto directo entre personas, con pesos. Pensado para que alguien que nunca operó P2P lo haga en minutos y con confianza.",
+    ficha: [
+      { label: "Diseño", value: "Ana Varela" },
+      // PENDIENTE: el link a su LinkedIn.
+      { label: "PM", value: "Agostina Rey" },
+      { label: "Año", value: "2023" },
+      { label: "App", value: "Lemon" },
+    ],
   },
 ];
 
