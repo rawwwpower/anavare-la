@@ -16,6 +16,7 @@ import {
 } from "@/components/sheet-context";
 import { useSwipeDismiss } from "@/components/use-swipe-dismiss";
 import { NOTE_THEME_COLOR, pageTitle } from "@/lib/notes";
+import { tintChrome } from "@/components/tinted-link";
 import { sheetSquirclePath } from "@/lib/squircle";
 
 // A note as a layer, not as a page that replaced another page.
@@ -212,11 +213,11 @@ export function NoteSheet({
     const prevColor = meta?.getAttribute("content") ?? null;
 
     document.title = pageTitle(title);
-    meta?.setAttribute("content", surface);
+    tintChrome(surface);
 
     return () => {
       document.title = prevTitle;
-      if (prevColor !== null) meta?.setAttribute("content", prevColor);
+      if (prevColor !== null) tintChrome(prevColor);
     };
   }, [title, surface]);
 
