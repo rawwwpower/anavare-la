@@ -1,5 +1,5 @@
-import type { Metadata, Viewport } from "next";
-import { ACCENT, BACKGROUND } from "@/lib/accent";
+import type { Metadata } from "next";
+import { BACKGROUND } from "@/lib/accent";
 import { TintedLink } from "@/components/tinted-link";
 import type { CSSProperties } from "react";
 import { links } from "@/lib/links";
@@ -9,25 +9,18 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-// Printed on the accent, like the Blue Lines note (trial, Ana, November
-// 2026): the red as the page's paper, black ink, white hover. The phone's
-// chrome follows, and globals.css paints the body under it the same red.
-export const viewport: Viewport = { themeColor: ACCENT };
+// On the site's dark ground, the same as /rndm (Ana, November 2026: after
+// trying red and white, the home goes back to black). The root layout's
+// theme-color and body already paint it, so no override here.
 
 const linkClassName =
-  "inline-flex min-h-11 items-center px-3 text-black underline decoration-black/40 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-white hover:decoration-white active:scale-[0.97] focus-visible:text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-black rounded-sm";
+  "inline-flex min-h-11 items-center px-3 text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-accent hover:decoration-accent active:scale-[0.97] focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
 
 // Staggered arrival, top to bottom. 60ms steps: enough to read as a
 // sequence, short enough that the whole page is settled in well under half a
 // second — the entrance must never be the reason the site feels slow.
 const rndm = links.find((link) => !link.external)!;
 
-// rndm wears no underline: set in the blackletter, at the title's size, it
-// already reads as the way in to its own page.
-const rndmClassName = linkClassName.replace(
-  " underline decoration-black/40 underline-offset-4",
-  "",
-);
 const social = links.filter((link) => link.external);
 
 const step = (ms: number) => ({ "--reveal-delay": `${ms}ms` }) as CSSProperties;
@@ -38,15 +31,15 @@ export default function Home() {
       <div className="reveal min-h-[var(--heading-block)]">
         <h1
           aria-label="Ana Varela"
-          className={`${frakturTitles.className} ${FRAKTUR_TITLE} text-black`}
+          className={`${frakturTitles.className} ${FRAKTUR_TITLE} text-zinc-100`}
         >
           A
         </h1>
-        <p className="text-base text-black">design engineer</p>
+        <p className="text-base text-zinc-400">design engineer</p>
       </div>
 
       <p
-        className="reveal mt-12 max-w-md text-base leading-relaxed text-black sm:mt-14"
+        className="reveal mt-12 max-w-md text-base leading-relaxed text-zinc-400 sm:mt-14"
         style={step(60)}
       >
         Ana Belén Varela in real life. On the internet, you might know me as{" "}
@@ -54,7 +47,7 @@ export default function Home() {
           href="https://youtu.be/ED3mufU58bk?si=6SR5NY0_-KCdtNQ-&t=75"
           target="_blank"
           rel="noreferrer"
-          className="inline-block underline decoration-black/40 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-white hover:decoration-white active:scale-[0.97]"
+          className="inline-block underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-accent hover:decoration-accent active:scale-[0.97]"
         >
           raw power
         </a>
@@ -83,7 +76,7 @@ export default function Home() {
             href={rndm.href}
             aria-label={rndm.aria}
             tint={BACKGROUND}
-            className={`${rndmClassName} -ml-3 ${frakturTitles.className} ${FRAKTUR_TITLE}`}
+            className={`${linkClassName} -ml-3 ${frakturTitles.className} ${FRAKTUR_TITLE}`}
           >
             {rndm.label}
           </TintedLink>
