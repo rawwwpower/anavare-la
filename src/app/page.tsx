@@ -1,6 +1,5 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { BACKGROUND } from "@/lib/accent";
-import { NOTE_THEME_COLOR } from "@/lib/notes";
 import { TintedLink } from "@/components/tinted-link";
 import type { CSSProperties } from "react";
 import { links } from "@/lib/links";
@@ -10,14 +9,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-// Printed on white, the same paper as the notes (Ana, November 2026: the
-// home goes white, rndm stays dark): near-black ink, the red accent on
-// hover. The phone's chrome follows, and globals.css paints the body under
-// it the same white.
-export const viewport: Viewport = { themeColor: NOTE_THEME_COLOR };
+// On the site's dark ground, the same as /rndm (Ana, November 2026: after
+// trying red and white, the home goes back to black). The root layout's
+// theme-color and body already paint it, so no override here.
 
 const linkClassName =
-  "inline-flex min-h-11 items-center px-3 text-zinc-900 underline decoration-zinc-400 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-accent hover:decoration-accent active:scale-[0.97] focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
+  "inline-flex min-h-11 items-center px-3 text-zinc-400 underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-accent hover:decoration-accent active:scale-[0.97] focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 rounded-sm";
 
 // Staggered arrival, top to bottom. 60ms steps: enough to read as a
 // sequence, short enough that the whole page is settled in well under half a
@@ -34,15 +31,15 @@ export default function Home() {
       <div className="reveal min-h-[var(--heading-block)]">
         <h1
           aria-label="Ana Varela"
-          className={`${frakturTitles.className} ${FRAKTUR_TITLE} text-zinc-900`}
+          className={`${frakturTitles.className} ${FRAKTUR_TITLE} text-zinc-100`}
         >
           A
         </h1>
-        <p className="text-base text-zinc-900">design engineer</p>
+        <p className="text-base text-zinc-400">design engineer</p>
       </div>
 
       <p
-        className="reveal mt-12 max-w-md text-base leading-relaxed text-zinc-900 sm:mt-14"
+        className="reveal mt-12 max-w-md text-base leading-relaxed text-zinc-400 sm:mt-14"
         style={step(60)}
       >
         Ana Belén Varela in real life. On the internet, you might know me as{" "}
@@ -50,7 +47,7 @@ export default function Home() {
           href="https://youtu.be/ED3mufU58bk?si=6SR5NY0_-KCdtNQ-&t=75"
           target="_blank"
           rel="noreferrer"
-          className="inline-block underline decoration-zinc-400 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-accent hover:decoration-accent active:scale-[0.97]"
+          className="inline-block underline decoration-zinc-600 underline-offset-4 transition-[color,text-decoration-color,transform] duration-150 ease-out hover:text-accent hover:decoration-accent active:scale-[0.97]"
         >
           raw power
         </a>

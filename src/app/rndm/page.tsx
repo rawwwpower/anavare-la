@@ -5,7 +5,6 @@ import {
   notes,
   formatNoteShort,
   pageMetadata,
-  NOTE_THEME_COLOR,
 } from "@/lib/notes";
 import { NoteShell } from "@/components/note-shell";
 import { BouncyBall } from "@/components/bouncy-ball";
@@ -26,8 +25,8 @@ export default function RndmPage() {
   const ordered = [...notes].reverse();
 
   // Same shell as a note, so "back" here and "close" there land on the same
-  // pixel and leave the page the same way — but on the site's dark ground
-  // (Ana, November 2026: the home went white, rndm stays dark). That ground is also what a note
+  // pixel and leave the page the same way — but on the home page's own dark
+  // ground, since the index belongs to it. That ground is also what a note
   // uncovers as it is dragged away. The index sits beside the home page
   // rather than on top of it, so it leaves sideways.
   return (
@@ -39,7 +38,6 @@ export default function RndmPage() {
       exitLabel="back"
       dismiss="right"
       tone="dark"
-      exitTint={NOTE_THEME_COLOR}
     >
       {/* The eye lives in rndm (Ana, November 2026: it fits the section)
           and falls onto the index's own floor. */}

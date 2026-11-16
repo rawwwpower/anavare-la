@@ -86,13 +86,6 @@
   }
 }
 
-/* The home page is printed on white, the notes' paper: the body under it,
-   which shows in an overscroll, is the same white. Unlayered, so it outranks the body's
-   bg-background utility from the root layout. */
-body:has([data-home]) {
-  background: var(--foreground);
-}
-
 @layer utilities {
   /* The site's one entrance: content lifts a few pixels into place instead
      of hard-cutting in. Applied per element with --reveal-delay to stagger a
