@@ -86,11 +86,11 @@
   }
 }
 
-/* The home page is printed on the accent: the body under it, which shows
-   in an overscroll, is the same red. Unlayered, so it outranks the body's
+/* The home page is printed on white, the notes' paper: the body under it,
+   which shows in an overscroll, is the same white. Unlayered, so it outranks the body's
    bg-background utility from the root layout. */
 body:has([data-home]) {
-  background: var(--accent);
+  background: var(--foreground);
 }
 
 @layer utilities {

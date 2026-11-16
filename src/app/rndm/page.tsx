@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { notes, formatNoteShort, pageMetadata } from "@/lib/notes";
+import {
+  notes,
+  formatNoteShort,
+  pageMetadata,
+  NOTE_THEME_COLOR,
+} from "@/lib/notes";
 import { NoteShell } from "@/components/note-shell";
 import { BouncyBall } from "@/components/bouncy-ball";
 import { FRAKTUR_TITLE, frakturTitles } from "@/lib/fraktur-titles";
-import { ACCENT } from "@/lib/accent";
 
 // The root layout's title template ("%s · Ana Varela") was never used, so
 // every note shared the home page's title. Each page names itself now.
@@ -22,8 +26,8 @@ export default function RndmPage() {
   const ordered = [...notes].reverse();
 
   // Same shell as a note, so "back" here and "close" there land on the same
-  // pixel and leave the page the same way — but on the home page's own dark
-  // ground, since the index belongs to it. That ground is also what a note
+  // pixel and leave the page the same way — but on the site's dark ground
+  // (Ana, November 2026: the home went white, rndm stays dark). That ground is also what a note
   // uncovers as it is dragged away. The index sits beside the home page
   // rather than on top of it, so it leaves sideways.
   return (
@@ -35,7 +39,7 @@ export default function RndmPage() {
       exitLabel="back"
       dismiss="right"
       tone="dark"
-      exitTint={ACCENT}
+      exitTint={NOTE_THEME_COLOR}
     >
       {/* The eye lives in rndm (Ana, November 2026: it fits the section)
           and falls onto the index's own floor. */}
